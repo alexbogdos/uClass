@@ -1,7 +1,9 @@
 package the.fellowship.pocketbase.services;
 
 import the.fellowship.pocketbase.PocketBase;
-import the.fellowship.pocketbase.tools.SendOptions;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class RecordService {
     private final PocketBase client;
@@ -39,13 +41,18 @@ public class RecordService {
      * @throws {ClientResponseError}
      */
     public void authWithPassword(String usernameOrEmail, String password) {
-        String json = String.format("{\"identity\":\"%s\", \"password\":\"%s\"}", usernameOrEmail, password);
+        Map<String, String> body = new HashMap<>();
+        body.put("identity", usernameOrEmail);
+        body.put("password", password);
 
-        SendOptions options = new SendOptions();
-        options.setMethod("POST");
-        options.setBody(json);
-
-        String response = this.client.send(this.baseCollectionPath() + "/auth-with-password", options);
+        String response = this.client.send(
+                this.baseCollectionPath() + "/auth-with-password",
+                "POST",
+                null,
+                null,
+                body,
+                null
+        );
         System.out.println(response);
     }
 }
