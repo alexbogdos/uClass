@@ -4,10 +4,10 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import okhttp3.*;
 import the.fellowship.pocketbase.services.RecordService;
+import the.fellowship.pocketbase.tools.MultipartFile;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,18 +23,16 @@ public class PocketBase {
      * The base PocketBase backend url address (eg. '<a href="http://127.0.0.1.8090">http://127.0.0.1.8090</a>').
      */
     private final String baseURL;
-
-    /**
-     * Optional language code (default to `en-US`) that will be sent
-     * with the requests to the server as `Accept-Language` header.
-     */
-    private String lang = "en-US";
-
     /**
      * The shared HTTP client instance that is used when the
      * `reuseHTTPClient` constructor argument is set.
      */
     private final Map<String, RecordService> recordServices = new HashMap<>();
+    /**
+     * Optional language code (default to `en-US`) that will be sent
+     * with the requests to the server as `Accept-Language` header.
+     */
+    private String lang = "en-US";
 
     public PocketBase(String baseURL, String lang) {
         this(baseURL);
@@ -86,7 +84,7 @@ public class PocketBase {
             Map<String, String> headers,
             Map<String, ?> query,
             Map<String, ?> body,
-            List<MultipartBody> files
+            List<MultipartFile> files
     ) {
         if (method == null) {
             method = "GET";
@@ -100,18 +98,15 @@ public class PocketBase {
         if (body == null) {
             body = new HashMap<>();
         }
-        if (files == null) {
-            files = new ArrayList<>();
-        }
 
         HttpUrl url = this.buildURL(path, query);
 
         Request.Builder request = new Request.Builder();
 
-        if (files.isEmpty()) {
+        if (files == null) {
             request = jsonRequest(method, url, headers, body);
         } else {
-            //request = multipartRequest(method, url, headers, body, files);
+            request = multipartRequest(method, url, headers, body, files);
         }
 
         // TODO: Create `AuthStore`
@@ -140,7 +135,7 @@ public class PocketBase {
         return null;
     }
 
-    Request.Builder jsonRequest(
+    private Request.Builder jsonRequest(
             String method,
             HttpUrl url,
             Map<String, String> headers,
@@ -150,11 +145,10 @@ public class PocketBase {
                 .url(url);
 
         if (!body.isEmpty()) {
-            Gson gson = new Gson();
-            Type typeObject = new TypeToken<HashMap<String, ?>>() {
-            }.getType();
-            String json = gson.toJson(body, typeObject);
-            request.method(method, RequestBody.create(json, MediaType.parse("application/json")));
+            request.method(method, RequestBody.create(
+                    jsonEncode(body),
+                    MediaType.parse("application/json")
+            ));
         } else {
             request.get();
         }
@@ -170,24 +164,38 @@ public class PocketBase {
         return request;
     }
 
-    // TODO: `multipartRequest`
-    //MultipartRequest _multipartRequest(
-    //        String method,
-    //        Uri url, {
-    //    Map<String, String> headers = const{
-    //    },
-    //    Map<String, dynamic> body = const{
-    //    },
-    //    List<http.MultipartFile> files = const [],
-    //})
-    //
-    //{
-    //    final request =MultipartRequest(method, url)
-    //        ..files.addAll(files)
-    //        ..headers.addAll(headers);
-    //
-    //    request.fields["@jsonPayload"] = [jsonEncode(body)];
-    //
-    //    return request;
-    //}
+    private Request.Builder multipartRequest(
+            String method,
+            HttpUrl url,
+            Map<String, String> headers,
+            Map<String, ?> body,
+            List<MultipartFile> files
+    ) {
+        MultipartBody.Builder requestBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("@jsonPayload", jsonEncode(body));
+
+        for (MultipartFile file : files) {
+            RequestBody fileBody = RequestBody.create(file.file(), MediaType.parse(file.mediaType()));
+            requestBody.addFormDataPart(
+                    file.fieldName(),
+                    file.file().getName(),
+                    fileBody
+            );
+        }
+
+        Request.Builder request = new Request.Builder()
+                .url(url)
+                .headers(Headers.of(headers))
+                .method(method, requestBody.build());
+
+        return request;
+    }
+
+    private String jsonEncode(Map<String, ?> body) {
+        Gson gson = new Gson();
+        Type typeObject = new TypeToken<HashMap<String, ?>>() {
+        }.getType();
+        return gson.toJson(body, typeObject);
+    }
 }
