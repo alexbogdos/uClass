@@ -44,3 +44,4 @@ bin/
 
 ### Project ###
 src/main/java/the/fellowship/uclass/Main.java
+src/main/java/the/fellowship/pocketbase/Main.java

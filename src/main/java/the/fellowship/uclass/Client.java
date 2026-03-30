@@ -28,6 +28,23 @@ public class Client {
                 .build();
     }
 
+    // TODO: Use a singe point for requests (similar to PocketBase.send())
+    public String get(String path) {
+        Request request = new Request.Builder()
+                .url(this.service + path)
+                .header("User-Agent", agent)
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) return null;
+
+            return response.body().string();
+        } catch (IOException e) {
+            System.err.println("Connection Error!");
+            return null;
+        }
+    }
+
     /**
      * @param username
      * @param password
@@ -63,7 +80,7 @@ public class Client {
      */
     private Map<String, ?> retrieveExecutionTicket() {
         Request request = new Request.Builder()
-                .url(this.service)
+                .url(this.service + "/modules/auth/cas.php")
                 .header("User-Agent", agent)
                 .build();
 
