@@ -4,9 +4,11 @@ import okhttp3.*;
 import okhttp3.java.net.cookiejar.JavaNetCookieJar;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 import java.io.IOException;
 import java.net.CookieManager;
+import java.util.List;
 import java.util.Map;
 
 public class Client {
@@ -39,6 +41,9 @@ public class Client {
         return send(HttpUrl.parse(this.service + path), body);
     }
 
+    /**
+     * Sends an api http request.
+     */
     private Map<String, ?> send(
             HttpUrl url,
             RequestBody body
@@ -93,8 +98,26 @@ public class Client {
         return true;
     }
 
+    public List<Map<String, String>> courses() {
+        Map<String, ?> response = get("/main/portfolio.php?countPages=-1");
+        if (!(boolean) response.get("successful")) {
+            return null;
+        }
+
+        String html = (String) response.get("body");
+        Document document = Jsoup.parse(html);
+        List<Map<String, String>> courses = document.select(".row-course").stream().map(course -> {
+            Element link = course.selectFirst("a");
+            return Map.of(
+                    "url", link.attr("href"),
+                    "title", link.text()
+            );
+        }).toList();
+        return courses;
+    }
+
     /**
-     * @return a map containing the SSO's URL <b>["Location"]</b> to authenticate to and the execution token <b>["Token"]</b> contained in the HTML page
+     * @return a map containing the SSO's URL <b>["url"]</b> to authenticate to and the execution token <b>["token"]</b> contained in the HTML page
      */
     private Map<String, ?> retrieveExecutionTicket() {
         Map<String, ?> response = get("/modules/auth/cas.php");
