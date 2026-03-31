@@ -6,12 +6,17 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
-import java.io.IOException;
+import java.io.*;
 import java.net.CookieManager;
+import java.net.HttpCookie;
+import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class Client {
+    private final static String cookiePath = "/home/shollow/.cache/";
+
     private final String service;
     private final String agent;
     private CookieManager cookieManager;
@@ -31,14 +36,7 @@ public class Client {
     }
 
     public Map<String, ?> get(String path) {
-        return this.send(path, null);
-    }
-
-    private Map<String, ?> send(
-            String path,
-            RequestBody body
-    ) {
-        return send(HttpUrl.parse(this.service + path), body);
+        return this.send(HttpUrl.parse(this.service + path), null);
     }
 
     /**
@@ -76,12 +74,21 @@ public class Client {
      * @return <b>True</b> if the credentials authenticated the user successfully
      */
     public boolean login(String username, String password) {
-        // TODO: Load CookieStore from file `username_cookies.pkl`
+        String cookieFile = cookiePath + String.format("%s_cookies.pkl", username);
+        Map<String, ?> response;
 
-        // TODO: Check if the current session is already logged in
+        // Load CookieStore from file
+        loadCookies(cookieFile);
+
+        // Check if the current session is already logged in
+        response = get("/modules/auth/cas.php");
+        if ((boolean) response.get("successful") && !((HttpUrl) response.get("url")).toString().contains("/login")) {
+            System.out.printf("Already authenticated as \"%s\"\n\n", username);
+            return true;
+        }
 
         // Obtain SSO's execution ticket
-        Map<String, ?> response = retrieveExecutionTicket();
+        response = retrieveExecutionTicket();
         if (response == null) {
             return false;
         }
@@ -92,9 +99,10 @@ public class Client {
             return false;
         }
 
-        // TODO: Store current CookieStore to file `username_cookies.pkl`
+        // Store current CookieStore to file
+        storeCookies(cookieFile);
 
-        System.out.printf("Successfully authenticated as \"%s\"\n", username);
+        System.out.printf("Successfully authenticated as \"%s\"\n\n", username);
         return true;
     }
 
@@ -163,5 +171,49 @@ public class Client {
         }
 
         return !((HttpUrl) response.get("url")).toString().contains("/login");
+    }
+
+    private void loadCookies(String path) {
+        if (!new File(path).exists()) {
+            System.err.printf("[WARNING] Cookie file not found on \"%s\"\n", path);
+            return;
+        }
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                HttpCookie cookie = parseCookie(line);
+                URI uri = URI.create(cookie.getDomain() + cookie.getPath());
+                this.cookieManager.getCookieStore().add(uri, cookie);
+            }
+        } catch (IOException e) {
+            System.err.println("[ERROR] Failed to load cookies from file");
+        }
+    }
+
+    private static HttpCookie parseCookie(String line) {
+        String[] row = line.split(";");
+        List<String> pairs = new ArrayList<>();
+        for (String column : row) {
+            String[] pair = column.split("=");
+            pairs.add(pair[0]);
+            pairs.add(pair[1]);
+        }
+        HttpCookie cookie = new HttpCookie(pairs.get(0), pairs.get(1));
+        cookie.setDomain(pairs.get(3));
+        cookie.setPath(pairs.get(5));
+        cookie.setMaxAge(Integer.parseInt(pairs.get(7)));
+        return cookie;
+    }
+
+    private void storeCookies(String path) {
+        List<HttpCookie> cookies = this.cookieManager.getCookieStore().getCookies();
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(path))) {
+            for (HttpCookie cookie : cookies) {
+                writer.write(String.format("%s=%s;$Path=%s;$Domain=%s;$Expires=%s\n", cookie.getName(), cookie.getValue(), cookie.getDomain(), cookie.getPath(), cookie.getMaxAge()));
+            }
+        } catch (IOException e) {
+            System.err.println("[ERROR] Failed to save cookies to file");
+        }
     }
 }
