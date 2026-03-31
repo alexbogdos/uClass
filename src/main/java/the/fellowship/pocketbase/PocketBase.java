@@ -149,8 +149,6 @@ public class PocketBase {
                     jsonEncode(body),
                     MediaType.parse("application/json")
             ));
-        } else {
-            request.get();
         }
 
         if (!headers.isEmpty()) {

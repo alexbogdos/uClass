@@ -28,20 +28,40 @@ public class Client {
                 .build();
     }
 
-    // TODO: Use a singe point for requests (similar to PocketBase.send())
-    public String get(String path) {
-        Request request = new Request.Builder()
-                .url(this.service + path)
-                .header("User-Agent", agent)
-                .build();
+    public Map<String, ?> get(String path) {
+        return this.send(path, null);
+    }
 
-        try (Response response = client.newCall(request).execute()) {
-            if (!response.isSuccessful()) return null;
+    private Map<String, ?> send(
+            String path,
+            RequestBody body
+    ) {
+        return send(HttpUrl.parse(this.service + path), body);
+    }
 
-            return response.body().string();
+    private Map<String, ?> send(
+            HttpUrl url,
+            RequestBody body
+    ) {
+
+        Request.Builder request = new Request.Builder()
+                .url(url)
+                .header("User-Agent", agent);
+
+        if (body != null) {
+            request.post(body);
+        }
+
+        try (Response response = client.newCall(request.build()).execute()) {
+            return Map.of(
+                    "code", response.code(),
+                    "successful", response.isSuccessful(),
+                    "url", response.request().url(),
+                    "body", response.body().string()
+            );
         } catch (IOException e) {
-            System.err.println("Connection Error!");
-            return null;
+            System.err.printf("[ERROR] Unable to make request %s/ %s. %s\n", body != null ? "POST" : "GET", url, e.getMessage());
+            return Map.of("successful", false);
         }
     }
 
@@ -58,14 +78,12 @@ public class Client {
         // Obtain SSO's execution ticket
         Map<String, ?> response = retrieveExecutionTicket();
         if (response == null) {
-            System.err.println("Failed to retrieve execution ticket");
             return false;
         }
 
         // Authenticate to SSO using the credentials and the execution ticket
-        boolean authenticated = authenticate(username, password, (HttpUrl) response.get("Location"), (String) response.get("Token"));
+        boolean authenticated = authenticate(username, password, (HttpUrl) response.get("url"), (String) response.get("token"));
         if (!authenticated) {
-            System.err.println("Failed to authenticate");
             return false;
         }
 
@@ -79,26 +97,26 @@ public class Client {
      * @return a map containing the SSO's URL <b>["Location"]</b> to authenticate to and the execution token <b>["Token"]</b> contained in the HTML page
      */
     private Map<String, ?> retrieveExecutionTicket() {
-        Request request = new Request.Builder()
-                .url(this.service + "/modules/auth/cas.php")
-                .header("User-Agent", agent)
-                .build();
-
-        try (Response response = client.newCall(request).execute()) {
-            if (!response.isSuccessful()) return null;
-
-            String html = response.body().string();
-            if (html.isEmpty()) return null;
-
-            Document document = Jsoup.parse(html);
-            String token = document.select("input[name=execution]").val();
-            if (token.isEmpty()) return null;
-
-            return Map.of("Location", response.request().url(), "Token", token);
-        } catch (IOException e) {
-            System.err.println("Connection Error!");
+        Map<String, ?> response = get("/modules/auth/cas.php");
+        if (!(boolean) response.get("successful")) {
             return null;
         }
+
+        String html = (String) response.get("body");
+        if (html.isEmpty()) {
+            return null;
+        }
+
+        Document document = Jsoup.parse(html);
+        String token = document.select("input[name=execution]").val();
+        if (token.isEmpty()) {
+            return null;
+        }
+
+        return Map.of(
+                "url", response.get("url"),
+                "token", token
+        );
     }
 
     /**
@@ -116,18 +134,11 @@ public class Client {
                 .add("_eventId", "submit")
                 .build();
 
-        Request request = new Request.Builder()
-                .url(url)
-                .header("User-Agent", agent)
-                .post(form)
-                .build();
-
-        try (Response response = client.newCall(request).execute()) {
-            if (!response.isSuccessful()) return false;
-            return !response.request().url().toString().contains("/login");
-        } catch (IOException e) {
-            System.err.println("Connection Error!");
+        Map<String, ?> response = send(url, form);
+        if (!(boolean) response.get("successful")) {
             return false;
         }
+
+        return !((HttpUrl) response.get("url")).toString().contains("/login");
     }
 }
