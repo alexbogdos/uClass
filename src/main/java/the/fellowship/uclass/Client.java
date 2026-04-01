@@ -35,12 +35,20 @@ public class Client {
                 .build();
     }
 
+    /**
+     * Sends an api http GET/ request.
+     *
+     * @param path
+     */
     public Map<String, ?> get(String path) {
         return this.send(HttpUrl.parse(this.service + path), null);
     }
 
     /**
      * Sends an api http request.
+     *
+     * @param url
+     * @param body
      */
     private Map<String, ?> send(
             HttpUrl url,
@@ -64,7 +72,7 @@ public class Client {
             );
         } catch (IOException e) {
             System.err.printf("[ERROR] Unable to make request %s/ %s. %s\n", body != null ? "POST" : "GET", url, e.getMessage());
-            return Map.of("successful", false);
+            return null;
         }
     }
 
@@ -82,7 +90,7 @@ public class Client {
 
         // Check if the current session is already logged in
         response = get("/modules/auth/cas.php");
-        if ((boolean) response.get("successful") && !((HttpUrl) response.get("url")).toString().contains("/login")) {
+        if (response != null && !((HttpUrl) response.get("url")).toString().contains("/login")) {
             System.out.printf("Already authenticated as \"%s\"\n\n", username);
             return true;
         }
@@ -108,7 +116,7 @@ public class Client {
 
     public List<Map<String, String>> courses() {
         Map<String, ?> response = get("/main/portfolio.php?countPages=-1");
-        if (!(boolean) response.get("successful")) {
+        if (response == null) {
             return null;
         }
 
@@ -129,7 +137,7 @@ public class Client {
      */
     private Map<String, ?> retrieveExecutionTicket() {
         Map<String, ?> response = get("/modules/auth/cas.php");
-        if (!(boolean) response.get("successful")) {
+        if (response == null) {
             return null;
         }
 
@@ -166,7 +174,7 @@ public class Client {
                 .build();
 
         Map<String, ?> response = send(url, form);
-        if (!(boolean) response.get("successful")) {
+        if (response == null) {
             return false;
         }
 
