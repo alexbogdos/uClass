@@ -9,10 +9,10 @@ import java.util.Map;
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
     public static void main(String[] args) {
-        Map<String, String> environment = Environment.load(".env");
+        Map<String, String> env = Environment.load(".env");
 
         Client client = new Client("https://eclass.aueb.gr");
-        client.login(environment.get("username"), environment.get("password"));
+        client.login(env.get("username"), env.get("password"));
 
         List<Map<String, String>> courses = client.courses();
         if (courses != null) {
