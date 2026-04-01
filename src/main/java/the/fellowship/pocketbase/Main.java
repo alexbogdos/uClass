@@ -1,10 +1,16 @@
 package the.fellowship.pocketbase;
 
+import the.fellowship.Environment;
+
+import java.util.Map;
+
 public class Main {
     public static void main(String[] args) {
+        Map<String, String> environment = Environment.load(".env");
+
         final PocketBase pb = new PocketBase("http://trantor.lan:8090");
 
-        pb.collection("users").authWithPassword("p3220134@aueb.gr", "wayrceal947");
+        pb.collection("users").authWithPassword(environment.get("username"), environment.get("password"));
 
 //        // after the above you can also access the auth data from the authStore
 //        console.log(pb.authStore.isValid);

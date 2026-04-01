@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 public class Client {
-    private final static String cookiePath = "/home/shollow/.cache/";
+    private final static String cookiePath = "";
 
     private final String service;
     private final String agent;
