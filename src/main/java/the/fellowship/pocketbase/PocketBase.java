@@ -23,11 +23,18 @@ public class PocketBase {
      * The base PocketBase backend url address (eg. '<a href="http://127.0.0.1.8090">http://127.0.0.1.8090</a>').
      */
     private final String baseURL;
+
+    /**
+     * An instance of the local [AuthStore] service.
+     */
+    private final AuthStore authStore;
+
     /**
      * The shared HTTP client instance that is used when the
      * `reuseHTTPClient` constructor argument is set.
      */
     private final Map<String, RecordService> recordServices = new HashMap<>();
+
     /**
      * Optional language code (default to `en-US`) that will be sent
      * with the requests to the server as `Accept-Language` header.
@@ -42,6 +49,7 @@ public class PocketBase {
     public PocketBase(String baseURL) {
         this.client = new OkHttpClient();
         this.baseURL = baseURL;
+        this.authStore = new AuthStore();
     }
 
     /**
@@ -53,6 +61,10 @@ public class PocketBase {
         }
 
         return this.recordServices.get(idOrName);
+    }
+
+    public AuthStore getAuthStore() {
+        return authStore;
     }
 
     /**
@@ -109,18 +121,16 @@ public class PocketBase {
             request = multipartRequest(method, url, headers, body, files);
         }
 
-        // TODO: Create `AuthStore`
-        //if (!headers.containsKey("Authorization") && authStore.isValid) {
-        //    request.header("Authorization") = authStore.token;
-        //}
+        if (!headers.containsKey("Authorization") && authStore.isValid()) {
+            request.header("Authorization", authStore.getToken());
+        }
 
         if (!headers.containsKey("Accept-Language")) {
             request.header("Accept-Language", lang);
         }
 
         try (Response response = this.client.newCall(request.build()).execute()) {
-            Map<String, ?> responseBody = new Gson().fromJson(response.body().string(), new TypeToken<Map<String, ?>>() {
-            }.getType());
+            Map<String, ?> responseBody = new Gson().fromJson(response.body().string(), new TypeToken<Map<String, ?>>() {}.getType());
             if (response.code() >= 400) {
                 throw new ClientException(url, response.code(), responseBody);
             }

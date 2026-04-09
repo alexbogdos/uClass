@@ -5,19 +5,29 @@ import okhttp3.HttpUrl;
 import java.util.Map;
 
 public class ClientException extends Exception {
-    /// The [HttpUrl] of the failed request.
+    /**
+     * The [HttpUrl] of the failed request.
+     */
     private final HttpUrl url;
 
-    /// Indicates whether the error is a result from request cancellation/abort.
+    /**
+     * Indicates whether the error is a result from request cancellation/abort.
+     */
     private final boolean isAbort;
 
-    /// The status code of the failed request.
+    /**
+     * The status code of the failed request.
+     */
     private final int statusCode;
 
-    /// Contains the JSON API error response.
+    /**
+     * Contains the JSON API error response.
+     */
     private final Map<String, ?> response;
 
-    /// The original response error (could be anything - String, Exception, etc.).
+    /**
+     * The original response error (could be anything - String, Exception, etc.).
+     */
     private final Object originalError;
 
     public ClientException(HttpUrl url, int statusCode, Map<String, ?> response) {

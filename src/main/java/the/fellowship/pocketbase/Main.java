@@ -30,12 +30,12 @@ public class Main {
             System.err.println(e);
         }
 
-//        // after the above you can also access the auth data from the authStore
-//        console.log(pb.authStore.isValid);
-//        console.log(pb.authStore.token);
-//        console.log(pb.authStore.record.id);
-//
-//        // "logout"
-//        pb.authStore.clear();
+        // after the above you can also access the auth data from the authStore
+        System.out.println(pb.getAuthStore().isValid());
+        System.out.println(pb.getAuthStore().getToken());
+        //console.log(pb.authStore.record.id);
+
+        // "logout"
+        pb.getAuthStore().clear();
     }
 }

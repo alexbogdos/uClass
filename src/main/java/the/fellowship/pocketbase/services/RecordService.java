@@ -48,7 +48,7 @@ public class RecordService {
         body.put("identity", usernameOrEmail);
         body.put("password", password);
 
-        return this.client.send(
+        Map<String, ?> response = this.client.send(
                 this.baseCollectionPath() + "/auth-with-password",
                 "POST",
                 null,
@@ -56,6 +56,10 @@ public class RecordService {
                 body,
                 null
         );
+
+        this.client.getAuthStore().save((String) response.get("token"));
+
+        return response;
     }
 
     /**
