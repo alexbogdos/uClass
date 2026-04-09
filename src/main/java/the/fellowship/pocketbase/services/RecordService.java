@@ -1,8 +1,11 @@
 package the.fellowship.pocketbase.services;
 
+import the.fellowship.pocketbase.ClientException;
 import the.fellowship.pocketbase.PocketBase;
+import the.fellowship.pocketbase.tools.MultipartFile;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class RecordService {
@@ -38,14 +41,14 @@ public class RecordService {
      * - the authentication token
      * - the authenticated record model
      *
-     * @throws {ClientResponseError}
+     * @throws ClientException
      */
-    public void authWithPassword(String usernameOrEmail, String password) {
+    public Map<String, ?> authWithPassword(String usernameOrEmail, String password) throws ClientException {
         Map<String, String> body = new HashMap<>();
         body.put("identity", usernameOrEmail);
         body.put("password", password);
 
-        String response = this.client.send(
+        return this.client.send(
                 this.baseCollectionPath() + "/auth-with-password",
                 "POST",
                 null,
@@ -53,6 +56,26 @@ public class RecordService {
                 body,
                 null
         );
-        System.out.println(response);
+    }
+
+    /**
+     * Creates a new item.
+     *
+     * @throws ClientException
+     */
+    public Map<String, ?> create(
+            Map<String, String> headers,
+            Map<String, ?> query,
+            Map<String, ?> body,
+            List<MultipartFile> files
+    ) throws ClientException {
+        return this.client.send(
+                this.baseCollectionPath() + "/records",
+                "POST",
+                headers,
+                query,
+                body,
+                files
+        );
     }
 }

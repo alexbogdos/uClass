@@ -76,16 +76,16 @@ public class PocketBase {
     /**
      * Sends an api http request.
      *
-     * @throws {ClientResponseError}
+     * @throws ClientException
      */
-    public String send(
+    public Map<String, ?> send(
             String path,
             String method,
             Map<String, String> headers,
             Map<String, ?> query,
             Map<String, ?> body,
             List<MultipartFile> files
-    ) {
+    ) throws ClientException {
         if (method == null) {
             method = "GET";
         }
@@ -119,16 +119,12 @@ public class PocketBase {
         }
 
         try (Response response = this.client.newCall(request.build()).execute()) {
+            Map<String, ?> responseBody = new Gson().fromJson(response.body().string(), new TypeToken<Map<String, ?>>() {
+            }.getType());
             if (response.code() >= 400) {
-                throw new RuntimeException(String.format(
-                        "\n[ClientResponseError]\nURL: %s, STATUS: %s, DATA:\n%s",
-                        url,
-                        response.code(),
-                        response.body().string()
-                ));
+                throw new ClientException(url, response.code(), responseBody);
             }
-
-            return response.body().string();
+            return responseBody;
         } catch (IOException e) {
             System.err.println("Connection Error!");
         }
@@ -192,7 +188,7 @@ public class PocketBase {
 
     private String jsonEncode(Map<String, ?> body) {
         Gson gson = new Gson();
-        Type typeObject = new TypeToken<HashMap<String, ?>>() {
+        Type typeObject = new TypeToken<Map<String, ?>>() {
         }.getType();
         return gson.toJson(body, typeObject);
     }
