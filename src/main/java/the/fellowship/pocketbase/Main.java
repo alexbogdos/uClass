@@ -10,9 +10,12 @@ public class Main {
 
         final PocketBase pb = new PocketBase("http://127.0.0.1:8090");
 
-        //Map<String, String> body = Map.of(
+        Map<String, ?> body;
+        Map<String, ?> response;
+
+        //body = Map.of(
         //        "email", env.get("email"),
-        //        "emailVisibility", "false",
+        //        "emailVisibility", false,
         //        "name", env.get("name"),
         //        "password", env.get("password"),
         //        "passwordConfirm", env.get("password")
@@ -24,16 +27,24 @@ public class Main {
         //}
 
         try {
-            Map<String, ?> response = pb.collection("users").authWithPassword(env.get("email"), env.get("password"));
-            System.out.printf("Welcome, %s\n", ((Map<String, ?>) response.get("record")).get("name"));
+            response = pb.collection("users").authWithPassword(env.get("email"), env.get("password"));
+            System.out.printf("Welcome, %s\n", ((Map<String, ?>) response.get("record")).containsKey("name") ? ((Map<String, ?>) response.get("record")).get("name") : ((Map<String, ?>) response.get("record")).get("email"));
+
+            // after the above you can also access the auth data from the authStore
+            //System.out.println(pb.getAuthStore().isValid());
+            //System.out.println(pb.getAuthStore().getToken());
+            //console.log(pb.authStore.record.id);
+
+            body = Map.of(
+                    "title", "Hello, World!",
+                    "active", true,
+                    "author", ((Map<String, ?>) response.get("record")).get("id")
+            );
+            response = pb.collection("posts").create(null, null, body, null);
+
         } catch (ClientException e) {
             System.err.println(e);
         }
-
-        // after the above you can also access the auth data from the authStore
-        System.out.println(pb.getAuthStore().isValid());
-        System.out.println(pb.getAuthStore().getToken());
-        //console.log(pb.authStore.record.id);
 
         // "logout"
         pb.getAuthStore().clear();
