@@ -8,29 +8,24 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class RecordService {
-    private final PocketBase client;
+public class RecordService extends BaseCrudService{
     private final String collectionIdOrName;
 
     public RecordService(PocketBase client, String collectionIdOrName) {
-        this.client = client;
+        super(client);
         this.collectionIdOrName = collectionIdOrName;
     }
 
     /**
      * Returns the current collection service base path.
      */
-    private String baseCollectionPath() {
-        return "/api/collections/" + encodeURIComponent(this.collectionIdOrName);
+    private String getBaseCollectionPath() {
+        return "/api/collections/" + this.collectionIdOrName;
     }
 
-    /**
-     * Encodes a text string as a valid component of a Uniform Resource Identifier (URI).
-     *
-     * @param uriComponent A value representing an unencoded URI component.
-     */
-    private String encodeURIComponent(String uriComponent) {
-        return uriComponent;
+    @Override
+    String getBaseCrudPath() {
+        return getBaseCollectionPath() + "/records";
     }
 
     /**
@@ -49,7 +44,7 @@ public class RecordService {
         body.put("password", password);
 
         Map<String, ?> response = this.client.send(
-                this.baseCollectionPath() + "/auth-with-password",
+                this.getBaseCollectionPath() + "/auth-with-password",
                 "POST",
                 null,
                 null,
@@ -62,24 +57,5 @@ public class RecordService {
         return response;
     }
 
-    /**
-     * Creates a new item.
-     *
-     * @throws ClientException
-     */
-    public Map<String, ?> create(
-            Map<String, String> headers,
-            Map<String, ?> query,
-            Map<String, ?> body,
-            List<MultipartFile> files
-    ) throws ClientException {
-        return this.client.send(
-                this.baseCollectionPath() + "/records",
-                "POST",
-                headers,
-                query,
-                body,
-                files
-        );
-    }
+    // TODO: Subscribe to realtime changes
 }

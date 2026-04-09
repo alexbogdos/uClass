@@ -14,7 +14,7 @@ import java.util.Map;
  */
 public class AuthStore {
     private String token = "";
-    //RecordModel? _record;
+    //RecordModel? _record; TODO
 
     /**
      * Returns the saved auth token (if any).
