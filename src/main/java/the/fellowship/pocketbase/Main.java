@@ -1,6 +1,7 @@
 package the.fellowship.pocketbase;
 
 import the.fellowship.Environment;
+import the.fellowship.pocketbase.dtos.RecordAuth;
 import the.fellowship.pocketbase.dtos.RecordModel;
 import the.fellowship.pocketbase.dtos.ResultList;
 
@@ -29,8 +30,8 @@ public class Main {
         //}
 
         try {
-            response = pb.collection("users").authWithPassword(env.get("email"), env.get("password"));
-            System.out.printf("Welcome, %s\n", ((Map<String, ?>) response.get("record")).containsKey("name") ? ((Map<String, ?>) response.get("record")).get("name") : ((Map<String, ?>) response.get("record")).get("email"));
+            RecordAuth auth = pb.collection("users").authWithPassword(env.get("email"), env.get("password"));
+            System.out.printf("Welcome, %s\n", auth.getIdentifier());
 
             // after the above you can also access the auth data from the authStore
             //System.out.println(pb.getAuthStore().isValid());

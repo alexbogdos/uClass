@@ -2,6 +2,7 @@ package the.fellowship.pocketbase.services;
 
 import the.fellowship.pocketbase.ClientException;
 import the.fellowship.pocketbase.PocketBase;
+import the.fellowship.pocketbase.dtos.RecordAuth;
 import the.fellowship.pocketbase.dtos.RecordModel;
 
 import java.util.HashMap;
@@ -42,7 +43,7 @@ public class RecordService extends BaseCrudService<RecordModel> {
      *
      * @throws ClientException
      */
-    public Map<String, ?> authWithPassword(String usernameOrEmail, String password) throws ClientException {
+    public RecordAuth authWithPassword(String usernameOrEmail, String password) throws ClientException {
         Map<String, String> body = new HashMap<>();
         body.put("identity", usernameOrEmail);
         body.put("password", password);
@@ -61,7 +62,7 @@ public class RecordService extends BaseCrudService<RecordModel> {
                 new RecordModel((Map<String, ?>) response.get("record"))
         );
 
-        return response;
+        return new RecordAuth(response);
     }
 
     // TODO: Subscribe to realtime changes

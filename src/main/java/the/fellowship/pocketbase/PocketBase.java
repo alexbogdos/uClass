@@ -71,7 +71,7 @@ public class PocketBase {
      * Builds a full client url by safely concatenating the provided path.
      */
     public HttpUrl buildURL(String path) {
-        return buildURL(path,  new HashMap<>());
+        return buildURL(path, new HashMap<>());
     }
 
     /**
