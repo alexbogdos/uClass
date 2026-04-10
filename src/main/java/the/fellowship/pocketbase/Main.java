@@ -1,6 +1,8 @@
 package the.fellowship.pocketbase;
 
 import the.fellowship.Environment;
+import the.fellowship.pocketbase.dtos.RecordModel;
+import the.fellowship.pocketbase.dtos.ResultList;
 
 import java.util.Map;
 
@@ -33,14 +35,25 @@ public class Main {
             // after the above you can also access the auth data from the authStore
             //System.out.println(pb.getAuthStore().isValid());
             //System.out.println(pb.getAuthStore().getToken());
-            //console.log(pb.authStore.record.id);
+            //System.out.println(pb.getAuthStore().getRecord().getId());
 
-            body = Map.of(
-                    "title", "Hello, World!",
-                    "active", true,
-                    "author", ((Map<String, ?>) response.get("record")).get("id")
+            //body = Map.of(
+            //        "title", "Hello, World!",
+            //        "active", true,
+            //        "author", ((Map<String, ?>) response.get("record")).get("id")
+            //);
+            //response = pb.collection("posts").create(null, null, body, null);
+
+
+            ResultList<RecordModel> list = pb.collection("posts").getList(
+                    null,
+                    null,
+                    "-created",
+                    null,
+                    null,
+                    null
             );
-            response = pb.collection("posts").create(null, null, body, null);
+            list.getItems().forEach(System.out::println);
 
         } catch (ClientException e) {
             System.err.println(e);

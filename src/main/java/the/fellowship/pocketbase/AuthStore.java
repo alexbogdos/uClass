@@ -2,9 +2,9 @@ package the.fellowship.pocketbase;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import the.fellowship.pocketbase.dtos.RecordModel;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.Map;
 
@@ -14,7 +14,7 @@ import java.util.Map;
  */
 public class AuthStore {
     private String token = "";
-    //RecordModel? _record; TODO
+    private RecordModel record;
 
     /**
      * Returns the saved auth token (if any).
@@ -26,7 +26,9 @@ public class AuthStore {
     /**
      * Returns the saved auth record (if any).
      */
-    //RecordModel? get record => _record;
+    public RecordModel getRecord() {
+        return record;
+    }
 
     /**
      * Loosely checks if the current AuthStore has valid auth data
@@ -43,7 +45,8 @@ public class AuthStore {
 
         // TODO: Check method validity. exp should be HUGE integer
 
-        Map<String, ?> data = new Gson().fromJson(jsonString, new TypeToken<Map<String, ?>>() {}.getType());
+        Map<String, ?> data = new Gson().fromJson(jsonString, new TypeToken<Map<String, ?>>() {
+        }.getType());
         double exp = data.get("exp") != null ? (Double) data.get("exp") : 0;
         return exp > (double) System.currentTimeMillis() / 1000;
     }
@@ -51,9 +54,9 @@ public class AuthStore {
     /**
      * Saves the provided [newToken] and [newRecord] auth data into the store.
      */
-    public void save(String newToken) { //, RecordModel? newRecord) {
+    public void save(String newToken, RecordModel newRecord) {
         this.token = newToken;
-        //this.record = newRecord;
+        this.record = newRecord;
     }
 
     /**
@@ -61,6 +64,6 @@ public class AuthStore {
      */
     public void clear() {
         this.token = "";
-        //this.record = null;
+        this.record = null;
     }
 }

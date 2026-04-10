@@ -79,10 +79,15 @@ public class PocketBase {
 
         // TODO Create `normalizeQueryParameters`
         //query = _normalizeQueryParameters(queryParameters);
+        HttpUrl.Builder builder = HttpUrl.parse(url).newBuilder();
+        for (String name : query.keySet()) {
+            if (query.get(name) == null) continue;
+            builder.addQueryParameter(name, String.valueOf(query.get(name)));
+        }
 
         // TODO: Replace `queryParameters`
         //return HttpUrl.parse(url).replace(queryParameters: query.isNotEmpty ? query : null);
-        return HttpUrl.parse(url);
+        return builder.build();
     }
 
     /**
@@ -130,7 +135,8 @@ public class PocketBase {
         }
 
         try (Response response = this.client.newCall(request.build()).execute()) {
-            Map<String, ?> responseBody = new Gson().fromJson(response.body().string(), new TypeToken<Map<String, ?>>() {}.getType());
+            Map<String, ?> responseBody = new Gson().fromJson(response.body().string(), new TypeToken<Map<String, ?>>() {
+            }.getType());
             if (response.code() >= 400) {
                 throw new ClientException(url, response.code(), responseBody);
             }

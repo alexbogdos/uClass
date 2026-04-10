@@ -2,8 +2,11 @@ package the.fellowship.pocketbase.services;
 
 import the.fellowship.pocketbase.ClientException;
 import the.fellowship.pocketbase.PocketBase;
+import the.fellowship.pocketbase.dtos.RecordModel;
+import the.fellowship.pocketbase.dtos.ResultList;
 import the.fellowship.pocketbase.tools.MultipartFile;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -42,7 +45,33 @@ public class BaseCrudService extends BaseService {
      *
      * @throws ClientException
      */
-    List<Map<String, ?>> getList(
+    public ResultList<RecordModel> getList(
+            String expand,
+            String filter,
+            String sort,
+            String fields,
+            Map<String, ?> query,
+            Map<String, String> headers
+    ) throws ClientException {
+        return getList(
+                1,
+                30,
+                false,
+                expand,
+                filter,
+                sort,
+                fields,
+                query,
+                headers
+        );
+    }
+
+    /**
+     * Returns paginated items list.
+     *
+     * @throws ClientException
+     */
+    public ResultList<RecordModel> getList(
             int page,
             int perPage,
             boolean skipTotal,
@@ -53,22 +82,25 @@ public class BaseCrudService extends BaseService {
             Map<String, ?> query,
             Map<String, String> headers
     ) throws ClientException {
-        //final enrichedQuery =Map < String, dynamic >.of(query);
-        //enrichedQuery["page"] = page;
-        //enrichedQuery["perPage"] = perPage;
-        //enrichedQuery["filter"] ? ? = filter;
-        //enrichedQuery["sort"] ? ? = sort;
-        //enrichedQuery["expand"] ? ? = expand;
-        //enrichedQuery["fields"] ? ? = fields;
-        //enrichedQuery["skipTotal"] ? ? = skipTotal;
-        //
-        //return client
-        //        .send < Map < String,dynamic >> (
-        //        baseCrudPath,
-        //        query:enrichedQuery,
-        //        headers:headers,
-        //)
-        //.then((data) = > ResultList < M >.fromJson(data, itemFactoryFunc));
-        return null;
+        Map<String, Object> enrichedQuery = query != null ? new HashMap<>(query) : new HashMap<>();
+        enrichedQuery.put("page", page);
+        enrichedQuery.put("perPage", perPage);
+        enrichedQuery.putIfAbsent("skipTotal", skipTotal);
+        enrichedQuery.putIfAbsent("expand", expand);
+        enrichedQuery.putIfAbsent("filter", filter);
+        enrichedQuery.putIfAbsent("sort", sort);
+        enrichedQuery.putIfAbsent("fields", fields);
+
+        return new ResultList<RecordModel>(
+                client.send(
+                        getBaseCrudPath(),
+                        null,
+                        headers,
+                        enrichedQuery,
+                        null,
+                        null
+                ),
+                RecordModel::new
+        );
     }
 }

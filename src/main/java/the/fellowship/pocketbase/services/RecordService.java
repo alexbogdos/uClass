@@ -2,13 +2,12 @@ package the.fellowship.pocketbase.services;
 
 import the.fellowship.pocketbase.ClientException;
 import the.fellowship.pocketbase.PocketBase;
-import the.fellowship.pocketbase.tools.MultipartFile;
+import the.fellowship.pocketbase.dtos.RecordModel;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-public class RecordService extends BaseCrudService{
+public class RecordService extends BaseCrudService {
     private final String collectionIdOrName;
 
     public RecordService(PocketBase client, String collectionIdOrName) {
@@ -52,7 +51,10 @@ public class RecordService extends BaseCrudService{
                 null
         );
 
-        this.client.getAuthStore().save((String) response.get("token"));
+        this.client.getAuthStore().save(
+                (String) response.get("token"),
+                new RecordModel((Map<String, ?>) response.get("record"))
+        );
 
         return response;
     }
