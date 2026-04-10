@@ -12,16 +12,16 @@ public class RecordModel {
     private final String created;
     private final String updated;
 
-    private final Map<String, ?> data;
+    private final Map<String, ?> record;
 
-    public RecordModel(Map<String, ?> record) {
-        this.id = (String) record.get("id");
-        this.collectionId = (String) record.get("collectionId");
-        this.collectionName = (String) record.get("collectionName");
-        this.created = (String) record.get("created");
-        this.updated = (String) record.get("updated");
+    public RecordModel(Map<String, ?> json) {
+        this.id = (String) json.get("id");
+        this.collectionId = (String) json.get("collectionId");
+        this.collectionName = (String) json.get("collectionName");
+        this.created = (String) json.get("created");
+        this.updated = (String) json.get("updated");
 
-        this.data = record;
+        this.record = json;
     }
 
     public String getId() {
@@ -45,18 +45,18 @@ public class RecordModel {
     }
 
     public Object getValueOrDefault(String fieldName, Object defaultValue) {
-        if (data.containsKey(fieldName) && data.get(fieldName) != null) {
-            return data.get(fieldName);
+        if (record.containsKey(fieldName) && record.get(fieldName) != null) {
+            return record.get(fieldName);
         }
         return defaultValue;
     }
 
     public Object getValue(String fieldName) {
-        return data.get(fieldName);
+        return record.get(fieldName);
     }
 
     @Override
     public String toString() {
-        return data.toString();
+        return record.toString();
     }
 }

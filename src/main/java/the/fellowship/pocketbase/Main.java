@@ -55,6 +55,15 @@ public class Main {
             );
             list.getItems().forEach(System.out::println);
 
+            RecordModel item = pb.collection("posts").getOne(
+                    "hcll40100ine8pt",
+                    null,
+                    null,
+                    null,
+                    null
+            );
+            System.out.println(item);
+
         } catch (ClientException e) {
             System.err.println(e);
         }

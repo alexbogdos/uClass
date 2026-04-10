@@ -70,7 +70,14 @@ public class PocketBase {
     /**
      * Builds a full client url by safely concatenating the provided path.
      */
-    private HttpUrl buildURL(String path, Map<String, ?> query) {
+    public HttpUrl buildURL(String path) {
+        return buildURL(path,  new HashMap<>());
+    }
+
+    /**
+     * Builds a full client url by safely concatenating the provided path.
+     */
+    public HttpUrl buildURL(String path, Map<String, ?> query) {
         String url = baseURL + (baseURL.endsWith("/") ? "" : "/");
 
         if (!path.isEmpty()) {

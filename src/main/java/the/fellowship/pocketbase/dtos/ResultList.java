@@ -11,12 +11,12 @@ public class ResultList<T> {
 
     List<T> items;
 
-    public ResultList(Map<String, ?> data, java.util.function.Function<Map<String, ?>, ? super T> function) {
+    public ResultList(Map<String, ?> data, java.util.function.Function<Map<String, ?>, ? super T> itemFactory) {
         this.page = (double) data.get("page");
         this.perPage = (double) data.get("perPage");
         this.totalItems = (double) data.get("totalItems");
         this.totalPages = (double) data.get("totalPages");
-        this.items = (List<T>) ((List<Map<String, ?>>) data.get("items")).stream().map(function::apply).toList();
+        this.items = (List<T>) ((List<Map<String, ?>>) data.get("items")).stream().map(itemFactory::apply).toList();
     }
 
     public double getPage() {

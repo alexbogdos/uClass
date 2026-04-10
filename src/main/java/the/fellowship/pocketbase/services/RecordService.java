@@ -7,7 +7,7 @@ import the.fellowship.pocketbase.dtos.RecordModel;
 import java.util.HashMap;
 import java.util.Map;
 
-public class RecordService extends BaseCrudService {
+public class RecordService extends BaseCrudService<RecordModel> {
     private final String collectionIdOrName;
 
     public RecordService(PocketBase client, String collectionIdOrName) {
@@ -25,6 +25,11 @@ public class RecordService extends BaseCrudService {
     @Override
     String getBaseCrudPath() {
         return getBaseCollectionPath() + "/records";
+    }
+
+    @Override
+    RecordModel itemFactory(Map<String, ?> json) {
+        return new RecordModel(json);
     }
 
     /**

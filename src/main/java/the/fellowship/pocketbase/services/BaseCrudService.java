@@ -2,21 +2,27 @@ package the.fellowship.pocketbase.services;
 
 import the.fellowship.pocketbase.ClientException;
 import the.fellowship.pocketbase.PocketBase;
-import the.fellowship.pocketbase.dtos.RecordModel;
 import the.fellowship.pocketbase.dtos.ResultList;
 import the.fellowship.pocketbase.tools.MultipartFile;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class BaseCrudService extends BaseService {
+public class BaseCrudService<T> extends BaseService {
     public BaseCrudService(PocketBase client) {
         super(client);
     }
 
     String getBaseCrudPath() {
         return "";
+    }
+
+    /// The factory function that will be used to
+    /// decode the returned items from the crud endpoints.
+    T itemFactory(Map<String, ?> json) {
+        return null;
     }
 
     /**
@@ -45,7 +51,7 @@ public class BaseCrudService extends BaseService {
      *
      * @throws ClientException
      */
-    public ResultList<RecordModel> getList(
+    public ResultList<T> getList(
             String expand,
             String filter,
             String sort,
@@ -71,7 +77,7 @@ public class BaseCrudService extends BaseService {
      *
      * @throws ClientException
      */
-    public ResultList<RecordModel> getList(
+    public ResultList<T> getList(
             int page,
             int perPage,
             boolean skipTotal,
@@ -91,7 +97,7 @@ public class BaseCrudService extends BaseService {
         enrichedQuery.putIfAbsent("sort", sort);
         enrichedQuery.putIfAbsent("fields", fields);
 
-        return new ResultList<RecordModel>(
+        return new ResultList<T>(
                 client.send(
                         getBaseCrudPath(),
                         null,
@@ -100,7 +106,45 @@ public class BaseCrudService extends BaseService {
                         null,
                         null
                 ),
-                RecordModel::new
+                this::itemFactory
         );
+    }
+
+    /// Returns single item by its id.
+    ///
+    /// Throws 404 `ClientException` in case an empty `id` is provided.
+    public T getOne(
+            String id,
+            String expand,
+            String fields,
+            Map<String, ?> query,
+            Map<String, String> headers
+    ) throws ClientException {
+        if (id.isEmpty()) {
+            throw new ClientException(
+                    client.buildURL(String.format("%s/", getBaseCrudPath())),
+                    404,
+                    Map.of(
+                            "code", 404,
+                            "message", "Missing required record id.",
+                            "data", new HashMap<>()
+                    )
+            );
+        }
+
+        Map<String, Object> enrichedQuery = query != null ? new HashMap<>(query) : new HashMap<>();
+        enrichedQuery.putIfAbsent("expand", expand);
+        enrichedQuery.putIfAbsent("fields", fields);
+
+        Map<String, ?> json = client.send(
+                String.format("%s/%s", getBaseCrudPath(), URI.create(id)),
+                null,
+                headers,
+                enrichedQuery,
+                null,
+                null
+        );
+
+        return itemFactory(json);
     }
 }
