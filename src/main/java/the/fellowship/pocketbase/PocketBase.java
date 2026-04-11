@@ -141,6 +141,7 @@ public class PocketBase {
             request.header("Accept-Language", lang);
         }
 
+        //System.out.printf("[LOG] %s\n", request.build());
         try (Response response = this.client.newCall(request.build()).execute()) {
             Map<String, ?> responseBody = new Gson().fromJson(response.body().string(), new TypeToken<Map<String, ?>>() {
             }.getType());
@@ -149,9 +150,8 @@ public class PocketBase {
             }
             return responseBody;
         } catch (IOException e) {
-            System.err.println("Connection Error!");
+            throw new ClientException(url, false, -1, null, e.toString());
         }
-        return null;
     }
 
     private Request.Builder jsonRequest(
@@ -168,6 +168,8 @@ public class PocketBase {
                     jsonEncode(body),
                     MediaType.parse("application/json")
             ));
+        } else {
+            request.method(method, RequestBody.EMPTY);
         }
 
         if (!headers.isEmpty()) {

@@ -3,7 +3,6 @@ package the.fellowship.pocketbase;
 import the.fellowship.Environment;
 import the.fellowship.pocketbase.dtos.RecordAuth;
 import the.fellowship.pocketbase.dtos.RecordModel;
-import the.fellowship.pocketbase.dtos.ResultList;
 
 import java.util.Map;
 
@@ -14,7 +13,7 @@ public class Main {
         final PocketBase pb = new PocketBase("http://127.0.0.1:8090");
 
         Map<String, ?> body;
-        Map<String, ?> response;
+        RecordModel response;
 
         //body = Map.of(
         //        "email", env.get("email"),
@@ -38,32 +37,24 @@ public class Main {
             //System.out.println(pb.getAuthStore().getToken());
             //System.out.println(pb.getAuthStore().getRecord().getId());
 
-            //body = Map.of(
-            //        "title", "Hello, World!",
-            //        "active", true,
-            //        "author", ((Map<String, ?>) response.get("record")).get("id")
+            body = Map.of(
+                    "description", "Περίεργος καθηγητής!",
+                    "course", "5b5605872rq51tw"
+            );
+            response = pb.collection("ratings").update("k0map51cxub748m", null, null, body, null, null, null);
+            System.out.println(response);
+
+            //pb.collection("ratings").delete(response.getId(), null, null, null);
+
+            //ResultList<RecordModel> list = pb.collection("ratings").getList(
+            //        null,
+            //        null,
+            //        "-created",
+            //        null,
+            //        null,
+            //        null
             //);
-            //response = pb.collection("posts").create(null, null, body, null);
-
-
-            ResultList<RecordModel> list = pb.collection("posts").getList(
-                    null,
-                    null,
-                    "-created",
-                    null,
-                    null,
-                    null
-            );
-            list.getItems().forEach(System.out::println);
-
-            RecordModel item = pb.collection("posts").getOne(
-                    "hcll40100ine8pt",
-                    null,
-                    null,
-                    null,
-                    null
-            );
-            System.out.println(item);
+            //list.getItems().forEach(System.out::println);
 
         } catch (ClientException e) {
             System.err.println(e);

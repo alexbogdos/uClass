@@ -30,13 +30,13 @@ public class BaseCrudService<T> extends BaseService {
      *
      * @throws ClientException
      */
-    public Map<String, ?> create(
+    public T create(
             Map<String, String> headers,
             Map<String, ?> query,
             Map<String, ?> body,
             List<MultipartFile> files
     ) throws ClientException {
-        return this.client.send(
+        Map<String, ?> json = this.client.send(
                 this.getBaseCrudPath(),
                 "POST",
                 headers,
@@ -44,6 +44,8 @@ public class BaseCrudService<T> extends BaseService {
                 body,
                 files
         );
+
+        return itemFactory(json);
     }
 
     /**
@@ -146,5 +148,52 @@ public class BaseCrudService<T> extends BaseService {
         );
 
         return itemFactory(json);
+    }
+
+    /**
+     * Updates a single item by its id.
+     */
+    public T update(
+            String id,
+            Map<String, String> headers,
+            Map<String, ?> query,
+            Map<String, ?> body,
+            List<MultipartFile> files,
+            String expand,
+            String fields
+    ) throws ClientException {
+        Map<String, Object> enrichedQuery = query != null ? new HashMap<>(query) : new HashMap<>();
+        enrichedQuery.putIfAbsent("expand", expand);
+        enrichedQuery.putIfAbsent("fields", fields);
+
+        Map<String, ?> json = client.send(
+                String.format("%s/%s", getBaseCrudPath(), URI.create(id)),
+                "PATCH",
+                headers,
+                enrichedQuery,
+                body,
+                files
+        );
+
+        return itemFactory(json);
+    }
+
+    /**
+     * Deletes a single item by its id.
+     */
+    public void delete(
+            String id,
+            Map<String, String> headers,
+            Map<String, ?> query,
+            Map<String, ?> body
+    ) throws ClientException {
+        client.send(
+                String.format("%s/%s", getBaseCrudPath(), URI.create(id)),
+                "DELETE",
+                headers,
+                query,
+                body,
+                null
+        );
     }
 }
