@@ -3,6 +3,7 @@ package the.fellowship.pocketbase;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import okhttp3.*;
+import the.fellowship.pocketbase.services.RealtimeService;
 import the.fellowship.pocketbase.services.RecordService;
 import the.fellowship.pocketbase.tools.MultipartFile;
 
@@ -30,6 +31,15 @@ public class PocketBase {
     private final AuthStore authStore;
 
     /**
+     * An instance of the service that handles the **Realtime APIs**.
+
+     * This service is usually used with custom realtime actions.
+     * For records realtime subscriptions you can use the subscribe/unsubscribe
+     * methods available in the `collection()` RecordService.
+     */
+    private final RealtimeService realtime;
+
+    /**
      * The shared HTTP client instance that is used when the
      * `reuseHTTPClient` constructor argument is set.
      */
@@ -50,12 +60,17 @@ public class PocketBase {
         this.client = new OkHttpClient();
         this.baseURL = baseURL;
         this.authStore = new AuthStore();
+        this.realtime = new RealtimeService(this);
+    }
+
+    public RealtimeService getRealtime() {
+        return realtime;
     }
 
     /**
      * Returns the RecordService associated to the specified collection.
      */
-    public RecordService collection(String idOrName) {
+    public RecordService getCollection(String idOrName) {
         if (!this.recordServices.containsKey(idOrName)) {
             this.recordServices.put(idOrName, new RecordService(this, idOrName));
         }
@@ -169,7 +184,7 @@ public class PocketBase {
                     MediaType.parse("application/json")
             ));
         } else {
-            request.method(method, RequestBody.EMPTY);
+            request.method(method, null);
         }
 
         if (!headers.isEmpty()) {

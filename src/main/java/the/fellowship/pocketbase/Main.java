@@ -3,6 +3,7 @@ package the.fellowship.pocketbase;
 import the.fellowship.Environment;
 import the.fellowship.pocketbase.dtos.RecordAuth;
 import the.fellowship.pocketbase.dtos.RecordModel;
+import the.fellowship.pocketbase.dtos.ResultList;
 
 import java.util.Map;
 
@@ -29,7 +30,7 @@ public class Main {
         //}
 
         try {
-            RecordAuth auth = pb.collection("users").authWithPassword(env.get("email"), env.get("password"));
+            RecordAuth auth = pb.getCollection("users").authWithPassword(env.get("email"), env.get("password"));
             System.out.printf("Welcome, %s\n", auth.getIdentifier());
 
             // after the above you can also access the auth data from the authStore
@@ -37,24 +38,27 @@ public class Main {
             //System.out.println(pb.getAuthStore().getToken());
             //System.out.println(pb.getAuthStore().getRecord().getId());
 
-            body = Map.of(
-                    "description", "Περίεργος καθηγητής!",
-                    "course", "5b5605872rq51tw"
-            );
-            response = pb.collection("ratings").update("k0map51cxub748m", null, null, body, null, null, null);
-            System.out.println(response);
-
-            //pb.collection("ratings").delete(response.getId(), null, null, null);
-
-            //ResultList<RecordModel> list = pb.collection("ratings").getList(
-            //        null,
-            //        null,
-            //        "-created",
-            //        null,
-            //        null,
-            //        null
+            //body = Map.of(
+            //        "description", "Περίεργος καθηγητής!",
+            //        "course", "5b5605872rq51tw"
             //);
-            //list.getItems().forEach(System.out::println);
+            //response = pb.getCollection("ratings").update("k0map51cxub748m", null, null, body, null, null, null);
+            //System.out.println(response);
+
+            //pb.getCollection("ratings").delete("k0map51cxub748m", null, null, null);
+
+            ResultList<RecordModel> list = pb.getCollection("ratings").getList(
+                    null,
+                    null,
+                    "-created",
+                    null,
+                    null,
+                    null
+            );
+            list.getItems().forEach(System.out::println);
+
+            response = pb.getCollection("courses").getOne((String) list.getItems().get(1).getValue("course"), null, null, null, null);
+            System.out.println(response.getValue("title"));
 
         } catch (ClientException e) {
             System.err.println(e);
