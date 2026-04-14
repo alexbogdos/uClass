@@ -226,7 +226,7 @@ public class PocketBase {
         return request;
     }
 
-    private String jsonEncode(Map<String, ?> body) {
+    public String jsonEncode(Map<String, ?> body) {
         Gson gson = new Gson();
         Type typeObject = new TypeToken<Map<String, ?>>() {
         }.getType();

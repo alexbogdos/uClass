@@ -39,6 +39,13 @@ public class RecordService extends BaseCrudService<RecordModel> {
      * Realtime handlers
      * - - - - - - - - - - - - - - - - - - - - */
 
+    public Runnable subscribe(
+            String topic,
+            Consumer<RecordSubscriptionEvent> callback
+    ) {
+        return subscribe(topic, callback, null, null, null, null, null);
+    }
+
     /**
      * Subscribe to realtime changes to the specified topic ("*" or record id).
      * <p>
