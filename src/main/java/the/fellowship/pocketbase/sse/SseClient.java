@@ -58,53 +58,38 @@ public class SseClient {
             1500,
             2000
     );
-
-    private ScheduledFuture<?> retryTimer;
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+    /**
+     * Callback function that is triggered on client close.
+     */
+    private final Runnable onClose;
+    /**
+     * Callback function that is triggered on each error connect attempt.
+     */
+    private final Consumer<Throwable> onError;
+    /**
+     * The stream where you'll receive the parsed SSE event messages.
+     */
+    private final SubmissionPublisher<SseMessage> messageStreamController = new SubmissionPublisher<>();
+    /**
+     * The regex used to parse a single line of the streamed response message.
+     */
+    private final Pattern lineRegex = Pattern.compile("^(\\w+)[\\s:]+(.*)?$");
+    private final String url;
+    private final OkHttpClient httpClient;
+    private ScheduledFuture<?> retryTimer;
     private int retryAttempts = 0;
     private int maxRetry = Integer.MAX_VALUE;
 
     /**
      * Indicates whether the client was closed.
      */
-    private AtomicBoolean isClosed = new AtomicBoolean(false);
-
-    public boolean isClosed() {
-        return isClosed.get();
-    }
-
-    /**
-     * Callback function that is triggered on client close.
-     */
-    private final Runnable onClose;
-
-    /**
-     * Callback function that is triggered on each error connect attempt.
-     */
-    private final Consumer<Throwable> onError;
+    private final AtomicBoolean isClosed = new AtomicBoolean(false);
 
     /**
      * The local streamed http response subscription.
      */
     private InputStream responseStreamSubscription;
-
-    /**
-     * The stream where you'll receive the parsed SSE event messages.
-     */
-    private final SubmissionPublisher<SseMessage> messageStreamController = new SubmissionPublisher<>();
-
-    public void setOnMessage(Flow.Subscriber<SseMessage> subscriber) {
-        messageStreamController.subscribe(subscriber);
-    }
-
-    /**
-     * The regex used to parse a single line of the streamed response message.
-     */
-    private final Pattern lineRegex = Pattern.compile("^(\\w+)[\\s:]+(.*)?$");
-
-    private final String url;
-
-    private final OkHttpClient httpClient;
     private Call httpCall;
 
     public SseClient(String url) {
@@ -128,6 +113,14 @@ public class SseClient {
                 .readTimeout(0, TimeUnit.MILLISECONDS)
                 .build();
         init();
+    }
+
+    public boolean isClosed() {
+        return isClosed.get();
+    }
+
+    public void setOnMessage(Flow.Subscriber<SseMessage> subscriber) {
+        messageStreamController.subscribe(subscriber);
     }
 
     /**
@@ -245,8 +238,7 @@ public class SseClient {
                             // most likely the client failed to establish a connection with the server
                             onError.accept(e);
                             reconnect(sseMessage.getRetry());
-                        }
-                        finally {
+                        } finally {
                             close();
                         }
                     }

@@ -4,12 +4,12 @@ import java.util.Map;
 
 /// Response DTO of a single realtime subscription event.
 public class RecordSubscriptionEvent {
-    private String action;
-    private RecordModel record;
+    private final String action;
+    private final RecordModel record;
 
     public RecordSubscriptionEvent(Map<String, ?> json) {
-        this.action = (String) json.get("action");
-        this.record = (RecordModel) json.get("record");
+        this.action = json.get("record") == null ? "" : (String) json.get("action");
+        this.record = json.get("record") == null ? null : new RecordModel((Map<String, ?>) json.get("record"));
     }
 
     public String getAction() {

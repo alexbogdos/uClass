@@ -16,17 +16,9 @@ import java.util.concurrent.Flow;
 import java.util.function.Consumer;
 
 public class RealtimeService extends BaseService {
+    private final Map<String, List<Consumer<SseMessage>>> subscriptions = new HashMap<>();
     private SseClient sse;
     private String clientId = "";
-    private final Map<String, List<Consumer<SseMessage>>> subscriptions = new HashMap<>();
-
-    /**
-     * Returns the established SSE connection client id (if any).
-     */
-    public String getClientId() {
-        return clientId;
-    }
-
     /**
      * An optional hook that is invoked when the realtime client disconnects
      * either when unsubscribing from all subscriptions or when the
@@ -43,6 +35,13 @@ public class RealtimeService extends BaseService {
 
     public RealtimeService(PocketBase client) {
         super(client);
+    }
+
+    /**
+     * Returns the established SSE connection client id (if any).
+     */
+    public String getClientId() {
+        return clientId;
     }
 
     /**
@@ -138,7 +137,31 @@ public class RealtimeService extends BaseService {
      * The related sse connection will be autoclosed if after the
      * unsubscribe operation there are no active subscriptions left.
      */
-    private Map<String, ?> unsubscribe(String topic) {
+    public Map<String, ?> unsubscribe(String topic) throws ClientException {
+        var needToSubmit = false;
+
+        if (topic.isEmpty()) {
+            // remove all subscriptions
+            subscriptions.clear();
+        } else {
+            Map<String, List<Consumer<SseMessage>>> subs = getSubscriptionsByTopic(topic);
+            for (String key : subs.keySet()) {
+                subscriptions.remove(key);
+                needToSubmit = true;
+            }
+        }
+
+        // no other subscriptions -> close the sse connection
+        if (!hasNonEmptyTopic()) {
+            disconnect();
+            return null;
+        }
+
+        // otherwise - notify the server about the subscription changes
+        if (!clientId.isEmpty() && needToSubmit) {
+            submitSubscriptions();
+            return null;
+        }
         return null;
     }
 
@@ -152,8 +175,32 @@ public class RealtimeService extends BaseService {
      * The related sse connection will be autoclosed if after the
      * unsubscribe operation there are no active subscriptions left.
      */
-    private Map<String, ?> unsubscribeByPrefix(String topicPrefix) {
-        return null;
+    public void unsubscribeByPrefix(String topicPrefix) throws ClientException {
+        int beforeLength = subscriptions.size();
+
+
+        // remove matching subscriptions
+        for (String key : subscriptions.keySet()) {
+            if (String.format("%s?", key).startsWith(topicPrefix)) {
+                subscriptions.remove(key);
+            }
+        }
+
+        // no changes
+        if (beforeLength == subscriptions.size()) {
+            return;
+        }
+
+        // no other subscriptions -> close the sse connection
+        if (!hasNonEmptyTopic()) {
+            disconnect();
+            return;
+        }
+
+        // otherwise - notify the server about the subscription changes
+        if (!clientId.isEmpty()) {
+            submitSubscriptions();
+        }
     }
 
     /**
@@ -277,22 +324,22 @@ public class RealtimeService extends BaseService {
 
                     @Override
                     public void onNext(SseMessage message) {
+                        this.subscription.request(1);
                         if (!subscriptions.containsKey(message.getEvent())) {
                             return;
                         }
 
                         subscriptions.get(message.getEvent()).forEach(fn -> fn.accept(message));
-                        this.subscription.request(1);
                     }
 
                     @Override
                     public void onError(Throwable throwable) {
-                        throwable.printStackTrace();
+                        throw new RuntimeException(throwable);
                     }
 
                     @Override
                     public void onComplete() {
-                        System.out.println("SSE Complete");
+                        System.out.println("Subscription listener completed");
                     }
                 }
         );
@@ -311,10 +358,7 @@ public class RealtimeService extends BaseService {
 
                     @Override
                     public void onNext(SseMessage message) {
-                        if (!subscriptions.containsKey(message.getEvent())) {
-                            return;
-                        }
-
+                        this.subscription.request(1);
                         if (!message.getEvent().equals("PB_CONNECT")) {
                             return;
                         }
@@ -331,8 +375,6 @@ public class RealtimeService extends BaseService {
                             if (!completer.isDone()) {
                                 completer.completeExceptionally(e);
                             }
-                        } finally {
-                            this.subscription.request(1);
                         }
                     }
 
@@ -346,7 +388,7 @@ public class RealtimeService extends BaseService {
 
                     @Override
                     public void onComplete() {
-                        System.out.println("SSE Complete");
+                        System.out.println("Resubmission listener completed");
                     }
                 }
         );

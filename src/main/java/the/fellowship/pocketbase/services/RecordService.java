@@ -42,7 +42,7 @@ public class RecordService extends BaseCrudService<RecordModel> {
     public Runnable subscribe(
             String topic,
             Consumer<RecordSubscriptionEvent> callback
-    ) {
+    ) throws ClientException {
         return subscribe(topic, callback, null, null, null, null, null);
     }
 
@@ -69,16 +69,20 @@ public class RecordService extends BaseCrudService<RecordModel> {
             String fields,
             Map<String, String> headers,
             Map<String, ?> query
-    ) {
+    ) throws ClientException {
         return client.getRealtime().subscribe(
                 String.format("%s/%s", collectionIdOrName, topic),
-                (e) -> callback.accept(new RecordSubscriptionEvent(e.getJson())),
+                (message) -> callback.accept(new RecordSubscriptionEvent(message.getJsonData())),
                 expand,
                 filter,
                 fields,
                 headers,
                 query
         );
+    }
+
+    public void unsubscribe() throws ClientException {
+        unsubscribe("");
     }
 
     /**
@@ -88,12 +92,13 @@ public class RecordService extends BaseCrudService<RecordModel> {
      * If [topic] is not set, then this method will unsubscribe from
      * all subscriptions associated to the current collection.
      */
-    Map<String, ?> unsubscribe(String topic) {
-        if (!topic.isEmpty()) {
-            return client.getRealtime().unsubscribe(String.format("%s/%s", collectionIdOrName, topic));
+    public void unsubscribe(String topic) throws ClientException {
+        if (topic != null && !topic.isEmpty()) {
+            client.getRealtime().unsubscribe(String.format("%s/%s", collectionIdOrName, topic));
+            return;
         }
 
-        return client.getRealtime().unsubscribeByPrefix(collectionIdOrName);
+        client.getRealtime().unsubscribeByPrefix(collectionIdOrName);
     }
 
     /* - - - - - - - - - - - - - - - - - - - -

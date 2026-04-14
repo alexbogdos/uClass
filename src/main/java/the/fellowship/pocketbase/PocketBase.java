@@ -32,7 +32,7 @@ public class PocketBase {
 
     /**
      * An instance of the service that handles the **Realtime APIs**.
-
+     * <p>
      * This service is usually used with custom realtime actions.
      * For records realtime subscriptions you can use the subscribe/unsubscribe
      * methods available in the `collection()` RecordService.
@@ -156,7 +156,7 @@ public class PocketBase {
             request.header("Accept-Language", lang);
         }
 
-        //System.out.printf("[LOG] %s\n", request.build());
+        //System.out.printf("[LOG] %s %s\n", request.build(), body);
         try (Response response = this.client.newCall(request.build()).execute()) {
             Map<String, ?> responseBody = new Gson().fromJson(response.body().string(), new TypeToken<Map<String, ?>>() {
             }.getType());

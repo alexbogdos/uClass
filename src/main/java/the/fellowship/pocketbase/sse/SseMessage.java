@@ -1,5 +1,8 @@
 package the.fellowship.pocketbase.sse;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -74,6 +77,18 @@ public class SseMessage {
         this.json.put("retry", retry);
     }
 
+    /**
+     * Decodes the event message data as json map.
+     */
+    public Map<String, ?> getJsonData() {
+        if (!data.isEmpty()) {
+            Map<String, ?> decoded = new Gson().fromJson(data, new TypeToken<Map<String, ?>>() {
+            }.getType());
+            return decoded;
+        }
+
+        return new HashMap<>();
+    }
 
     public Map<String, ?> getJson() {
         return json;
@@ -81,6 +96,6 @@ public class SseMessage {
 
     @Override
     public String toString() {
-        return String.format("[%s] %s", event, data);
+        return json.toString();
     }
 }

@@ -36,10 +36,33 @@ public class Main {
             pb.getCollection("posts").subscribe(
                     "*",
                     (event) -> {
-                        System.out.println(event.getAction());
-                        System.out.println(event.getRecord());
+                        System.out.printf("[%s] %s\n", event.getAction(), event.getRecord());
                     }
             );
+
+            System.out.printf("Subscribed to '%s'\n", "posts");
+
+            // Subscribe to changes only in the specified record
+            pb.getCollection("posts").subscribe(
+                    "zxoklomxohmmsib",
+                    (event) -> {
+                        System.out.printf("[%s] %s\n", event.getAction(), event.getRecord());
+                    }
+            );
+
+            System.out.printf("Subscribed to '%s'\n", "posts/zxoklomxohmmsib");
+
+
+            Thread.sleep(10000);
+
+            // Unsubscribe
+            pb.getCollection("posts").unsubscribe("zxoklomxohmmsib");
+            System.out.printf("Unsubscribed from '%s'\n", "posts/zxoklomxohmmsib");
+
+            Thread.sleep(10000);
+
+            pb.getCollection("posts").unsubscribe();
+            System.out.printf("Unsubscribed from '%s'\n", "posts");
 
             // after the above you can also access the auth data from the authStore
             //System.out.println(pb.getAuthStore().isValid());
