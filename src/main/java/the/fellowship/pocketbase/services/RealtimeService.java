@@ -121,7 +121,7 @@ public class RealtimeService extends BaseService {
             try {
                 unsubscribeByTopicAndListener(topic, listener);
             } catch (ClientException e) {
-                throw new RuntimeException(e);
+                System.err.println(e);
             }
         };
     }
@@ -403,15 +403,17 @@ public class RealtimeService extends BaseService {
     }
 
     Map<String, ?> submitSubscriptions() throws ClientException {
+        Map<String, ?> body = Map.of(
+                "clientId", clientId,
+                "subscriptions", subscriptions.keySet().toArray()
+        );
+
         return client.send(
                 "/api/realtime",
                 "POST",
                 null,
                 null,
-                Map.of(
-                        "clientId", clientId,
-                        "subscriptions", subscriptions.keySet().toArray()
-                ),
+                body,
                 null
         );
     }
