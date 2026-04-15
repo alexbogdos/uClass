@@ -156,7 +156,7 @@ public class PocketBase {
             request.header("Accept-Language", lang);
         }
 
-        //System.out.printf("[LOG] %s %s\n", request.build(), body);
+        //System.out.printf("[REQUEST] %s, %s, %s\n", request.build(), body, files);
         try (Response response = this.client.newCall(request.build()).execute()) {
             Map<String, ?> responseBody = new Gson().fromJson(response.body().string(), new TypeToken<Map<String, ?>>() {
             }.getType());
@@ -210,10 +210,13 @@ public class PocketBase {
                 .addFormDataPart("@jsonPayload", jsonEncode(body));
 
         for (MultipartFile file : files) {
-            RequestBody fileBody = RequestBody.create(file.file(), MediaType.parse(file.mediaType()));
+            RequestBody fileBody = RequestBody.create(
+                    file.getFile(),
+                    file.getType() != null ? file.getType() : MediaType.parse("application/octet-stream")
+            );
             requestBody.addFormDataPart(
-                    file.fieldName(),
-                    file.file().getName(),
+                    file.getField(),
+                    file.getName(),
                     fileBody
             );
         }
