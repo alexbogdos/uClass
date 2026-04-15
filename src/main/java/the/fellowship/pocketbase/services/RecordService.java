@@ -6,6 +6,8 @@ import the.fellowship.pocketbase.dtos.RecordAuth;
 import the.fellowship.pocketbase.dtos.RecordModel;
 import the.fellowship.pocketbase.dtos.RecordSubscriptionEvent;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -22,11 +24,11 @@ public class RecordService extends BaseCrudService<RecordModel> {
      * Returns the current collection service base path.
      */
     private String getBaseCollectionPath() {
-        return "/api/collections/" + this.collectionIdOrName;
+        return String.format("/api/collections/%s", URLEncoder.encode(this.collectionIdOrName, StandardCharsets.UTF_8));
     }
 
     @Override
-    String getBaseCrudPath() {
+    public String getBaseCrudPath() {
         return getBaseCollectionPath() + "/records";
     }
 

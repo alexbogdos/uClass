@@ -6,6 +6,8 @@ import the.fellowship.pocketbase.dtos.ResultList;
 import the.fellowship.pocketbase.tools.MultipartFile;
 
 import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -139,7 +141,7 @@ public class BaseCrudService<T> extends BaseService {
         enrichedQuery.putIfAbsent("fields", fields);
 
         Map<String, ?> json = client.send(
-                String.format("%s/%s", getBaseCrudPath(), URI.create(id)),
+                String.format("%s/%s", getBaseCrudPath(), URLEncoder.encode(id, StandardCharsets.UTF_8)),
                 null,
                 headers,
                 enrichedQuery,
@@ -167,7 +169,7 @@ public class BaseCrudService<T> extends BaseService {
         enrichedQuery.putIfAbsent("fields", fields);
 
         Map<String, ?> json = client.send(
-                String.format("%s/%s", getBaseCrudPath(), URI.create(id)),
+                String.format("%s/%s", getBaseCrudPath(), URLEncoder.encode(id, StandardCharsets.UTF_8)),
                 "PATCH",
                 headers,
                 enrichedQuery,
@@ -188,7 +190,7 @@ public class BaseCrudService<T> extends BaseService {
             Map<String, ?> body
     ) throws ClientException {
         client.send(
-                String.format("%s/%s", getBaseCrudPath(), URI.create(id)),
+                String.format("%s/%s", getBaseCrudPath(), URLEncoder.encode(id, StandardCharsets.UTF_8)),
                 "DELETE",
                 headers,
                 query,
