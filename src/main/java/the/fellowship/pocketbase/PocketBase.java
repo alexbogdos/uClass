@@ -8,13 +8,11 @@ import the.fellowship.pocketbase.services.RecordService;
 import the.fellowship.pocketbase.tools.MultipartFile;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class PocketBase {
     /**
@@ -157,16 +155,13 @@ public class PocketBase {
             url += path.startsWith("/") ? path.substring(1) : path;
         }
 
-        // TODO Create `normalizeQueryParameters`
-        //query = _normalizeQueryParameters(queryParameters);
+        query = normalizeQueryParameters(query);
         HttpUrl.Builder builder = HttpUrl.parse(url).newBuilder();
         for (String name : query.keySet()) {
             if (query.get(name) == null) continue;
             builder.addQueryParameter(name, String.valueOf(query.get(name)));
         }
 
-        // TODO: Replace `queryParameters`
-        //return HttpUrl.parse(url).replace(queryParameters: query.isNotEmpty ? query : null);
         return builder.build();
     }
 
@@ -292,5 +287,40 @@ public class PocketBase {
         Type typeObject = new TypeToken<Map<String, ?>>() {
         }.getType();
         return gson.toJson(body, typeObject);
+    }
+
+    private Map<String, ?> normalizeQueryParameters(Map<String, ?> parameters) {
+        Map<String, Object> result = new HashMap<>();
+
+        for (String key : parameters.keySet()) {
+            Object value = parameters.get(key);
+
+            List<String> normalizedValue = new ArrayList<>();
+
+            // convert to List to normalize access
+            if (value instanceof Iterable) {
+                for (Object v : (Iterable<?>) value) {
+                    if (v == null) continue; // skip null query params
+                    normalizedValue.add(v.toString());
+                }
+            } else if (value != null && value.getClass().isArray()) {
+                int length = Array.getLength(value);
+                for (int i = 0; i < length; i++) {
+                    Object v = Array.get(value, i);
+                    if (v == null) continue;
+                    normalizedValue.add(v.toString());
+                }
+            } else {
+                if (value != null) {
+                    normalizedValue.add(value.toString());
+                }
+            }
+
+            if (!normalizedValue.isEmpty()) {
+                result.put(key, normalizedValue);
+            }
+        }
+
+        return result;
     }
 }
