@@ -9,6 +9,9 @@ import the.fellowship.pocketbase.tools.MultipartFile;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +52,7 @@ public class PocketBase {
      * Optional language code (default to `en-US`) that will be sent
      * with the requests to the server as `Accept-Language` header.
      */
-    private String lang = "en-US";
+    private String lang;
 
     public PocketBase(String baseURL, String lang) {
         this(baseURL);
@@ -61,6 +64,7 @@ public class PocketBase {
         this.baseURL = baseURL;
         this.authStore = new AuthStore();
         this.realtime = new RealtimeService(this);
+        this.lang = "en-US";
     }
 
     public RealtimeService getRealtime() {
@@ -80,6 +84,60 @@ public class PocketBase {
 
     public AuthStore getAuthStore() {
         return authStore;
+    }
+
+    /**
+     * Constructs a filter expression with placeholders populated from a map.
+     * <p>
+     * Placeholder parameters are defined with the `{:paramName}` notation.
+     * <p>
+     * The following parameter values are supported:
+     * - `String` (_single quotes are autoescaped_)
+     * - `num`
+     * - `bool`
+     * - `DateTime`
+     * - `null`
+     * - everything else is converted to a string using `jsonEncode()`
+     * <p>
+     * Example:
+     * <p>
+     * ```dart
+     * pb.collection("example").getList(filter: pb.filter(
+     * "title ~ {:title} && created >= {:created}",
+     * { "title": "example", "created": DateTime.now() },
+     * ));
+     * ```
+     */
+    String filter(
+            String expr,
+            Map<String, ?> query
+    ) {
+        if (query == null || query.isEmpty()) {
+            return expr;
+        }
+
+        for (String key : query.keySet()) {
+            Object value = query.get(key);
+            String valueString;
+
+            if (value == null) {
+                valueString = "null";
+            } else if (value instanceof Number || value instanceof Boolean) {
+                valueString = value.toString();
+            } else if (value instanceof Date) {
+                valueString = String.format("'%s'", ((Date) value).toInstant()
+                        .atZone(ZoneOffset.UTC)
+                        .format(DateTimeFormatter.ISO_INSTANT)
+                        .replace("T", " "));
+            } else if (value instanceof String) {
+                valueString = String.format("'%s'", ((String) value).replace("'", "\\'"));
+            } else {
+                valueString = String.format("'%s'", jsonEncode((Map<String, ?>) value).replace("'", "\\'"));
+            }
+            expr = expr.replace(String.format("{:%s}", key), valueString);
+        }
+
+        return expr;
     }
 
     /**
