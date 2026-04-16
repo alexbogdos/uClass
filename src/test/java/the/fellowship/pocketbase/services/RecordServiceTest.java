@@ -8,6 +8,7 @@ class RecordServiceTest extends CrudServiceTest<RecordModel> {
     RecordServiceTest() {
         super(
                 (client) -> new RecordService(client, "@test_collection"),
+                RecordModel::getId,
                 "collections/%40test_collection/records"
         );
     }

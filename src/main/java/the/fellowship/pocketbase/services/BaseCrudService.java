@@ -81,7 +81,7 @@ public class BaseCrudService<T> extends BaseService {
                 fields,
                 headers,
                 query
-                );
+        );
     }
 
     /**
@@ -99,7 +99,7 @@ public class BaseCrudService<T> extends BaseService {
             String fields,
             Map<String, String> headers,
             Map<String, ?> query
-            ) throws ClientException {
+    ) throws ClientException {
         Map<String, Object> enrichedQuery = query != null ? new HashMap<>(query) : new HashMap<>();
         enrichedQuery.put("page", page);
         enrichedQuery.put("perPage", perPage);
@@ -123,9 +123,11 @@ public class BaseCrudService<T> extends BaseService {
         );
     }
 
-    /// Returns single item by its id.
-    ///
-    /// Throws 404 `ClientException` in case an empty `id` is provided.
+    /**
+     * Returns single item by its id.
+     * <p>
+     * Throws 404 `ClientException` in case an empty `id` is provided.
+     */
     public T getOne(
             String id,
             String expand,
@@ -160,6 +162,49 @@ public class BaseCrudService<T> extends BaseService {
 
         return itemFactory(json);
     }
+
+    /**
+     *  Returns the first found list item by the specified filter.
+     *
+     *  Internally it calls `getList()` and returns its first item.
+     *
+     *  For consistency with `getOne`, this method will throw a 404
+     *  `ClientException` if no item was found.
+     */
+    public T getFirstListItem(
+            String filter,
+            String expand,
+            String fields,
+            Map<String, String> headers,
+            Map<String, ?> query
+    ) throws ClientException {
+        ResultList<T> result = getList(
+                1,
+                1,
+                true,
+                expand,
+                filter,
+                null,
+                fields,
+                headers,
+                query
+        );
+
+        if (result.getItems().isEmpty()) {
+            throw new ClientException(
+                    client.buildURL(String.format("%s/", getBaseCrudPath())),
+                    404,
+                    Map.of(
+                            "code", 404,
+                            "message", "The requested resource wasn't found.",
+                            "data", new HashMap<>()
+                    )
+            );
+        }
+
+        return result.getItems().getFirst();
+    }
+
 
     /**
      * Updates a single item by its id.
