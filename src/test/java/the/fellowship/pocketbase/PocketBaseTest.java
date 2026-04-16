@@ -2,7 +2,6 @@ package the.fellowship.pocketbase;
 
 import okhttp3.*;
 import okio.Buffer;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -19,52 +18,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class MockAuthStore extends AuthStore {
-}
-
-class MockInterceptor implements Interceptor {
-    private int code;
-    private Function<Request, Response> response;
-    private final Consumer<Request> consumer;
-
-    public MockInterceptor(Consumer<Request> consumer) {
-        this(200, consumer);
-    }
-
-    public MockInterceptor(int code, Consumer<Request> consumer) {
-        this.code = code;
-        this.consumer = consumer;
-    }
-
-    public MockInterceptor(Function<Request, Response> response, Consumer<Request> consumer) {
-        this.response = response;
-        this.consumer = consumer;
-    }
-
-    @NotNull
-    @Override
-    public Response intercept(@NotNull Chain chain) throws IOException {
-        Request request = chain.request();
-
-        consumer.accept(request);
-
-        if (response != null) {
-            return response.apply(request);
-        }
-
-        return new Response.Builder()
-                .request(request)
-                .protocol(Protocol.HTTP_1_1)
-                .code(code)
-                .message("OK")
-                .body(ResponseBody.create("", MediaType.parse("text/plain")))
-                .build();
-    }
 }
 
 class PocketBaseTest {
@@ -233,7 +190,7 @@ class PocketBaseTest {
         @Test
         @DisplayName("check request data (json)")
         void checkRequestDataJson() {
-            Interceptor interceptor = new MockInterceptor(
+            Interceptor interceptor = new MockClient(
                     (request) -> {
                         // Assert method
                         assertEquals("POST", request.method());
@@ -291,7 +248,7 @@ class PocketBaseTest {
         @Test
         @DisplayName("check request data (multipart/form-data)")
         void checkRequestDataMultipartFormData() {
-            Interceptor interceptor = new MockInterceptor(
+            Interceptor interceptor = new MockClient(
                     (request) -> {
                         // Assert method
                         assertEquals("POST", request.method());
@@ -368,7 +325,7 @@ class PocketBaseTest {
         @Test
         @DisplayName("response with status code > 400")
         void responseWithStatusCodeAbove400() {
-            Interceptor interceptor = new MockInterceptor(
+            Interceptor interceptor = new MockClient(
                     400,
                     (request) -> {
                         // Assert method
@@ -402,7 +359,7 @@ class PocketBaseTest {
         @Test
         @DisplayName("empty body response")
         void emptyBodyResponse() {
-            Interceptor interceptor = new MockInterceptor(
+            Interceptor interceptor = new MockClient(
                     204,
                     (request) -> {
                         // Assert method
@@ -440,7 +397,7 @@ class PocketBaseTest {
         @Test
         @DisplayName("json response")
         void jsonResponse() {
-            Interceptor interceptor = new MockInterceptor(
+            Interceptor interceptor = new MockClient(
                     (request) -> new Response.Builder()
                             .request(request)
                             .protocol(Protocol.HTTP_1_1)
@@ -475,7 +432,7 @@ class PocketBaseTest {
         @DisplayName("non-json response")
         @Disabled("HTML response not supported. Send accepts only JSON")
         void nonJsonResponse() {
-            Interceptor interceptor = new MockInterceptor(
+            Interceptor interceptor = new MockClient(
                     (request) -> new Response.Builder()
                             .request(request)
                             .protocol(Protocol.HTTP_1_1)
@@ -509,7 +466,7 @@ class PocketBaseTest {
         @Test
         @DisplayName("with valid record authStore model")
         void withValidRecordAuthStoreModel() {
-            Interceptor interceptor = new MockInterceptor(
+            Interceptor interceptor = new MockClient(
                     (request) -> {
                         assertTrue(
                                 request.header("Authorization").contains("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.")
@@ -538,7 +495,7 @@ class PocketBaseTest {
         @Test
         @DisplayName("with invalid record authStore")
         void withInvalidRecordAuthStore() {
-            Interceptor interceptor = new MockInterceptor(
+            Interceptor interceptor = new MockClient(
                     (request) -> {
                         assertNull(request.header("Authorization"));
                     }
@@ -566,7 +523,7 @@ class PocketBaseTest {
         @Test
         @DisplayName("with custom Authorization header")
         void withCustomAuthorizationHeader() {
-            Interceptor interceptor = new MockInterceptor(
+            Interceptor interceptor = new MockClient(
                     (request) -> {
                         assertEquals(
                                 "test_custom",
