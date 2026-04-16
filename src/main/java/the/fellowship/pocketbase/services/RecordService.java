@@ -37,6 +37,11 @@ public class RecordService extends BaseCrudService<RecordModel> {
         return new RecordModel(json);
     }
 
+    @Override
+    Map<String, ?> itemEncoder(RecordModel item) {
+        return item.getJson();
+    }
+
     /* - - - - - - - - - - - - - - - - - - - -
      * Realtime handlers
      * - - - - - - - - - - - - - - - - - - - - */

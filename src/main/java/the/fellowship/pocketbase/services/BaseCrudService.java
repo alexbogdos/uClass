@@ -5,7 +5,6 @@ import the.fellowship.pocketbase.PocketBase;
 import the.fellowship.pocketbase.dtos.ResultList;
 import the.fellowship.pocketbase.tools.MultipartFile;
 
-import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -21,9 +20,18 @@ public class BaseCrudService<T> extends BaseService {
         return "";
     }
 
-    /// The factory function that will be used to
-    /// decode the returned items from the crud endpoints.
+    /**
+     * The factory function that will be used to
+     * decode the returned items from the crud endpoints.
+     */
     T itemFactory(Map<String, ?> json) {
+        return null;
+    }
+
+    /**
+     * Encode item to JSON.
+     */
+    Map<String, ?> itemEncoder(T item) {
         return null;
     }
 
@@ -110,7 +118,8 @@ public class BaseCrudService<T> extends BaseService {
                         null,
                         null
                 ),
-                this::itemFactory
+                this::itemFactory,
+                this::itemEncoder
         );
     }
 

@@ -1,43 +1,76 @@
 package the.fellowship.pocketbase.dtos;
 
+import the.fellowship.pocketbase.PocketBase;
+
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
 public class ResultList<T> {
-    double page;
-    double perPage;
-    double totalItems;
-    double totalPages;
+    private final int page;
+    private final int perPage;
+    private final int totalItems;
+    private final int totalPages;
+    private final Function<T, Map<String, ?>> itemConverter;
 
-    List<T> items;
+    private final List<T> items;
 
     public ResultList(Map<String, ?> data, Function<Map<String, ?>, T> itemFactory) {
-        this.page = (double) data.get("page");
-        this.perPage = (double) data.get("perPage");
-        this.totalItems = (double) data.get("totalItems");
-        this.totalPages = (double) data.get("totalPages");
-        this.items = ((List<Map<String, ?>>) data.get("items")).stream().map(itemFactory).toList();
+        this(data, itemFactory, null);
     }
 
-    public double getPage() {
+    public ResultList(Map<String, ?> data, Function<Map<String, ?>, T> itemFactory, Function<T, Map<String, ?>> itemConverter) {
+        this.page = (int) data.get("page");
+        this.perPage = (int) data.get("perPage");
+        this.totalItems = (int) data.get("totalItems");
+        this.totalPages = (int) data.get("totalPages");
+        this.items = ((List<Map<String, ?>>) data.get("items")).stream().map(itemFactory).toList();
+        this.itemConverter = itemConverter;
+    }
+
+    public int getPage() {
         return page;
     }
 
-    public double getPerPage() {
+    public int getPerPage() {
         return perPage;
     }
 
-    public double getTotalItems() {
+    public int getTotalItems() {
         return totalItems;
     }
 
-    public double getTotalPages() {
+    public int getTotalPages() {
         return totalPages;
     }
 
     public List<T> getItems() {
         return items;
+    }
+
+    /**
+     * @return JSON as Map<String, ?>
+     */
+    public Map<String, ?> getJson() {
+        return Map.of(
+                "page", page,
+                "perPage", perPage,
+                "totalItems", totalItems,
+                "totalPages", totalPages,
+                "items", items.stream().map((item) -> {
+                    if (itemConverter != null) {
+                        return itemConverter.apply(item);
+                    }
+                    return String.valueOf(item);
+                }).toList()
+        );
+    }
+
+    /**
+     * @return JSON encoded to String
+     */
+    public String toJson() {
+        return PocketBase.jsonEncode(getJson());
     }
 
     @Override
