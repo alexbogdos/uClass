@@ -68,8 +68,8 @@ public class BaseCrudService<T> extends BaseService {
             String filter,
             String sort,
             String fields,
-            Map<String, ?> query,
-            Map<String, String> headers
+            Map<String, String> headers,
+            Map<String, ?> query
     ) throws ClientException {
         return getList(
                 1,
@@ -79,9 +79,9 @@ public class BaseCrudService<T> extends BaseService {
                 filter,
                 sort,
                 fields,
-                query,
-                headers
-        );
+                headers,
+                query
+                );
     }
 
     /**
@@ -97,9 +97,9 @@ public class BaseCrudService<T> extends BaseService {
             String filter,
             String sort,
             String fields,
-            Map<String, ?> query,
-            Map<String, String> headers
-    ) throws ClientException {
+            Map<String, String> headers,
+            Map<String, ?> query
+            ) throws ClientException {
         Map<String, Object> enrichedQuery = query != null ? new HashMap<>(query) : new HashMap<>();
         enrichedQuery.put("page", page);
         enrichedQuery.put("perPage", perPage);
@@ -130,8 +130,8 @@ public class BaseCrudService<T> extends BaseService {
             String id,
             String expand,
             String fields,
-            Map<String, ?> query,
-            Map<String, String> headers
+            Map<String, String> headers,
+            Map<String, ?> query
     ) throws ClientException {
         if (id.isEmpty()) {
             throw new ClientException(
@@ -166,12 +166,12 @@ public class BaseCrudService<T> extends BaseService {
      */
     public T update(
             String id,
+            String expand,
+            String fields,
             Map<String, String> headers,
             Map<String, ?> query,
             Map<String, ?> body,
-            List<MultipartFile> files,
-            String expand,
-            String fields
+            List<MultipartFile> files
     ) throws ClientException {
         Map<String, Object> enrichedQuery = query != null ? new HashMap<>(query) : new HashMap<>();
         enrichedQuery.putIfAbsent("expand", expand);

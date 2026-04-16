@@ -83,7 +83,7 @@ public class AuthStore {
                 .setObjectToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE)
                 .create()
                 .fromJson(jsonString, new TypeToken<Map<String, ?>>() {}.getType());
-        long exp = data.get("exp") != null ? (Long) data.get("exp") : 0;
+        long exp = data.get("exp") != null ? ((Number) data.get("exp")).longValue() : 0;
         return exp > System.currentTimeMillis() / 1000;
     }
 

@@ -74,7 +74,7 @@ public class PocketBase {
         this.lang = lang;
     }
 
-    protected PocketBase(String baseURL, String lang, Interceptor interceptor) {
+    public PocketBase(String baseURL, String lang, Interceptor interceptor) {
         this.client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
         this.baseURL = baseURL;
         this.authStore = new AuthStore();

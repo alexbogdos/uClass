@@ -220,11 +220,7 @@ class PocketBaseTest {
                     }
             );
 
-            final PocketBase client = new PocketBase(
-                    "https://example.com/base",
-                    "test_lang",
-                    interceptor
-            );
+            final PocketBase client = new PocketBase("https://example.com/base", "test_lang", interceptor);
 
             try {
                 Map<String, Object> query = new HashMap<>();
@@ -285,11 +281,7 @@ class PocketBaseTest {
                     }
             );
 
-            final PocketBase client = new PocketBase(
-                    "https://example.com/base",
-                    "test_lang",
-                    interceptor
-            );
+            final PocketBase client = new PocketBase("https://example.com/base", "test_lang", interceptor);
 
             try {
                 Map<String, Object> query = new HashMap<>();
@@ -347,11 +339,7 @@ class PocketBaseTest {
                     }
             );
 
-            final PocketBase client = new PocketBase(
-                    "https://example.com/base",
-                    "en-US",
-                    interceptor
-            );
+            final PocketBase client = new PocketBase("https://example.com/base", "en-US", interceptor);
 
             assertThrows(ClientException.class, () -> client.send("", null, null, null, null, null));
         }
@@ -381,11 +369,7 @@ class PocketBaseTest {
                     }
             );
 
-            final PocketBase client = new PocketBase(
-                    "https://example.com/base",
-                    "en-US",
-                    interceptor
-            );
+            final PocketBase client = new PocketBase("https://example.com/base", "en-US", interceptor);
 
             try {
                 assertNull(client.send("/test", null, null, null, null, null));
@@ -412,11 +396,7 @@ class PocketBaseTest {
                     }
             );
 
-            final PocketBase client = new PocketBase(
-                    "https://example.com/base",
-                    "en-US",
-                    interceptor
-            );
+            final PocketBase client = new PocketBase("https://example.com/base", "en-US", interceptor);
 
             try {
                 assertEquals(
@@ -447,11 +427,7 @@ class PocketBaseTest {
                     }
             );
 
-            final PocketBase client = new PocketBase(
-                    "https://example.com/base",
-                    "en-US",
-                    interceptor
-            );
+            final PocketBase client = new PocketBase("https://example.com/base", "en-US", interceptor);
 
             try {
                 assertEquals(
@@ -474,11 +450,7 @@ class PocketBaseTest {
                     }
             );
 
-            final PocketBase client = new PocketBase(
-                    "https://example.com/base",
-                    "en-US",
-                    interceptor
-            );
+            final PocketBase client = new PocketBase("https://example.com/base", "en-US", interceptor);
 
             client.getAuthStore().save(
                     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE4OTM0NTI0NjF9.yVr-4JxMz6qUf1MIlGx8iW2ktUrQaFecjY_TMm7Bo4o",
@@ -501,11 +473,7 @@ class PocketBaseTest {
                     }
             );
 
-            final PocketBase client = new PocketBase(
-                    "https://example.com/base",
-                    "en-US",
-                    interceptor
-            );
+            final PocketBase client = new PocketBase("https://example.com/base", "en-US", interceptor);
 
             client.getAuthStore().save(
                     // expired
@@ -532,11 +500,7 @@ class PocketBaseTest {
                     }
             );
 
-            final PocketBase client = new PocketBase(
-                    "https://example.com/base",
-                    "en-US",
-                    interceptor
-            );
+            final PocketBase client = new PocketBase("https://example.com/base", "en-US", interceptor);
 
             client.getAuthStore().save(
                     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE4OTM0NTI0NjF9.yVr-4JxMz6qUf1MIlGx8iW2ktUrQaFecjY_TMm7Bo4o",

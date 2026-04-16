@@ -20,10 +20,10 @@ public class ResultList<T> {
     }
 
     public ResultList(Map<String, ?> data, Function<Map<String, ?>, T> itemFactory, Function<T, Map<String, ?>> itemConverter) {
-        this.page = (int) data.get("page");
-        this.perPage = (int) data.get("perPage");
-        this.totalItems = (int) data.get("totalItems");
-        this.totalPages = (int) data.get("totalPages");
+        this.page = ((Number) data.get("page")).intValue();
+        this.perPage = ((Number) data.get("perPage")).intValue();
+        this.totalItems = ((Number) data.get("totalItems")).intValue();
+        this.totalPages = ((Number) data.get("totalPages")).intValue();
         this.items = ((List<Map<String, ?>>) data.get("items")).stream().map(itemFactory).toList();
         this.itemConverter = itemConverter;
     }
