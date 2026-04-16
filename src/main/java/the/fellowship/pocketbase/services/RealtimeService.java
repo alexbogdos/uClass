@@ -311,6 +311,8 @@ public class RealtimeService extends BaseService {
 
         this.sse = sse;
 
+        // TODO: Minify subscribers. Similar to AuthStore
+
         // bind subscriptions listener
         sse.setOnMessage(
                 new Flow.Subscriber<>() {

@@ -1,5 +1,7 @@
 package the.fellowship.pocketbase.dtos;
 
+import the.fellowship.pocketbase.PocketBase;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -54,6 +56,20 @@ public class RecordModel {
 
     public <T> void setValue(String fieldName, T value) {
         data.put(fieldName, value);
+    }
+
+    /**
+     * @return JSON as Map<String, ?>
+     */
+    public Map<String, ?> getJson() {
+        return data;
+    }
+
+    /**
+     * @return JSON encoded to String
+     */
+    public String toJson() {
+        return PocketBase.jsonEncode(getJson());
     }
 
     @Override
