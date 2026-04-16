@@ -1,6 +1,8 @@
 package the.fellowship.pocketbase;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.ToNumberPolicy;
 import com.google.gson.reflect.TypeToken;
 import okhttp3.*;
 import the.fellowship.pocketbase.services.RealtimeService;
@@ -10,9 +12,13 @@ import the.fellowship.pocketbase.tools.MultipartFile;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Type;
+import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class PocketBase {
     /**
@@ -52,17 +58,40 @@ public class PocketBase {
      */
     private String lang;
 
+    public PocketBase(String baseURL) {
+        this(baseURL, "en-US", new AuthStore());
+    }
+
     public PocketBase(String baseURL, String lang) {
-        this(baseURL);
+        this(baseURL, lang, new AuthStore());
+    }
+
+    protected PocketBase(String baseURL, String lang, AuthStore authStore) {
+        this.client = new OkHttpClient();
+        this.baseURL = baseURL;
+        this.authStore = authStore;
+        this.realtime = new RealtimeService(this);
         this.lang = lang;
     }
 
-    public PocketBase(String baseURL) {
-        this.client = new OkHttpClient();
+    protected PocketBase(String baseURL, String lang, Interceptor interceptor) {
+        this.client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
         this.baseURL = baseURL;
         this.authStore = new AuthStore();
         this.realtime = new RealtimeService(this);
-        this.lang = "en-US";
+        this.lang = lang;
+    }
+
+    protected String getBaseURL() {
+        return baseURL;
+    }
+
+    protected String getLang() {
+        return lang;
+    }
+
+    public AuthStore getAuthStore() {
+        return authStore;
     }
 
     public RealtimeService getRealtime() {
@@ -80,8 +109,8 @@ public class PocketBase {
         return this.recordServices.get(idOrName);
     }
 
-    public AuthStore getAuthStore() {
-        return authStore;
+    public String filter(String expr) {
+        return filter(expr, null);
     }
 
     /**
@@ -106,7 +135,7 @@ public class PocketBase {
      * ));
      * ```
      */
-    String filter(
+    public String filter(
             String expr,
             Map<String, ?> query
     ) {
@@ -122,15 +151,15 @@ public class PocketBase {
                 valueString = "null";
             } else if (value instanceof Number || value instanceof Boolean) {
                 valueString = value.toString();
-            } else if (value instanceof Date) {
-                valueString = String.format("'%s'", ((Date) value).toInstant()
+            } else if (value instanceof Instant) {
+                valueString = String.format("'%s'", ((Instant) value)
                         .atZone(ZoneOffset.UTC)
                         .format(DateTimeFormatter.ISO_INSTANT)
                         .replace("T", " "));
             } else if (value instanceof String) {
                 valueString = String.format("'%s'", ((String) value).replace("'", "\\'"));
             } else {
-                valueString = String.format("'%s'", jsonEncode((Map<String, ?>) value).replace("'", "\\'"));
+                valueString = String.format("'%s'", new Gson().toJson(value).replace("\\u0027", "\\'"));
             }
             expr = expr.replace(String.format("{:%s}", key), valueString);
         }
@@ -142,7 +171,7 @@ public class PocketBase {
      * Builds a full client url by safely concatenating the provided path.
      */
     public HttpUrl buildURL(String path) {
-        return buildURL(path, new HashMap<>());
+        return buildURL(path, null);
     }
 
     /**
@@ -155,11 +184,18 @@ public class PocketBase {
             url += path.startsWith("/") ? path.substring(1) : path;
         }
 
-        query = normalizeQueryParameters(query);
+        if (query == null || query.isEmpty()) {
+            return HttpUrl.get(url);
+        }
+
+        Map<String, List<String>> normalizedQuery = normalizeQueryParameters(query);
         HttpUrl.Builder builder = HttpUrl.parse(url).newBuilder();
-        for (String name : query.keySet()) {
-            if (query.get(name) == null) continue;
-            builder.addQueryParameter(name, String.valueOf(query.get(name)));
+        for (String name : normalizedQuery.keySet()) {
+            if (normalizedQuery.get(name) == null) continue;
+
+            for (String parameter : normalizedQuery.get(name)) {
+                builder.addQueryParameter(name, parameter);
+            }
         }
 
         return builder.build();
@@ -211,8 +247,10 @@ public class PocketBase {
 
         //System.out.printf("[REQUEST] %s, %s, %s\n", request.build(), body, files);
         try (Response response = this.client.newCall(request.build()).execute()) {
-            Map<String, ?> responseBody = new Gson().fromJson(response.body().string(), new TypeToken<Map<String, ?>>() {
-            }.getType());
+            Map<String, ?> responseBody = new GsonBuilder()
+                    .setObjectToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE)
+                    .create()
+                    .fromJson(response.body().string(), new TypeToken<Map<String, ?>>() {}.getType());
             if (response.code() >= 400) {
                 throw new ClientException(url, response.code(), responseBody);
             }
@@ -277,42 +315,46 @@ public class PocketBase {
         Request.Builder request = new Request.Builder()
                 .url(url)
                 .headers(Headers.of(headers))
+                .addHeader("Content-Type", "multipart/form-data")
                 .method(method, requestBody.build());
 
         return request;
     }
 
-    public String jsonEncode(Map<String, ?> body) {
-        Gson gson = new Gson();
-        Type typeObject = new TypeToken<Map<String, ?>>() {
-        }.getType();
+    public static String jsonEncode(Map<String, ?> body) {
+        Gson gson = new GsonBuilder()
+                .serializeNulls()
+                .create();
+        Type typeObject = new TypeToken<Map<String, ?>>() {}.getType();
         return gson.toJson(body, typeObject);
     }
 
-    private Map<String, ?> normalizeQueryParameters(Map<String, ?> parameters) {
-        Map<String, Object> result = new HashMap<>();
+    private Map<String, List<String>> normalizeQueryParameters(Map<String, ?> parameters) {
+        Map<String, List<String>> result = new HashMap<>();
 
         for (String key : parameters.keySet()) {
             Object value = parameters.get(key);
 
             List<String> normalizedValue = new ArrayList<>();
 
+            // TODO: Rewrite
+
             // convert to List to normalize access
             if (value instanceof Iterable) {
                 for (Object v : (Iterable<?>) value) {
                     if (v == null) continue; // skip null query params
-                    normalizedValue.add(v.toString());
+                    normalizedValue.add(String.valueOf(v));
                 }
             } else if (value != null && value.getClass().isArray()) {
                 int length = Array.getLength(value);
                 for (int i = 0; i < length; i++) {
                     Object v = Array.get(value, i);
                     if (v == null) continue;
-                    normalizedValue.add(v.toString());
+                    normalizedValue.add(String.valueOf(v));
                 }
             } else {
                 if (value != null) {
-                    normalizedValue.add(value.toString());
+                    normalizedValue.add(String.valueOf(value));
                 }
             }
 
