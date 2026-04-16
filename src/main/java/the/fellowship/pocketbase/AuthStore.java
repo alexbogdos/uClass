@@ -8,12 +8,17 @@ import the.fellowship.pocketbase.dtos.RecordModel;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
+import java.util.concurrent.Flow;
+import java.util.concurrent.SubmissionPublisher;
+import java.util.function.Consumer;
 
 /**
  * Base authentication store management service that keep tracks of
  * the authenticated User/Admin model and its token.
  */
 public class AuthStore {
+    private final SubmissionPublisher<AuthStoreEvent> onChangeController = new SubmissionPublisher<>();
+
     private String token = "";
     private RecordModel record;
 
@@ -29,6 +34,36 @@ public class AuthStore {
      */
     public RecordModel getRecord() {
         return record;
+    }
+
+    /**
+     * Stream that gets triggered on each auth store change
+     * (aka. on [save()] and [clear()] call).
+     */
+    public void setOnChange(Consumer<AuthStoreEvent> consumer) {
+        onChangeController.subscribe(new Flow.Subscriber<AuthStoreEvent>() {
+            private Flow.Subscription subscription;
+
+            @Override
+            public void onSubscribe(Flow.Subscription subscription) {
+                this.subscription = subscription;
+                this.subscription.request(1);
+            }
+
+            @Override
+            public void onNext(AuthStoreEvent authStoreEvent) {
+                this.subscription.request(1);
+                consumer.accept(authStoreEvent);
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+            }
+
+            @Override
+            public void onComplete() {
+            }
+        });
     }
 
     /**
@@ -58,6 +93,8 @@ public class AuthStore {
     public void save(String newToken, RecordModel newRecord) {
         this.token = newToken;
         this.record = newRecord;
+
+        onChangeController.submit(new AuthStoreEvent(this.token, this.record));
     }
 
     /**
@@ -66,5 +103,7 @@ public class AuthStore {
     public void clear() {
         this.token = "";
         this.record = null;
+
+        onChangeController.submit(new AuthStoreEvent(this.token, this.record));
     }
 }

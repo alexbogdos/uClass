@@ -20,7 +20,10 @@ public class RecordAuth {
     }
 
     public String getIdentifier() {
-        return String.valueOf(record.getValue("name") != null ? record.getValue("name") : record.getValue("email"));
+        if (record.getValue("name") != null) {
+            return record.getValue("name");
+        }
+        return record.getValue("email");
     }
 
     @Override

@@ -27,18 +27,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class MockAuthStore extends AuthStore {
 }
 
-class MockRecordModel extends RecordModel {
-    public MockRecordModel() {
-        super(Map.of(
-                "id", "id",
-                "collectionId", "collectionId",
-                "collectionName", "collectionName",
-                "created", "created",
-                "updated", "updated"
-        ));
-    }
-}
-
 class MockInterceptor implements Interceptor {
     private int code;
     private Function<Request, Response> response;
@@ -86,7 +74,7 @@ class PocketBaseTest {
         @Test
         @DisplayName("with defaults")
         void withDefaults() {
-            PocketBase client = new PocketBase("https://example.com");
+            final PocketBase client = new PocketBase("https://example.com");
 
             assertEquals("https://example.com", client.getBaseURL());
             assertEquals("en-US", client.getLang());
@@ -99,7 +87,7 @@ class PocketBaseTest {
         @Test
         @DisplayName("with opt fields")
         void withOptFields() {
-            PocketBase client = new PocketBase(
+            final PocketBase client = new PocketBase(
                     "https://example.com",
                     "test_lang",
                     new MockAuthStore()
@@ -117,7 +105,7 @@ class PocketBaseTest {
         @Test
         @DisplayName("initializing different RecordServices")
         void initializingDifferentRecordServices() {
-            PocketBase client = new PocketBase("https://example.com");
+            final PocketBase client = new PocketBase("https://example.com");
 
             RecordService service1 = client.getCollection("test1");
             RecordService service2 = client.getCollection("@test2");
@@ -135,7 +123,7 @@ class PocketBaseTest {
         @Test
         @DisplayName("filter expression without params")
         void filterExpressionWithoutParams() {
-            PocketBase client = new PocketBase("https://example.com");
+            final PocketBase client = new PocketBase("https://example.com");
 
             String expr = "a > {:test1} && b = {:test2} || c = {:test2}";
 
@@ -145,7 +133,7 @@ class PocketBaseTest {
         @Test
         @DisplayName("filter expression with partial missing placeholders")
         void filterExpressionWithPartialMissingPlaceholders() {
-            PocketBase client = new PocketBase("https://example.com");
+            final PocketBase client = new PocketBase("https://example.com");
 
             String expr = "a > {:test1} && b = {:test2} || c = {:test2}";
 
@@ -158,7 +146,7 @@ class PocketBaseTest {
         @Test
         @DisplayName("filter expression with all placeholder types")
         void filterExpressionWithAllPlaceholderTypes() {
-            PocketBase client = new PocketBase("https://example.com");
+            final PocketBase client = new PocketBase("https://example.com");
 
             Map<String, Object> params = new TreeMap<>();
             params.put("test1", "a'b'c'");
@@ -193,7 +181,7 @@ class PocketBaseTest {
         @Test
         @DisplayName("baseURL with trailing slash")
         void baseURLWithTrailingSlash() {
-            PocketBase client = new PocketBase("https://example.com");
+            final PocketBase client = new PocketBase("https://example.com");
 
             assertEquals("https://example.com/test", client.buildURL("test").toString());
             assertEquals("https://example.com/test", client.buildURL("/test").toString());
@@ -202,7 +190,7 @@ class PocketBaseTest {
         @Test
         @DisplayName("baseURL without trailing slash")
         void baseURLWithoutTrailingSlash() {
-            PocketBase client = new PocketBase("https://example.com");
+            final PocketBase client = new PocketBase("https://example.com");
 
             assertEquals("https://example.com/test", client.buildURL("test").toString());
             assertEquals("https://example.com/test", client.buildURL("/test").toString());
@@ -212,7 +200,7 @@ class PocketBaseTest {
         @DisplayName("relative baseURL")
         @Disabled("Use `URI.create(url)`")
         void relativeBaseURL() {
-            PocketBase client = new PocketBase("/api");
+            final PocketBase client = new PocketBase("/api");
 
             assertEquals("/api/test", client.buildURL("test").toString());
             assertEquals("/api/test", client.buildURL("/test").toString());
@@ -221,7 +209,7 @@ class PocketBaseTest {
         @Test
         @DisplayName("with query parameters")
         void withQueryParameters() {
-            PocketBase client = new PocketBase("https://example.com/");
+            final PocketBase client = new PocketBase("https://example.com/");
 
             Map<String, Object> query = new HashMap<>();
             query.put("a", null);
@@ -275,7 +263,7 @@ class PocketBaseTest {
                     }
             );
 
-            PocketBase client = new PocketBase(
+            final PocketBase client = new PocketBase(
                     "https://example.com/base",
                     "test_lang",
                     interceptor
@@ -340,7 +328,7 @@ class PocketBaseTest {
                     }
             );
 
-            PocketBase client = new PocketBase(
+            final PocketBase client = new PocketBase(
                     "https://example.com/base",
                     "test_lang",
                     interceptor
@@ -402,7 +390,7 @@ class PocketBaseTest {
                     }
             );
 
-            PocketBase client = new PocketBase(
+            final PocketBase client = new PocketBase(
                     "https://example.com/base",
                     "en-US",
                     interceptor
@@ -436,7 +424,7 @@ class PocketBaseTest {
                     }
             );
 
-            PocketBase client = new PocketBase(
+            final PocketBase client = new PocketBase(
                     "https://example.com/base",
                     "en-US",
                     interceptor
@@ -467,7 +455,7 @@ class PocketBaseTest {
                     }
             );
 
-            PocketBase client = new PocketBase(
+            final PocketBase client = new PocketBase(
                     "https://example.com/base",
                     "en-US",
                     interceptor
@@ -502,7 +490,7 @@ class PocketBaseTest {
                     }
             );
 
-            PocketBase client = new PocketBase(
+            final PocketBase client = new PocketBase(
                     "https://example.com/base",
                     "en-US",
                     interceptor
@@ -529,7 +517,7 @@ class PocketBaseTest {
                     }
             );
 
-            PocketBase client = new PocketBase(
+            final PocketBase client = new PocketBase(
                     "https://example.com/base",
                     "en-US",
                     interceptor
@@ -537,7 +525,7 @@ class PocketBaseTest {
 
             client.getAuthStore().save(
                     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE4OTM0NTI0NjF9.yVr-4JxMz6qUf1MIlGx8iW2ktUrQaFecjY_TMm7Bo4o",
-                    new MockRecordModel()
+                    new RecordModel()
             );
 
             try {
@@ -556,7 +544,7 @@ class PocketBaseTest {
                     }
             );
 
-            PocketBase client = new PocketBase(
+            final PocketBase client = new PocketBase(
                     "https://example.com/base",
                     "en-US",
                     interceptor
@@ -565,7 +553,7 @@ class PocketBaseTest {
             client.getAuthStore().save(
                     // expired
                     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NDA5OTE2NjF9.TxZjXz_Ks665Hju0FkZSGqHFCYBbgBmMGOLnIzkg9Dg",
-                    new MockRecordModel()
+                    new RecordModel()
             );
 
             try {
@@ -587,7 +575,7 @@ class PocketBaseTest {
                     }
             );
 
-            PocketBase client = new PocketBase(
+            final PocketBase client = new PocketBase(
                     "https://example.com/base",
                     "en-US",
                     interceptor
@@ -595,7 +583,7 @@ class PocketBaseTest {
 
             client.getAuthStore().save(
                     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE4OTM0NTI0NjF9.yVr-4JxMz6qUf1MIlGx8iW2ktUrQaFecjY_TMm7Bo4o",
-                    new MockRecordModel()
+                    new RecordModel()
             );
 
             try {
