@@ -3,12 +3,12 @@ package the.fellowship;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.TreeMap;
 import java.util.Map;
 
 public class Environment {
     public static Map<String, String> load(String path) {
-        Map<String, String> environment = new HashMap<>();
+        Map<String, String> environment = new TreeMap<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
             String line;
             while ((line = reader.readLine()) != null) {

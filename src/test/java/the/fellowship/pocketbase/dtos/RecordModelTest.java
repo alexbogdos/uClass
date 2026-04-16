@@ -4,7 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import the.fellowship.pocketbase.PocketBase;
 
-import java.util.HashMap;
+import java.util.TreeMap;
 import java.util.List;
 import java.util.Map;
 
@@ -56,7 +56,7 @@ class RecordModelTest {
 
         // to json
         assertEquals(model.getJson(), json);
-        assertEquals(PocketBase.jsonEncode(new HashMap<>(json)), model.toJson());
+        assertEquals(PocketBase.jsonEncode(json), model.toJson());
     }
 
     @Test
@@ -74,7 +74,7 @@ class RecordModelTest {
     @Test
     @DisplayName("getValue()")
     void getValue() {
-        Map<String, Object> json = new java.util.HashMap<>();
+        Map<String, Object> json = new TreeMap<>();
         json.put("a", null);
         json.put("b", 1.5);
         json.put("c", "test");

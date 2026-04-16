@@ -16,7 +16,7 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.TreeMap;
 import java.util.List;
 import java.util.Map;
 
@@ -50,7 +50,7 @@ public class PocketBase {
      * The shared HTTP client instance that is used when the
      * `reuseHTTPClient` constructor argument is set.
      */
-    private final Map<String, RecordService> recordServices = new HashMap<>();
+    private final Map<String, RecordService> recordServices = new TreeMap<>();
 
     /**
      * Optional language code (default to `en-US`) that will be sent
@@ -218,13 +218,13 @@ public class PocketBase {
             method = "GET";
         }
         if (headers == null) {
-            headers = new HashMap<>();
+            headers = new TreeMap<>();
         }
         if (query == null) {
-            query = new HashMap<>();
+            query = new TreeMap<>();
         }
         if (body == null) {
-            body = new HashMap<>();
+            body = new TreeMap<>();
         }
 
         HttpUrl url = this.buildURL(path, query);
@@ -246,11 +246,13 @@ public class PocketBase {
         }
 
         //System.out.printf("[REQUEST] %s, %s, %s\n", request.build(), body, files);
+        // TODO: Use [enqueue()] instead of [execute()]
         try (Response response = this.client.newCall(request.build()).execute()) {
             Map<String, ?> responseBody = new GsonBuilder()
                     .setObjectToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE)
                     .create()
-                    .fromJson(response.body().string(), new TypeToken<Map<String, ?>>() {}.getType());
+                    .fromJson(response.body().string(), new TypeToken<Map<String, ?>>() {
+                    }.getType());
             if (response.code() >= 400) {
                 throw new ClientException(url, response.code(), responseBody);
             }
@@ -301,10 +303,21 @@ public class PocketBase {
                 .addFormDataPart("@jsonPayload", jsonEncode(body));
 
         for (MultipartFile file : files) {
-            RequestBody fileBody = RequestBody.create(
-                    file.getFile(),
-                    file.getType() != null ? file.getType() : MediaType.parse("application/octet-stream")
-            );
+
+            // TODO: Do not use File. Replace [MultipartFile] with [MultipartBody.Part]
+            RequestBody fileBody;
+            if (file.hasFile()) {
+                fileBody = RequestBody.create(
+                        file.getFile(),
+                        file.getType() != null ? file.getType() : MediaType.parse("application/octet-stream")
+                );
+            } else {
+                fileBody = RequestBody.create(
+                        file.getContent(),
+                        MediaType.parse("application/octet-stream")
+                );
+            }
+
             requestBody.addFormDataPart(
                     file.getField(),
                     file.getName(),
@@ -314,9 +327,15 @@ public class PocketBase {
 
         Request.Builder request = new Request.Builder()
                 .url(url)
-                .headers(Headers.of(headers))
-                .addHeader("Content-Type", "multipart/form-data")
                 .method(method, requestBody.build());
+
+        if (!headers.isEmpty()) {
+            request.headers(Headers.of(headers));
+        }
+
+        if (!headers.containsKey("Content-Type")) {
+            request.header("Content-Type", "multipart/form-data");
+        }
 
         return request;
     }
@@ -326,11 +345,11 @@ public class PocketBase {
                 .serializeNulls()
                 .create();
         Type typeObject = new TypeToken<Map<String, ?>>() {}.getType();
-        return gson.toJson(body, typeObject);
+        return gson.toJson(new TreeMap<>(body), typeObject);
     }
 
     private Map<String, List<String>> normalizeQueryParameters(Map<String, ?> parameters) {
-        Map<String, List<String>> result = new HashMap<>();
+        Map<String, List<String>> result = new TreeMap<>();
 
         for (String key : parameters.keySet()) {
             Object value = parameters.get(key);

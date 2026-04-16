@@ -8,7 +8,7 @@ import the.fellowship.pocketbase.dtos.RecordSubscriptionEvent;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
+import java.util.TreeMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -112,6 +112,10 @@ public class RecordService extends BaseCrudService<RecordModel> {
      *  Auth collection handlers
      * - - - - - - - - - - - - - - - - - - - - */
 
+    public RecordAuth authWithPassword(String usernameOrEmail, String password) throws ClientException {
+        return authWithPassword(usernameOrEmail, password, null, null, null, null, null);
+    }
+
     /**
      * Authenticate a single auth collection record via its username/email and password.
      * <p>
@@ -122,17 +126,29 @@ public class RecordService extends BaseCrudService<RecordModel> {
      *
      * @throws ClientException
      */
-    public RecordAuth authWithPassword(String usernameOrEmail, String password) throws ClientException {
-        Map<String, String> body = new HashMap<>();
-        body.put("identity", usernameOrEmail);
-        body.put("password", password);
+    public RecordAuth authWithPassword(
+            String usernameOrEmail,
+            String password,
+            String expand,
+            String fields,
+            Map<String, String> headers,
+            Map<String, ?> query,
+            Map<String, ?> body
+    ) throws ClientException {
+        Map<String, Object> enrichedBody = query != null ? new TreeMap<>(body) : new TreeMap<>();
+        enrichedBody.put("identity", usernameOrEmail);
+        enrichedBody.put("password", password);
+
+        Map<String, Object> enrichedQuery = query != null ? new TreeMap<>(query) : new TreeMap<>();
+        if (expand != null && !expand.isEmpty()) enrichedQuery.put("expand", expand);
+        if (fields != null && !fields.isEmpty()) enrichedQuery.put("fields", fields);
 
         Map<String, ?> response = this.client.send(
                 this.getBaseCollectionPath() + "/auth-with-password",
                 "POST",
-                null,
-                null,
-                body,
+                headers,
+                enrichedQuery,
+                enrichedBody,
                 null
         );
 

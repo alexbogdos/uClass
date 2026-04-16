@@ -4,7 +4,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.ToNumberPolicy;
 import com.google.gson.reflect.TypeToken;
 
-import java.util.HashMap;
+import java.util.TreeMap;
 import java.util.Map;
 
 public class SseMessage {
@@ -31,7 +31,7 @@ public class SseMessage {
     private final Map<String, Object> json;
 
     public SseMessage() {
-        this.json = new HashMap<>();
+        this.json = new TreeMap<>();
     }
 
     public SseMessage(Map<String, ?> json) {
@@ -39,7 +39,7 @@ public class SseMessage {
         this.event = (String) json.get("event");
         this.data = (String) json.get("data");
         this.retry = (int) json.get("retry");
-        this.json = new HashMap<>(json);
+        this.json = new TreeMap<>(json);
     }
 
     public String getId() {
@@ -90,7 +90,7 @@ public class SseMessage {
             return decoded;
         }
 
-        return new HashMap<>();
+        return new TreeMap<>();
     }
 
     public Map<String, ?> getJson() {

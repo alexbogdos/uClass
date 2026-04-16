@@ -1,13 +1,16 @@
 package the.fellowship.pocketbase.services;
 
 import okhttp3.*;
+import okio.Buffer;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import the.fellowship.pocketbase.ClientException;
 import the.fellowship.pocketbase.MockClient;
 import the.fellowship.pocketbase.PocketBase;
 import the.fellowship.pocketbase.dtos.ResultList;
+import the.fellowship.pocketbase.tools.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -29,13 +32,13 @@ abstract class CrudServiceTest<T> {
     @Test
     @DisplayName("getFullList() with last items.length < perPage")
     void getFullListWithLastItemsLengthLessPerPage() {
-
+        // TODO: Implement [getFullList()]
     }
 
     @Test
     @DisplayName("getFullList() with last items.length = perPage")
     void getFullListWithLastItemsLengthEqualPerPage() {
-
+        // TODO: Implement [getFullList()]
     }
 
     @Test
@@ -48,6 +51,7 @@ abstract class CrudServiceTest<T> {
                             .protocol(Protocol.HTTP_1_1)
                             .code(200)
                             .message("OK")
+                            .header("Content-Type", "application/json")
                             .body(ResponseBody.create(
                                     PocketBase.jsonEncode(Map.of(
                                             "page", 2,
@@ -59,14 +63,14 @@ abstract class CrudServiceTest<T> {
                                                     Map.of("id", "2"),
                                             }
                                     )),
-                                    MediaType.parse("text/plain")
+                                    MediaType.parse("application/json")
                             ))
                             .build();
                 },
                 (request) -> {
                     assertEquals("GET", request.method());
                     assertEquals(
-                            "https://example.com/base/api/" + expectedPath + "?filter=f123&a=1&a=2&b=%40demo&expand=rel&perPage=15&skipTotal=false&page=2&sort=s456&fields=a",
+                            "https://example.com/base/api/" + expectedPath + "?a=1&a=2&b=%40demo&expand=rel&fields=a&filter=f123&page=2&perPage=15&skipTotal=false&sort=s456",
                             request.url().toString()
                     );
                     assertEquals("789", request.header("test"));
@@ -190,7 +194,7 @@ abstract class CrudServiceTest<T> {
                 (request) -> {
                     assertEquals("GET", request.method());
                     assertEquals(
-                            "https://example.com/base/api/" + expectedPath + "?filter=test%3D123&a=1&a=2&b=%40demo&expand=rel&perPage=1&skipTotal=true&page=1&fields=a",
+                            "https://example.com/base/api/" + expectedPath + "?a=1&a=2&b=%40demo&expand=rel&fields=a&filter=test%3D123&page=1&perPage=1&skipTotal=true",
                             request.url().toString()
                     );
                     assertEquals("789", request.header("test"));
@@ -221,18 +225,180 @@ abstract class CrudServiceTest<T> {
     @Test
     @DisplayName("create()")
     void create() {
+        Interceptor interceptor = new MockClient(
+                (request) -> {
+                    return new Response.Builder()
+                            .request(request)
+                            .protocol(Protocol.HTTP_1_1)
+                            .code(200)
+                            .message("OK")
+                            .header("Content-Type", "application/json")
+                            .body(ResponseBody.create(
+                                    PocketBase.jsonEncode(Map.of("id", "@id123")),
+                                    MediaType.parse("application/json")
+                            ))
+                            .build();
+                },
+                (request) -> {
+                    assertEquals("POST", request.method());
+                    assertEquals(
+                            "https://example.com/base/api/" + expectedPath + "?a=1&a=2&b=%40demo",
+                            request.url().toString()
+                    );
+                    assertEquals("789", request.header("test"));
 
+                    // Assert body
+                    RequestBody body = request.body();
+                    if (body != null) {
+                        Buffer buffer = new Buffer();
+                        try {
+                            request.body().writeTo(buffer);
+                            String contents = buffer.readUtf8();
+
+                            assertTrue(contents.contains("Content-Disposition: form-data; name=\"@jsonPayload\"\r\n"));
+                            assertTrue(contents.contains("{\"test_body\":123}\r\n"));
+                            assertTrue(contents.contains("Content-Disposition: form-data; name=\"test_file\""));
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                }
+        );
+
+        final PocketBase client = new PocketBase("https://example.com/base", "en-US", interceptor);
+
+        try {
+            final T result = serviceFactory.apply(client).create(
+                    Map.of("test", "789"),
+                    Map.of(
+                            "a", new Object[]{"1", null, 2},
+                            "b", "@demo"
+                    ),
+                    Map.of("test_body", 123),
+                    List.of(new MultipartFile(
+                            "test_file",
+                            "456"
+                    ))
+            );
+
+            assertTrue(result instanceof T);
+            assertEquals("@id123", identifier.apply(result));
+        } catch (ClientException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
     @DisplayName("update()")
     void update() {
+        Interceptor interceptor = new MockClient(
+                (request) -> {
+                    return new Response.Builder()
+                            .request(request)
+                            .protocol(Protocol.HTTP_1_1)
+                            .code(200)
+                            .message("OK")
+                            .header("Content-Type", "application/json")
+                            .body(ResponseBody.create(
+                                    PocketBase.jsonEncode(Map.of("id", "@id123")),
+                                    MediaType.parse("application/json")
+                            ))
+                            .build();
+                },
+                (request) -> {
+                    assertEquals("PATCH", request.method());
+                    assertEquals(
+                            "https://example.com/base/api/" + expectedPath + "/%40id123?a=1&a=2&b=%40demo",
+                            request.url().toString()
+                    );
+                    assertEquals("789", request.header("test"));
 
+                    // Assert body
+                    RequestBody body = request.body();
+                    if (body != null) {
+                        Buffer buffer = new Buffer();
+                        try {
+                            request.body().writeTo(buffer);
+                            String contents = buffer.readUtf8();
+
+                            assertTrue(contents.contains("Content-Disposition: form-data; name=\"@jsonPayload\"\r\n"));
+                            assertTrue(contents.contains("{\"test_body\":123}\r\n"));
+                            assertTrue(contents.contains("Content-Disposition: form-data; name=\"test_file\""));
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                }
+        );
+
+        final PocketBase client = new PocketBase("https://example.com/base", "en-US", interceptor);
+
+        try {
+            final T result = serviceFactory.apply(client).update(
+                    "@id123",
+                    null,
+                    null,
+                    Map.of("test", "789"),
+                    Map.of(
+                            "a", new Object[]{"1", null, 2},
+                            "b", "@demo"
+                    ),
+                    Map.of("test_body", 123),
+                    List.of(new MultipartFile(
+                            "test_file",
+                            "456"
+                    ))
+            );
+
+            assertTrue(result instanceof T);
+            assertEquals("@id123", identifier.apply(result));
+        } catch (ClientException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
     @DisplayName("delete()")
     void delete() {
+        Interceptor interceptor = new MockClient(
+                204,
+                (request) -> {
+                    assertEquals("DELETE", request.method());
+                    assertEquals(
+                            "https://example.com/base/api/" + expectedPath + "/%40id123?a=1&a=2&b=%40demo",
+                            request.url().toString()
+                    );
+                    assertEquals("application/json", request.header("Content-Type"));
+                    assertEquals("789", request.header("test"));
 
+                    // Assert body
+                    RequestBody body = request.body();
+                    if (body != null) {
+                        Buffer buffer = new Buffer();
+                        try {
+                            request.body().writeTo(buffer);
+                            assertEquals("{\"test_body\":123}", buffer.readUtf8());
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                }
+        );
+
+        final PocketBase client = new PocketBase("https://example.com/base", "en-US", interceptor);
+
+        try {
+            serviceFactory.apply(client).delete(
+                    "@id123",
+                    Map.of("test", "789"),
+                    Map.of(
+                            "a", new Object[]{"1", null, 2},
+                            "b", "@demo"
+                    ),
+                    Map.of("test_body", 123)
+            );
+        } catch (ClientException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -2,7 +2,7 @@ package the.fellowship.pocketbase.dtos;
 
 import the.fellowship.pocketbase.PocketBase;
 
-import java.util.HashMap;
+import java.util.TreeMap;
 import java.util.Map;
 
 public class RecordAuth {
@@ -13,7 +13,7 @@ public class RecordAuth {
     public RecordAuth(Map<String, ?> json) {
         this.token = json.get("token") != null ? (String) json.get("token") : "";
         this.record = json.get("record") != null ? new RecordModel((Map<String, ?>) json.get("record")) : null;
-        this.meta = json.get("meta") != null ? (Map<String, ?>) json.get("meta") : new HashMap<>();
+        this.meta = json.get("meta") != null ? (Map<String, ?>) json.get("meta") : new TreeMap<>();
     }
 
     public String getToken() {

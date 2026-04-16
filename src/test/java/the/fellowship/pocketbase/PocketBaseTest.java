@@ -14,7 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.HashMap;
+import java.util.TreeMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -168,7 +168,7 @@ class PocketBaseTest {
         void withQueryParameters() {
             final PocketBase client = new PocketBase("https://example.com/");
 
-            Map<String, Object> query = new HashMap<>();
+            Map<String, Object> query = new TreeMap<>();
             query.put("a", null);
             query.put("b", 123);
             query.put("c", "123");
@@ -178,7 +178,7 @@ class PocketBaseTest {
             HttpUrl url = client.buildURL("/test", query);
 
             assertEquals(
-                    "https://example.com/test?b=123&c=123&d=1&d=2&%40encodeA=%40encodeB",
+                    "https://example.com/test?%40encodeA=%40encodeB&b=123&c=123&d=1&d=2",
                     url.toString()
             );
         }
@@ -223,7 +223,7 @@ class PocketBaseTest {
             final PocketBase client = new PocketBase("https://example.com/base", "test_lang", interceptor);
 
             try {
-                Map<String, Object> query = new HashMap<>();
+                Map<String, Object> query = new TreeMap<>();
                 query.put("a", new Object[]{"1", 2, null});
                 query.put("b", null);
                 query.put("c", 3);
@@ -265,15 +265,11 @@ class PocketBaseTest {
                                 request.body().writeTo(buffer);
                                 String contents = buffer.readUtf8();
 
-                                assertTrue(contents.contains(
-                                        "Content-Disposition: form-data; name=\"@jsonPayload\"\r\n"
-                                ));
+                                assertTrue(contents.contains("Content-Disposition: form-data; name=\"@jsonPayload\"\r\n"));
                                 assertTrue(contents.contains(
                                         "{\"a\":123,\"b1\":[\"1\",\"2\"],\"b2\":[],\"c1\":[1,2],\"c2\":[],\"d\":null,\"e\":{\"test\":123}}\r\n"
                                 ));
-                                assertTrue(contents.contains(
-                                        "Content-Disposition: form-data; name=\"test_file\""
-                                ));
+                                assertTrue(contents.contains("Content-Disposition: form-data; name=\"test_file\""));
                             } catch (IOException e) {
                                 throw new RuntimeException(e);
                             }
@@ -284,7 +280,7 @@ class PocketBaseTest {
             final PocketBase client = new PocketBase("https://example.com/base", "test_lang", interceptor);
 
             try {
-                Map<String, Object> query = new HashMap<>();
+                Map<String, Object> query = new TreeMap<>();
                 query.put("a", new Object[]{"1", 2, null});
                 query.put("b", null);
                 query.put("c", 3);
@@ -304,10 +300,7 @@ class PocketBaseTest {
                         Map.of("test_header", "123"),
                         query,
                         body,
-                        List.of(new MultipartFile(
-                                "test_file",
-                                new File("./assets/mock.txt")
-                        ))
+                        List.of(new MultipartFile("test_file","123"))
                 );
             } catch (ClientException e) {
                 throw new RuntimeException(e);
@@ -408,36 +401,36 @@ class PocketBaseTest {
             }
         }
 
-        @Test
-        @DisplayName("non-json response")
-        @Disabled("HTML response not supported. Send accepts only JSON")
-        void nonJsonResponse() {
-            Interceptor interceptor = new MockClient(
-                    (request) -> new Response.Builder()
-                            .request(request)
-                            .protocol(Protocol.HTTP_1_1)
-                            .code(200)
-                            .message("OK")
-                            .header("Content-Type", "text/html")
-                            .body(ResponseBody.create(
-                                    "test123",
-                                    MediaType.parse("text/html")))
-                            .build(),
-                    (request) -> {
-                    }
-            );
-
-            final PocketBase client = new PocketBase("https://example.com/base", "en-US", interceptor);
-
-            try {
-                assertEquals(
-                        "test123",
-                        client.send("/test", null, null, null, null, null).toString()
-                );
-            } catch (ClientException e) {
-                throw new RuntimeException(e);
-            }
-        }
+        //@Test
+        //@DisplayName("non-json response")
+        //@Disabled("HTML response not supported. Send accepts only JSON")
+        //void nonJsonResponse() {
+        //    Interceptor interceptor = new MockClient(
+        //            (request) -> new Response.Builder()
+        //                    .request(request)
+        //                    .protocol(Protocol.HTTP_1_1)
+        //                    .code(200)
+        //                    .message("OK")
+        //                    .header("Content-Type", "text/html")
+        //                    .body(ResponseBody.create(
+        //                            "test123",
+        //                            MediaType.parse("text/html")))
+        //                    .build(),
+        //            (request) -> {
+        //            }
+        //    );
+        //
+        //    final PocketBase client = new PocketBase("https://example.com/base", "en-US", interceptor);
+        //
+        //    try {
+        //        assertEquals(
+        //                "test123",
+        //                client.send("/test", null, null, null, null, null).toString()
+        //        );
+        //    } catch (ClientException e) {
+        //        throw new RuntimeException(e);
+        //    }
+        //}
 
         @Test
         @DisplayName("with valid record authStore model")

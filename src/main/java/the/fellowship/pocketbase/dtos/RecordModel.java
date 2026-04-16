@@ -11,23 +11,23 @@ import java.util.Map.Entry;
 public class RecordModel {
     private final Map<String, Object> data;
 
-    private final Map<String, List<RecordModel>> expand = new HashMap<>();
+    private final Map<String, List<RecordModel>> expand = new TreeMap<>();
 
     private final List<String> singleExpandKeys = new ArrayList<>();
     private final List<String> multiExpandKeys = new ArrayList<>();
 
     public RecordModel() {
-        this(new HashMap<>());
+        this(null);
     }
 
     public RecordModel(Map<String, ?> data) {
-        this.data = new HashMap<>(data);
+        this.data = data != null ? new TreeMap<>(data) : new TreeMap<>();
 
-        if (data.get("expand") == null) {
+        if (this.data.get("expand") == null) {
             return;
         }
 
-        for (Entry<String, ?> entry : ((Map<String, ?>) data.get("expand")).entrySet()) {
+        for (Entry<String, ?> entry : ((Map<String, ?>) this.data.get("expand")).entrySet()) {
             final String key = entry.getKey();
             final Object value = entry.getValue();
             final List<RecordModel> result = new ArrayList<>();
@@ -35,12 +35,12 @@ public class RecordModel {
             if (value instanceof Iterable<?>) {
                 multiExpandKeys.add(key);
                 for (final Object item : (Iterable<?>) value) {
-                    result.add(new RecordModel(item != null ? (Map<String, ?>) item : new HashMap<>()));
+                    result.add(new RecordModel(item != null ? (Map<String, ?>) item : new TreeMap<>()));
                 }
             } else if (value != null && value.getClass().isArray()) {
                 multiExpandKeys.add(key);
                 for (final Object item : (Object[]) value) {
-                    result.add(new RecordModel(item != null ? (Map<String, ?>) item : new HashMap<>()));
+                    result.add(new RecordModel(item != null ? (Map<String, ?>) item : new TreeMap<>()));
                 }
             }
 

@@ -8,7 +8,7 @@ import the.fellowship.pocketbase.sse.SseMessage;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.TreeMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -16,7 +16,7 @@ import java.util.concurrent.Flow;
 import java.util.function.Consumer;
 
 public class RealtimeService extends BaseService {
-    private final Map<String, List<Consumer<SseMessage>>> subscriptions = new HashMap<>();
+    private final Map<String, List<Consumer<SseMessage>>> subscriptions = new TreeMap<>();
     private SseClient sse;
     private String clientId = "";
     /**
@@ -72,7 +72,7 @@ public class RealtimeService extends BaseService {
         String key = topic;
 
         // merge query parameters
-        Map<String, Object> enrichedQuery = query != null ? new HashMap<>(query) : new HashMap<>();
+        Map<String, Object> enrichedQuery = query != null ? new TreeMap<>(query) : new TreeMap<>();
         if (expand != null && !expand.isEmpty()) {
             enrichedQuery.put("expand", expand);
         }
@@ -84,7 +84,7 @@ public class RealtimeService extends BaseService {
         }
 
         // serialize and append the topic options (if any)
-        Map<String, Object> options = new HashMap<>();
+        Map<String, Object> options = new TreeMap<>();
         if (!enrichedQuery.isEmpty()) {
             options.put("query", enrichedQuery);
         }
@@ -256,7 +256,7 @@ public class RealtimeService extends BaseService {
     }
 
     private Map<String, List<Consumer<SseMessage>>> getSubscriptionsByTopic(String topic) {
-        Map<String, List<Consumer<SseMessage>>> result = new HashMap<>();
+        Map<String, List<Consumer<SseMessage>>> result = new TreeMap<>();
 
         // "?" so that it can be used as end delimiter for the topic
         String finalTopic = topic.contains("?") ? topic : String.format("%s?", topic);

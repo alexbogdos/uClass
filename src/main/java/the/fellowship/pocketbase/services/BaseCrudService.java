@@ -7,7 +7,7 @@ import the.fellowship.pocketbase.tools.MultipartFile;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
+import java.util.TreeMap;
 import java.util.List;
 import java.util.Map;
 
@@ -100,7 +100,7 @@ public class BaseCrudService<T> extends BaseService {
             Map<String, String> headers,
             Map<String, ?> query
     ) throws ClientException {
-        Map<String, Object> enrichedQuery = query != null ? new HashMap<>(query) : new HashMap<>();
+        Map<String, Object> enrichedQuery = query != null ? new TreeMap<>(query) : new TreeMap<>();
         enrichedQuery.put("page", page);
         enrichedQuery.put("perPage", perPage);
         enrichedQuery.putIfAbsent("skipTotal", skipTotal);
@@ -142,12 +142,12 @@ public class BaseCrudService<T> extends BaseService {
                     Map.of(
                             "code", 404,
                             "message", "Missing required record id.",
-                            "data", new HashMap<>()
+                            "data", new TreeMap<>()
                     )
             );
         }
 
-        Map<String, Object> enrichedQuery = query != null ? new HashMap<>(query) : new HashMap<>();
+        Map<String, Object> enrichedQuery = query != null ? new TreeMap<>(query) : new TreeMap<>();
         enrichedQuery.putIfAbsent("expand", expand);
         enrichedQuery.putIfAbsent("fields", fields);
 
@@ -197,7 +197,7 @@ public class BaseCrudService<T> extends BaseService {
                     Map.of(
                             "code", 404,
                             "message", "The requested resource wasn't found.",
-                            "data", new HashMap<>()
+                            "data", new TreeMap<>()
                     )
             );
         }
@@ -218,7 +218,7 @@ public class BaseCrudService<T> extends BaseService {
             Map<String, ?> body,
             List<MultipartFile> files
     ) throws ClientException {
-        Map<String, Object> enrichedQuery = query != null ? new HashMap<>(query) : new HashMap<>();
+        Map<String, Object> enrichedQuery = query != null ? new TreeMap<>(query) : new TreeMap<>();
         enrichedQuery.putIfAbsent("expand", expand);
         enrichedQuery.putIfAbsent("fields", fields);
 
