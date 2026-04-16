@@ -1,6 +1,7 @@
 package the.fellowship.pocketbase.sse;
 
-import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.ToNumberPolicy;
 import com.google.gson.reflect.TypeToken;
 
 import java.util.HashMap;
@@ -82,8 +83,10 @@ public class SseMessage {
      */
     public Map<String, ?> getJsonData() {
         if (!data.isEmpty()) {
-            Map<String, ?> decoded = new Gson().fromJson(data, new TypeToken<Map<String, ?>>() {
-            }.getType());
+            Map<String, ?> decoded = new GsonBuilder()
+                    .setObjectToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE)
+                    .create()
+                    .fromJson(data, new TypeToken<Map<String, ?>>() {}.getType());
             return decoded;
         }
 

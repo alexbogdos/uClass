@@ -1,6 +1,7 @@
 package the.fellowship.pocketbase;
 
-import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.ToNumberPolicy;
 import com.google.gson.reflect.TypeToken;
 import the.fellowship.pocketbase.dtos.RecordModel;
 
@@ -43,12 +44,12 @@ public class AuthStore {
         byte[] tokenPart = Base64.getDecoder().decode(parts[1]);
         String jsonString = new String(tokenPart, StandardCharsets.UTF_8);
 
-        // TODO: Check method validity. exp should be HUGE integer
-
-        Map<String, ?> data = new Gson().fromJson(jsonString, new TypeToken<Map<String, ?>>() {
-        }.getType());
-        double exp = data.get("exp") != null ? (Double) data.get("exp") : 0;
-        return exp > (double) System.currentTimeMillis() / 1000;
+        Map<String, ?> data = new GsonBuilder()
+                .setObjectToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE)
+                .create()
+                .fromJson(jsonString, new TypeToken<Map<String, ?>>() {}.getType());
+        long exp = data.get("exp") != null ? (Long) data.get("exp") : 0;
+        return exp > System.currentTimeMillis() / 1000;
     }
 
     /**
