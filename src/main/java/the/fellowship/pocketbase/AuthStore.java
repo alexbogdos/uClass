@@ -1,6 +1,7 @@
 package the.fellowship.pocketbase;
 
 import the.fellowship.pocketbase.dtos.RecordModel;
+import the.fellowship.pocketbase.tools.Json;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -76,7 +77,7 @@ public class AuthStore {
         byte[] tokenPart = Base64.getDecoder().decode(parts[1]);
         String jsonString = new String(tokenPart, StandardCharsets.UTF_8);
 
-        Map<String, ?> data = PocketBase.jsonDecode(jsonString);
+        Map<String, ?> data = Json.decode(jsonString);
         long exp = data.get("exp") != null ? ((Number) data.get("exp")).longValue() : 0;
         return exp > System.currentTimeMillis() / 1000;
     }

@@ -8,8 +8,8 @@ import the.fellowship.pocketbase.dtos.RecordSubscriptionEvent;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.TreeMap;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.function.Consumer;
 
 public class RecordService extends BaseCrudService<RecordModel> {
@@ -46,6 +46,21 @@ public class RecordService extends BaseCrudService<RecordModel> {
      * Realtime handlers
      * - - - - - - - - - - - - - - - - - - - - */
 
+    /**
+     * Subscribe to realtime changes to the specified topic ("*" or record id).
+     * <p>
+     * If [topic] is the wildcard "*", then this method will subscribe to
+     * any record changes in the collection.
+     * <p>
+     * If [topic] is a record id, then this method will subscribe only
+     * to changes of the specified record id.
+     * <p>
+     * It's OK to subscribe multiple times to the same topic.
+     * <p>
+     * You can use the returned [UnsubscribeFunc] to remove the subscription.
+     * Or use [unsubscribe(topic)] if you want to remove all
+     * subscriptions attached to the topic.
+     */
     public Runnable subscribe(
             String topic,
             Consumer<RecordSubscriptionEvent> callback
@@ -88,6 +103,13 @@ public class RecordService extends BaseCrudService<RecordModel> {
         );
     }
 
+    /**
+     * Unsubscribe from all subscriptions of the specified topic
+     * ("*" or record id).
+     * <p>
+     * If [topic] is not set, then this method will unsubscribe from
+     * all subscriptions associated to the current collection.
+     */
     public void unsubscribe() throws ClientException {
         unsubscribe("");
     }
@@ -112,6 +134,15 @@ public class RecordService extends BaseCrudService<RecordModel> {
      *  Auth collection handlers
      * - - - - - - - - - - - - - - - - - - - - */
 
+    /**
+     * Prepare successful record authentication response.
+     */
+    private RecordAuth authResponse(Map<String, ?> data) {
+        final RecordAuth auth = new RecordAuth(data);
+        client.getAuthStore().save(auth.getToken(), auth.getRecord());
+        return auth;
+    }
+
     public RecordAuth authWithPassword(String usernameOrEmail, String password) throws ClientException {
         return authWithPassword(usernameOrEmail, password, null, null, null, null, null);
     }
@@ -135,15 +166,15 @@ public class RecordService extends BaseCrudService<RecordModel> {
             Map<String, ?> query,
             Map<String, ?> body
     ) throws ClientException {
-        Map<String, Object> enrichedBody = query != null ? new TreeMap<>(body) : new TreeMap<>();
+        final Map<String, Object> enrichedBody = query != null ? new TreeMap<>(body) : new TreeMap<>();
         enrichedBody.put("identity", usernameOrEmail);
         enrichedBody.put("password", password);
 
-        Map<String, Object> enrichedQuery = query != null ? new TreeMap<>(query) : new TreeMap<>();
+        final Map<String, Object> enrichedQuery = query != null ? new TreeMap<>(query) : new TreeMap<>();
         if (expand != null && !expand.isEmpty()) enrichedQuery.put("expand", expand);
         if (fields != null && !fields.isEmpty()) enrichedQuery.put("fields", fields);
 
-        Map<String, ?> response = this.client.send(
+        final Map<String, ?> response = this.client.send(
                 this.getBaseCollectionPath() + "/auth-with-password",
                 "POST",
                 headers,
@@ -152,11 +183,6 @@ public class RecordService extends BaseCrudService<RecordModel> {
                 null
         );
 
-        this.client.getAuthStore().save(
-                (String) response.get("token"),
-                new RecordModel((Map<String, ?>) response.get("record"))
-        );
-
-        return new RecordAuth(response);
+        return authResponse(response);
     }
 }

@@ -4,7 +4,7 @@ import okhttp3.*;
 import okio.BufferedSource;
 import org.jetbrains.annotations.NotNull;
 import the.fellowship.pocketbase.ClientException;
-import the.fellowship.pocketbase.PocketBase;
+import the.fellowship.pocketbase.tools.Json;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -74,15 +74,13 @@ public class SseClient {
     private final Pattern lineRegex = Pattern.compile("^(\\w+)[\\s:]+(.*)?$");
     private final String url;
     private final OkHttpClient httpClient;
-    private ScheduledFuture<?> retryTimer;
     private final int maxRetry;
-    private int retryAttempts = 0;
-
     /**
      * Indicates whether the client was closed.
      */
     private final AtomicBoolean isClosed = new AtomicBoolean(false);
-
+    private ScheduledFuture<?> retryTimer;
+    private int retryAttempts = 0;
     /**
      * The local streamed http response subscription.
      */
@@ -116,13 +114,14 @@ public class SseClient {
     }
 
     /**
-     * Initializes the client and connects to the provided url.
+     * [TESTING] Initializes the client and connects to the provided url.
      */
     public SseClient(String url, Interceptor interceptor) {
         this.url = url;
         this.maxRetry = Integer.MAX_VALUE;
-        this.onClose = () -> {};
-        this.onError = System.err::println;
+        this.onClose = () -> {
+        };
+        this.onError = Throwable::printStackTrace;
         this.httpClient = new OkHttpClient.Builder()
                 .addInterceptor(interceptor)
                 .readTimeout(0, TimeUnit.MILLISECONDS)
@@ -177,8 +176,8 @@ public class SseClient {
             return; // already closed
         }
 
-        HttpUrl url = HttpUrl.parse(this.url);
-        Request request = new Request.Builder()
+        final HttpUrl url = HttpUrl.parse(this.url);
+        final Request request = new Request.Builder()
                 .url(url)
                 .header("Content-Type", "text/event-stream")
                 .get()
@@ -189,7 +188,7 @@ public class SseClient {
                 new Callback() {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                        System.err.println(new ClientException(url, false, -1, null, e.toString()));
+                        System.err.println(new ClientException(url, e));
                         close();
                     }
 
@@ -198,7 +197,7 @@ public class SseClient {
                         SseMessage sseMessage = new SseMessage();
                         try {
                             if (response.code() >= 400) {
-                                Map<String, ?> responseBody = PocketBase.jsonDecode(response.body().string());
+                                final Map<String, ?> responseBody = Json.decode(response.body().string());
                                 throw new ClientException(url, response.code(), responseBody);
                             }
 
@@ -209,7 +208,7 @@ public class SseClient {
 
                             responseStreamSubscription = response.body().source();
                             while (!responseStreamSubscription.exhausted() && !isClosed.get()) {
-                                String line = responseStreamSubscription.readUtf8LineStrict();
+                                final String line = responseStreamSubscription.readUtf8LineStrict();
 
                                 // message end detected
                                 if (line.isEmpty()) {
@@ -218,15 +217,15 @@ public class SseClient {
                                     continue;
                                 }
 
-                                Matcher match = lineRegex.matcher(line);
+                                final Matcher match = lineRegex.matcher(line);
                                 if (!match.matches()) {
                                     // ignore invalid lines
                                     // (some servers may send a different formatted line as a ping)
                                     continue;
                                 }
 
-                                String field = match.group(1);
-                                String value = match.group(2);
+                                final String field = match.group(1);
+                                final String value = match.group(2);
 
                                 switch (field) {
                                     case "id":

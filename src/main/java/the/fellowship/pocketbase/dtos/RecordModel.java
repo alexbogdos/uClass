@@ -1,9 +1,12 @@
 package the.fellowship.pocketbase.dtos;
 
-import the.fellowship.pocketbase.PocketBase;
+import the.fellowship.pocketbase.tools.Json;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
 /**
  * Response DTO of a single record model.
@@ -87,8 +90,8 @@ public class RecordModel {
 
     public <T> T getValue(String fieldName, T defaultValue) {
         if (fieldName.contains(".")) {
-            String[] keys = fieldName.split("\\.");
-            Map<String, ?> internal = getValue(keys[0]);
+            final String[] keys = fieldName.split("\\.");
+            final Map<String, ?> internal = getValue(keys[0]);
             return internal.get(keys[1]) != null ? (T) internal.get(keys[1]) : defaultValue;
         }
 
@@ -113,7 +116,7 @@ public class RecordModel {
      * @return JSON encoded to String
      */
     public String toJson() {
-        return PocketBase.jsonEncode(getJson());
+        return Json.encode(getJson());
     }
 
     @Override

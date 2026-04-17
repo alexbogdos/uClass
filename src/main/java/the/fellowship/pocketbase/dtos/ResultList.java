@@ -1,6 +1,6 @@
 package the.fellowship.pocketbase.dtos;
 
-import the.fellowship.pocketbase.PocketBase;
+import the.fellowship.pocketbase.tools.Json;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +12,7 @@ public class ResultList<T> {
     private final int perPage;
     private final int totalItems;
     private final int totalPages;
-    private final Function<T, Map<String, ?>> itemConverter;
+    private final Function<T, Map<String, ?>> itemEncoder;
 
     private final List<T> items;
 
@@ -20,7 +20,7 @@ public class ResultList<T> {
         this(data, itemFactory, null);
     }
 
-    public ResultList(Map<String, ?> data, Function<Map<String, ?>, T> itemFactory, Function<T, Map<String, ?>> itemConverter) {
+    public ResultList(Map<String, ?> data, Function<Map<String, ?>, T> itemFactory, Function<T, Map<String, ?>> itemEncoder) {
         this.page = ((Number) data.get("page")).intValue();
         this.perPage = ((Number) data.get("perPage")).intValue();
         this.totalItems = ((Number) data.get("totalItems")).intValue();
@@ -28,7 +28,7 @@ public class ResultList<T> {
         this.items = data.get("items") != null
                 ? ((List<Map<String, ?>>) data.get("items")).stream().map(itemFactory).toList()
                 : new ArrayList<T>();
-        this.itemConverter = itemConverter;
+        this.itemEncoder = itemEncoder;
     }
 
     public int getPage() {
@@ -61,8 +61,8 @@ public class ResultList<T> {
                 "totalItems", totalItems,
                 "totalPages", totalPages,
                 "items", items.stream().map((item) -> {
-                    if (itemConverter != null) {
-                        return itemConverter.apply(item);
+                    if (itemEncoder != null) {
+                        return itemEncoder.apply(item);
                     }
                     return String.valueOf(item);
                 }).toList()
@@ -73,7 +73,7 @@ public class ResultList<T> {
      * @return JSON encoded to String
      */
     public String toJson() {
-        return PocketBase.jsonEncode(getJson());
+        return Json.encode(getJson());
     }
 
     @Override

@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import the.fellowship.pocketbase.dtos.RecordModel;
 import the.fellowship.pocketbase.services.RecordService;
+import the.fellowship.pocketbase.tools.Json;
 import the.fellowship.pocketbase.tools.MultipartFile;
 
 import java.io.File;
@@ -210,7 +211,7 @@ class PocketBaseTest {
                             try {
                                 request.body().writeTo(buffer);
                                 assertEquals(
-                                        PocketBase.jsonEncode(Map.of("test", 123)),
+                                        Json.encode(Map.of("test", 123)),
                                         buffer.readUtf8()
                                 );
                             } catch (IOException e) {
@@ -382,7 +383,7 @@ class PocketBaseTest {
                             .message("OK")
                             .header("Content-Type", "application/json")
                             .body(ResponseBody.create(
-                                    PocketBase.jsonEncode(Map.of("test", 123)),
+                                    Json.encode(Map.of("test", 123)),
                                     MediaType.parse("application/json")))
                             .build(),
                     (request) -> {

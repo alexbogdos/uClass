@@ -1,32 +1,28 @@
 package the.fellowship.pocketbase.sse;
 
-import the.fellowship.pocketbase.PocketBase;
+import the.fellowship.pocketbase.tools.Json;
 
 import java.util.Map;
 import java.util.TreeMap;
 
 public class SseMessage {
+    private final Map<String, Object> json;
     /**
      * String identifier representing the last event ID value.
      */
     private String id;
-
     /**
      * The name/type of the event message.
      */
     private String event;
-
     /**
      * The raw data of the event message.
      */
     private String data;
-
     /**
      * The reconnection time (in milliseconds).
      */
     private int retry;
-
-    private final Map<String, Object> json;
 
     public SseMessage() {
         this("", "message", "", 0);
@@ -95,7 +91,7 @@ public class SseMessage {
     public Map<String, ?> getJsonData() {
         if (!data.isEmpty()) {
             try {
-                return PocketBase.jsonDecode(data);
+                return Json.decode(data);
             } catch (Exception ignored) {
                 return Map.of("data", data);
             }
@@ -115,7 +111,7 @@ public class SseMessage {
      * @return JSON encoded to String
      */
     public String toJson() {
-        return PocketBase.jsonEncode(getJson());
+        return Json.encode(getJson());
     }
 
     @Override

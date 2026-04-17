@@ -4,13 +4,14 @@ import the.fellowship.pocketbase.ClientException;
 import the.fellowship.pocketbase.PocketBase;
 import the.fellowship.pocketbase.sse.SseClient;
 import the.fellowship.pocketbase.sse.SseMessage;
+import the.fellowship.pocketbase.tools.Json;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.TreeMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Flow;
 import java.util.function.Consumer;
@@ -19,6 +20,7 @@ public class RealtimeService extends BaseService {
     private final Map<String, List<Consumer<SseMessage>>> subscriptions = new TreeMap<>();
     private SseClient sse;
     private String clientId = "";
+
     /**
      * An optional hook that is invoked when the realtime client disconnects
      * either when unsubscribing from all subscriptions or when the
@@ -72,7 +74,7 @@ public class RealtimeService extends BaseService {
         String key = topic;
 
         // merge query parameters
-        Map<String, Object> enrichedQuery = query != null ? new TreeMap<>(query) : new TreeMap<>();
+        final Map<String, Object> enrichedQuery = query != null ? new TreeMap<>(query) : new TreeMap<>();
         if (expand != null && !expand.isEmpty()) {
             enrichedQuery.put("expand", expand);
         }
@@ -84,7 +86,7 @@ public class RealtimeService extends BaseService {
         }
 
         // serialize and append the topic options (if any)
-        Map<String, Object> options = new TreeMap<>();
+        final Map<String, Object> options = new TreeMap<>();
         if (!enrichedQuery.isEmpty()) {
             options.put("query", enrichedQuery);
         }
@@ -93,10 +95,10 @@ public class RealtimeService extends BaseService {
         }
         if (!options.isEmpty()) {
             try {
-                String encodedQuery = new URI(null, null, null, client.jsonEncode(options), null).getQuery();
-                System.out.printf("Encoded Query: %s\n", new URI(null, null, null, client.jsonEncode(options), null).getQuery());
-                System.out.printf("Encoded Query Raw: %s\n", new URI(null, null, null, client.jsonEncode(options), null).getRawQuery());
-                String encoded = String.format("options=%s}", encodedQuery);
+                final String encodedQuery = new URI(null, null, null, Json.encode(options), null).getQuery();
+                System.out.printf("Encoded Query: %s\n", new URI(null, null, null, Json.encode(options), null).getQuery());
+                System.out.printf("Encoded Query Raw: %s\n", new URI(null, null, null, Json.encode(options), null).getRawQuery());
+                final String encoded = String.format("options=%s}", encodedQuery);
                 key += (key.contains("?") ? "&" : "?") + encoded;
             } catch (URISyntaxException e) {
                 throw new RuntimeException(e);
@@ -138,13 +140,13 @@ public class RealtimeService extends BaseService {
      * unsubscribe operation there are no active subscriptions left.
      */
     public Map<String, ?> unsubscribe(String topic) throws ClientException {
-        var needToSubmit = false;
+        boolean needToSubmit = false;
 
         if (topic.isEmpty()) {
             // remove all subscriptions
             subscriptions.clear();
         } else {
-            Map<String, List<Consumer<SseMessage>>> subs = getSubscriptionsByTopic(topic);
+            final Map<String, List<Consumer<SseMessage>>> subs = getSubscriptionsByTopic(topic);
             for (String key : subs.keySet()) {
                 subscriptions.remove(key);
                 needToSubmit = true;
@@ -176,7 +178,7 @@ public class RealtimeService extends BaseService {
      * unsubscribe operation there are no active subscriptions left.
      */
     public void unsubscribeByPrefix(String topicPrefix) throws ClientException {
-        int beforeLength = subscriptions.size();
+        final int beforeLength = subscriptions.size();
 
 
         // remove matching subscriptions
@@ -219,18 +221,18 @@ public class RealtimeService extends BaseService {
     ) throws ClientException {
         boolean needToSubmit = false;
 
-        Map<String, List<Consumer<SseMessage>>> subs = getSubscriptionsByTopic(topic);
+        final Map<String, List<Consumer<SseMessage>>> subs = getSubscriptionsByTopic(topic);
 
         for (String key : subs.keySet()) {
             if (!subscriptions.containsKey(key) || subscriptions.get(key).isEmpty()) {
                 continue; // nothing to unsubscribe from
             }
 
-            int beforeLength = subscriptions.containsKey(key) ? subscriptions.get(key).size() : 0;
+            final int beforeLength = subscriptions.containsKey(key) ? subscriptions.get(key).size() : 0;
 
             subscriptions.get(key).removeIf(fn -> fn == listener);
 
-            int afterLength = subscriptions.containsKey(key) ? subscriptions.get(key).size() : 0;
+            final int afterLength = subscriptions.containsKey(key) ? subscriptions.get(key).size() : 0;
 
             // no changes
             if (beforeLength == afterLength) {
@@ -256,10 +258,10 @@ public class RealtimeService extends BaseService {
     }
 
     private Map<String, List<Consumer<SseMessage>>> getSubscriptionsByTopic(String topic) {
-        Map<String, List<Consumer<SseMessage>>> result = new TreeMap<>();
+        final Map<String, List<Consumer<SseMessage>>> result = new TreeMap<>();
 
         // "?" so that it can be used as end delimiter for the topic
-        String finalTopic = topic.contains("?") ? topic : String.format("%s?", topic);
+        final String finalTopic = topic.contains("?") ? topic : String.format("%s?", topic);
 
         subscriptions.forEach((key, value) -> {
             if (String.format("%s?", key).startsWith(finalTopic)) {
@@ -283,11 +285,11 @@ public class RealtimeService extends BaseService {
     private CompletableFuture<Void> connect() {
         disconnect();
 
-        CompletableFuture<Void> completer = new CompletableFuture<>();
+        final CompletableFuture<Void> completer = new CompletableFuture<>();
 
-        String url = client.buildURL("/api/realtime").toString();
+        final String url = client.buildURL("/api/realtime").toString();
 
-        SseClient sse = new SseClient(
+        final SseClient sse = new SseClient(
                 url,
                 () -> {
                     if (!clientId.isEmpty() && onDisconnect != null) {
@@ -360,7 +362,7 @@ public class RealtimeService extends BaseService {
                     @Override
                     public void onNext(SseMessage message) {
                         this.subscription.request(1);
-                        if (!message.getEvent().equals("PB_CONNECT")) {
+                        if (!"PB_CONNECT".equals(message.getEvent())) {
                             return;
                         }
 
@@ -404,7 +406,7 @@ public class RealtimeService extends BaseService {
     }
 
     Map<String, ?> submitSubscriptions() throws ClientException {
-        Map<String, ?> body = Map.of(
+        final Map<String, ?> body = Map.of(
                 "clientId", clientId,
                 "subscriptions", subscriptions.keySet().toArray()
         );

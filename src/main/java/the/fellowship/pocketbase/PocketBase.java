@@ -1,24 +1,21 @@
 package the.fellowship.pocketbase;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.ToNumberPolicy;
-import com.google.gson.reflect.TypeToken;
 import okhttp3.*;
 import the.fellowship.pocketbase.services.RealtimeService;
 import the.fellowship.pocketbase.services.RecordService;
+import the.fellowship.pocketbase.tools.Json;
 import the.fellowship.pocketbase.tools.MultipartFile;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
-import java.lang.reflect.Type;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.TreeMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class PocketBase {
     /**
@@ -56,7 +53,7 @@ public class PocketBase {
      * Optional language code (default to `en-US`) that will be sent
      * with the requests to the server as `Accept-Language` header.
      */
-    private String lang;
+    private final String lang;
 
     public PocketBase(String baseURL) {
         this(baseURL, "en-US", new AuthStore());
@@ -112,6 +109,26 @@ public class PocketBase {
         return this.recordServices.get(idOrName);
     }
 
+    /**
+     * Constructs a filter expression with placeholders populated from a map.
+     * <p>
+     * The following parameter values are supported:
+     * - `String` (_single quotes are autoescaped_)
+     * - `num`
+     * - `bool`
+     * - `Instant` (Date)
+     * - `null`
+     * - everything else is converted to a string using `jsonEncode()`
+     * <p>
+     * Example:
+     * <p>
+     * ```dart
+     * pb.collection("example").getList(filter: pb.filter(
+     * "title ~ {:title} && created >= {:created}",
+     * { "title": "example", "created": DateTime.now() },
+     * ));
+     * ```
+     */
     public String filter(String expr) {
         return filter(expr, null);
     }
@@ -119,13 +136,11 @@ public class PocketBase {
     /**
      * Constructs a filter expression with placeholders populated from a map.
      * <p>
-     * Placeholder parameters are defined with the `{:paramName}` notation.
-     * <p>
      * The following parameter values are supported:
      * - `String` (_single quotes are autoescaped_)
      * - `num`
      * - `bool`
-     * - `DateTime`
+     * - `Instant` (Date)
      * - `null`
      * - everything else is converted to a string using `jsonEncode()`
      * <p>
@@ -191,8 +206,8 @@ public class PocketBase {
             return HttpUrl.get(url);
         }
 
-        Map<String, List<String>> normalizedQuery = normalizeQueryParameters(query);
-        HttpUrl.Builder builder = HttpUrl.parse(url).newBuilder();
+        final Map<String, List<String>> normalizedQuery = normalizeQueryParameters(query);
+        final HttpUrl.Builder builder = HttpUrl.parse(url).newBuilder();
         for (String name : normalizedQuery.keySet()) {
             if (normalizedQuery.get(name) == null) continue;
 
@@ -205,7 +220,24 @@ public class PocketBase {
     }
 
     /**
-     * Sends an api http request.
+     * Sends a single HTTP request built with the current client configuration
+     * and the provided options.
+     * <p>
+     * All response errors are normalized and wrapped in [ClientException].
+     *
+     * @throws ClientException
+     */
+    public Map<String, ?> send(
+            String path
+    ) throws ClientException {
+        return send(path, null, null, null, null, null);
+    }
+
+    /**
+     * Sends a single HTTP request built with the current client configuration
+     * and the provided options.
+     * <p>
+     * All response errors are normalized and wrapped in [ClientException].
      *
      * @throws ClientException
      */
@@ -217,23 +249,14 @@ public class PocketBase {
             Map<String, ?> body,
             List<MultipartFile> files
     ) throws ClientException {
-        if (method == null) {
-            method = "GET";
-        }
-        if (headers == null) {
-            headers = new TreeMap<>();
-        }
-        if (query == null) {
-            query = new TreeMap<>();
-        }
-        if (body == null) {
-            body = new TreeMap<>();
-        }
+        if (method == null) method = "GET";
+        if (headers == null) headers = new TreeMap<>();
+        if (query == null) query = new TreeMap<>();
+        if (body == null) body = new TreeMap<>();
 
-        HttpUrl url = this.buildURL(path, query);
+        final HttpUrl url = this.buildURL(path, query);
 
-        Request.Builder request = new Request.Builder();
-
+        Request.Builder request;
         if (files == null) {
             request = jsonRequest(method, url, headers, body);
         } else {
@@ -251,13 +274,13 @@ public class PocketBase {
         //System.out.printf("[REQUEST] %s, %s, %s\n", request.build(), body, files);
         // TODO: Use [enqueue()] instead of [execute()]
         try (Response response = this.client.newCall(request.build()).execute()) {
-            Map<String, ?> responseBody = PocketBase.jsonDecode(response.body().string());
+            final Map<String, ?> responseBody = Json.decode(response.body().string());
             if (response.code() >= 400) {
                 throw new ClientException(url, response.code(), responseBody);
             }
             return responseBody;
         } catch (IOException e) {
-            throw new ClientException(url, false, -1, null, e.toString());
+            throw new ClientException(url, e);
         }
     }
 
@@ -267,12 +290,12 @@ public class PocketBase {
             Map<String, String> headers,
             Map<String, ?> body
     ) {
-        Request.Builder request = new Request.Builder()
+        final Request.Builder request = new Request.Builder()
                 .url(url);
 
         if (!body.isEmpty()) {
             request.method(method, RequestBody.create(
-                    jsonEncode(body),
+                    Json.encode(body),
                     MediaType.parse("application/json")
             ));
         } else {
@@ -297,9 +320,9 @@ public class PocketBase {
             Map<String, ?> body,
             List<MultipartFile> files
     ) {
-        MultipartBody.Builder requestBody = new MultipartBody.Builder()
+        final MultipartBody.Builder requestBody = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
-                .addFormDataPart("@jsonPayload", jsonEncode(body));
+                .addFormDataPart("@jsonPayload", Json.encode(body));
 
         for (MultipartFile file : files) {
 
@@ -324,7 +347,7 @@ public class PocketBase {
             );
         }
 
-        Request.Builder request = new Request.Builder()
+        final Request.Builder request = new Request.Builder()
                 .url(url)
                 .method(method, requestBody.build());
 
@@ -339,29 +362,12 @@ public class PocketBase {
         return request;
     }
 
-    public static String jsonEncode(Map<String, ?> body) {
-        Gson gson = new GsonBuilder()
-                .serializeNulls()
-                .create();
-        Type typeObject = new TypeToken<Map<String, ?>>() {}.getType();
-        return gson.toJson(new TreeMap<>(body), typeObject);
-    }
-
-    public static Map<String, ?> jsonDecode(String data) {
-        Map<String, ?> decoded = new GsonBuilder()
-                .setObjectToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE)
-                .create()
-                .fromJson(data, new TypeToken<Map<String, ?>>() {}.getType());
-        return decoded;
-    }
-
     private Map<String, List<String>> normalizeQueryParameters(Map<String, ?> parameters) {
-        Map<String, List<String>> result = new TreeMap<>();
+        final Map<String, List<String>> result = new TreeMap<>();
 
         for (String key : parameters.keySet()) {
-            Object value = parameters.get(key);
-
-            List<String> normalizedValue = new ArrayList<>();
+            final Object value = parameters.get(key);
+            final List<String> normalizedValue = new ArrayList<>();
 
             // TODO: Rewrite
 

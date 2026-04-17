@@ -9,6 +9,7 @@ import the.fellowship.pocketbase.MockClient;
 import the.fellowship.pocketbase.PocketBase;
 import the.fellowship.pocketbase.dtos.RecordAuth;
 import the.fellowship.pocketbase.dtos.RecordModel;
+import the.fellowship.pocketbase.tools.Json;
 
 import java.io.IOException;
 import java.util.Map;
@@ -37,7 +38,7 @@ class RecordServiceTest extends CrudServiceTest<RecordModel> {
                             .message("OK")
                             .header("Content-Type", "application/json")
                             .body(ResponseBody.create(
-                                    PocketBase.jsonEncode(Map.of(
+                                    Json.encode(Map.of(
                                             "token", "test_token",
                                             "record", Map.of("id", "test_id")
                                     )),
@@ -61,7 +62,7 @@ class RecordServiceTest extends CrudServiceTest<RecordModel> {
                         try {
                             request.body().writeTo(buffer);
                             assertEquals(
-                                    PocketBase.jsonEncode(Map.of(
+                                    Json.encode(Map.of(
                                             "test_body", 123,
                                             "identity", "test_identity",
                                             "password", "test_password"

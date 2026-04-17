@@ -15,7 +15,7 @@ public class Main {
             RecordAuth auth = pb.getCollection("users").authWithPassword(env.get("email"), env.get("password"));
             System.out.printf("Welcome, %s\n", auth.getIdentifier());
         } catch (Exception e) {
-            System.err.println(e);
+            e.printStackTrace();
         }
 
         // "logout"

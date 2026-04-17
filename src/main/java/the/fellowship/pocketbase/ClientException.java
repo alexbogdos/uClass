@@ -28,14 +28,17 @@ public class ClientException extends Exception {
     /**
      * The original response error (could be anything - String, Exception, etc.).
      */
-    private final Object originalError;
+    private final Throwable originalError;
 
     public ClientException(HttpUrl url, int statusCode, Map<String, ?> response) {
         this(url, false, statusCode, response, null);
     }
 
-    public ClientException(HttpUrl url, boolean isAbort, int statusCode, Map<String, ?> response, Object originalError) {
-        super("asd");
+    public ClientException(HttpUrl url, Throwable originalError) {
+        this(url, false, -1, null, originalError);
+    }
+
+    public ClientException(HttpUrl url, boolean isAbort, int statusCode, Map<String, ?> response, Throwable originalError) {
         this.url = url;
         this.isAbort = isAbort;
         this.statusCode = statusCode;
@@ -59,7 +62,7 @@ public class ClientException extends Exception {
         return response;
     }
 
-    public Object getOriginalError() {
+    public Throwable getOriginalError() {
         return originalError;
     }
 
@@ -68,7 +71,7 @@ public class ClientException extends Exception {
         return "[ClientException]" +
                 "\nurl=" + url +
                 "\nisAbort=" + isAbort +
-                "\nstatusCode=" + statusCode +
+                "\nstatusCode=" + (statusCode >= 0 ? statusCode : "ECONNREFUSED") +
                 "\nresponse=" + response +
                 "\noriginalError=" + originalError;
     }

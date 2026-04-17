@@ -8,6 +8,7 @@ import the.fellowship.pocketbase.ClientException;
 import the.fellowship.pocketbase.MockClient;
 import the.fellowship.pocketbase.PocketBase;
 import the.fellowship.pocketbase.dtos.ResultList;
+import the.fellowship.pocketbase.tools.Json;
 import the.fellowship.pocketbase.tools.MultipartFile;
 
 import java.io.IOException;
@@ -43,7 +44,7 @@ abstract class CrudServiceTest<T> {
                             .body(ResponseBody.create(
                                     "1".equals(request.url().queryParameter("page"))
                                             // page1
-                                            ? PocketBase.jsonEncode(Map.of(
+                                            ? Json.encode(Map.of(
                                             "page", 1,
                                             "perPage", 2,
                                             "totalItems", -1,
@@ -53,7 +54,7 @@ abstract class CrudServiceTest<T> {
                                                     Map.of("id", "2")
                                             }))
                                             // page2
-                                            : PocketBase.jsonEncode(Map.of(
+                                            : Json.encode(Map.of(
                                             "page", 2,
                                             "perPage", 2,
                                             "totalItems", -1,
@@ -123,7 +124,7 @@ abstract class CrudServiceTest<T> {
                             .body(ResponseBody.create(
                                     "1".equals(request.url().queryParameter("page"))
                                             // page1
-                                            ? PocketBase.jsonEncode(Map.of(
+                                            ? Json.encode(Map.of(
                                             "page", 1,
                                             "perPage", 2,
                                             "totalItems", -1,
@@ -134,7 +135,7 @@ abstract class CrudServiceTest<T> {
                                             }))
                                             // page2
                                             : "2".equals(request.url().queryParameter("page"))
-                                              ? PocketBase.jsonEncode(Map.of(
+                                              ? Json.encode(Map.of(
                                             "page", 2,
                                             "perPage", 2,
                                             "totalItems", -1,
@@ -144,7 +145,7 @@ abstract class CrudServiceTest<T> {
                                                     Map.of("id", "2")
                                             }))
                                               // page3
-                                              : PocketBase.jsonEncode(Map.of(
+                                              : Json.encode(Map.of(
                                             "page", 3,
                                             "perPage", 2,
                                             "totalItems", -1,
@@ -216,7 +217,7 @@ abstract class CrudServiceTest<T> {
                             .message("OK")
                             .header("Content-Type", "application/json")
                             .body(ResponseBody.create(
-                                    PocketBase.jsonEncode(Map.of(
+                                    Json.encode(Map.of(
                                             "page", 2,
                                             "perPage", 15,
                                             "totalItems", 17,
@@ -280,7 +281,7 @@ abstract class CrudServiceTest<T> {
                             .message("OK")
                             .header("Content-Type", "application/json")
                             .body(ResponseBody.create(
-                                    PocketBase.jsonEncode(Map.of("id", "@id123")),
+                                    Json.encode(Map.of("id", "@id123")),
                                     MediaType.parse("application/json")
                             ))
                             .build();
@@ -339,7 +340,7 @@ abstract class CrudServiceTest<T> {
                             .message("OK")
                             .header("Content-Type", "application/json")
                             .body(ResponseBody.create(
-                                    PocketBase.jsonEncode(Map.of(
+                                    Json.encode(Map.of(
                                             "page", 1,
                                             "perPage", 1,
                                             "totalItems", 1,
@@ -395,7 +396,7 @@ abstract class CrudServiceTest<T> {
                             .message("OK")
                             .header("Content-Type", "application/json")
                             .body(ResponseBody.create(
-                                    PocketBase.jsonEncode(Map.of("id", "@id123")),
+                                    Json.encode(Map.of("id", "@id123")),
                                     MediaType.parse("application/json")
                             ))
                             .build();
@@ -430,6 +431,8 @@ abstract class CrudServiceTest<T> {
 
         try {
             final T result = serviceFactory.apply(client).create(
+                    null,
+                    null,
                     Map.of("test", "789"),
                     Map.of(
                             "a", new Object[]{"1", null, 2},
@@ -461,7 +464,7 @@ abstract class CrudServiceTest<T> {
                             .message("OK")
                             .header("Content-Type", "application/json")
                             .body(ResponseBody.create(
-                                    PocketBase.jsonEncode(Map.of("id", "@id123")),
+                                    Json.encode(Map.of("id", "@id123")),
                                     MediaType.parse("application/json")
                             ))
                             .build();

@@ -1,9 +1,9 @@
 package the.fellowship.pocketbase.dtos;
 
-import the.fellowship.pocketbase.PocketBase;
+import the.fellowship.pocketbase.tools.Json;
 
-import java.util.TreeMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class RecordAuth {
     private final String token;
@@ -12,7 +12,7 @@ public class RecordAuth {
 
     public RecordAuth(Map<String, ?> json) {
         this.token = json.get("token") != null ? (String) json.get("token") : "";
-        this.record = json.get("record") != null ? new RecordModel((Map<String, ?>) json.get("record")) : null;
+        this.record = json.get("record") != null ? new RecordModel((Map<String, ?>) json.get("record")) : new RecordModel();
         this.meta = json.get("meta") != null ? (Map<String, ?>) json.get("meta") : new TreeMap<>();
     }
 
@@ -50,7 +50,7 @@ public class RecordAuth {
      * @return JSON encoded to String
      */
     public String toJson() {
-        return PocketBase.jsonEncode(getJson());
+        return Json.encode(getJson());
     }
 
     @Override

@@ -8,8 +8,4 @@ public abstract class BaseService {
     BaseService(PocketBase client) {
         this.client = client;
     }
-
-    PocketBase getClient() {
-        return client;
-    }
 }
