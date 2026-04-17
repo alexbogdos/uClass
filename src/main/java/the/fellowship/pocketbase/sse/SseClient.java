@@ -1,12 +1,10 @@
 package the.fellowship.pocketbase.sse;
 
-import com.google.gson.GsonBuilder;
-import com.google.gson.ToNumberPolicy;
-import com.google.gson.reflect.TypeToken;
 import okhttp3.*;
 import okio.BufferedSource;
 import org.jetbrains.annotations.NotNull;
 import the.fellowship.pocketbase.ClientException;
+import the.fellowship.pocketbase.PocketBase;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -200,11 +198,7 @@ public class SseClient {
                         SseMessage sseMessage = new SseMessage();
                         try {
                             if (response.code() >= 400) {
-                                Map<String, ?> responseBody = new GsonBuilder()
-                                        .setObjectToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE)
-                                        .create()
-                                        .fromJson(response.body().string(), new TypeToken<Map<String, ?>>() {
-                                        }.getType());
+                                Map<String, ?> responseBody = PocketBase.jsonDecode(response.body().string());
                                 throw new ClientException(url, response.code(), responseBody);
                             }
 

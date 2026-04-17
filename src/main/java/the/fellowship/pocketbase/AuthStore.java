@@ -1,8 +1,5 @@
 package the.fellowship.pocketbase;
 
-import com.google.gson.GsonBuilder;
-import com.google.gson.ToNumberPolicy;
-import com.google.gson.reflect.TypeToken;
 import the.fellowship.pocketbase.dtos.RecordModel;
 
 import java.nio.charset.StandardCharsets;
@@ -79,10 +76,7 @@ public class AuthStore {
         byte[] tokenPart = Base64.getDecoder().decode(parts[1]);
         String jsonString = new String(tokenPart, StandardCharsets.UTF_8);
 
-        Map<String, ?> data = new GsonBuilder()
-                .setObjectToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE)
-                .create()
-                .fromJson(jsonString, new TypeToken<Map<String, ?>>() {}.getType());
+        Map<String, ?> data = PocketBase.jsonDecode(jsonString);
         long exp = data.get("exp") != null ? ((Number) data.get("exp")).longValue() : 0;
         return exp > System.currentTimeMillis() / 1000;
     }

@@ -251,11 +251,7 @@ public class PocketBase {
         //System.out.printf("[REQUEST] %s, %s, %s\n", request.build(), body, files);
         // TODO: Use [enqueue()] instead of [execute()]
         try (Response response = this.client.newCall(request.build()).execute()) {
-            Map<String, ?> responseBody = new GsonBuilder()
-                    .setObjectToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE)
-                    .create()
-                    .fromJson(response.body().string(), new TypeToken<Map<String, ?>>() {
-                    }.getType());
+            Map<String, ?> responseBody = PocketBase.jsonDecode(response.body().string());
             if (response.code() >= 400) {
                 throw new ClientException(url, response.code(), responseBody);
             }
@@ -349,6 +345,14 @@ public class PocketBase {
                 .create();
         Type typeObject = new TypeToken<Map<String, ?>>() {}.getType();
         return gson.toJson(new TreeMap<>(body), typeObject);
+    }
+
+    public static Map<String, ?> jsonDecode(String data) {
+        Map<String, ?> decoded = new GsonBuilder()
+                .setObjectToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE)
+                .create()
+                .fromJson(data, new TypeToken<Map<String, ?>>() {}.getType());
+        return decoded;
     }
 
     private Map<String, List<String>> normalizeQueryParameters(Map<String, ?> parameters) {
