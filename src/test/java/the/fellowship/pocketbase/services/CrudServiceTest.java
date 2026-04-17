@@ -32,13 +32,176 @@ abstract class CrudServiceTest<T> {
     @Test
     @DisplayName("getFullList() with last items.length < perPage")
     void getFullListWithLastItemsLengthLessPerPage() {
-        // TODO: Implement [getFullList()]
+        Interceptor interceptor = new MockClient(
+                (request) -> {
+                    return new Response.Builder()
+                            .request(request)
+                            .protocol(Protocol.HTTP_1_1)
+                            .code(200)
+                            .message("OK")
+                            .header("Content-Type", "application/json")
+                            .body(ResponseBody.create(
+                                    "1".equals(request.url().queryParameter("page"))
+                                            // page1
+                                            ? PocketBase.jsonEncode(Map.of(
+                                            "page", 1,
+                                            "perPage", 2,
+                                            "totalItems", -1,
+                                            "totalPages", -1,
+                                            "items", new Map[]{
+                                                    Map.of("id", "1"),
+                                                    Map.of("id", "2")
+                                            }))
+                                            // page2
+                                            : PocketBase.jsonEncode(Map.of(
+                                            "page", 2,
+                                            "perPage", 2,
+                                            "totalItems", -1,
+                                            "totalPages", -1,
+                                            "items", new Map[]{
+                                                    Map.of("id", "3")
+                                            })),
+                                    MediaType.parse("application/json")
+                            ))
+                            .build();
+                },
+                (request) -> {
+                    assertEquals("GET", request.method());
+                    assertEquals("789", request.header("test"));
+
+                    // page1
+                    if ("1".equals(request.url().queryParameter("page"))) {
+                        assertEquals(
+                                "https://example.com/base/api/" + expectedPath + "?a=1&a=2&b=%40demo&expand=rel&fields=a&filter=f%3D123&page=1&perPage=2&skipTotal=true&sort=s%3D456",
+                                request.url().toString()
+                        );
+                    }
+                    // page2
+                    else {
+                        assertEquals(
+                                "https://example.com/base/api/" + expectedPath + "?a=1&a=2&b=%40demo&expand=rel&fields=a&filter=f%3D123&page=2&perPage=2&skipTotal=true&sort=s%3D456",
+                                request.url().toString()
+                        );
+                    }
+                }
+        );
+
+        final PocketBase client = new PocketBase("https://example.com/base", "en-US", interceptor);
+
+        try {
+            final List<T> result = serviceFactory.apply(client).getFullList(
+                    2,
+                    "rel",
+                    "f=123",
+                    "s=456",
+                    "a",
+                    Map.of("test", "789"),
+                    Map.of(
+                            "a", new Object[]{"1", null, 2},
+                            "b", "@demo"
+                    )
+            );
+
+            assertNotNull(result);
+            assertEquals(3, result.size());
+        } catch (ClientException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
     @DisplayName("getFullList() with last items.length = perPage")
     void getFullListWithLastItemsLengthEqualPerPage() {
-        // TODO: Implement [getFullList()]
+        Interceptor interceptor = new MockClient(
+                (request) -> {
+                    return new Response.Builder()
+                            .request(request)
+                            .protocol(Protocol.HTTP_1_1)
+                            .code(200)
+                            .message("OK")
+                            .header("Content-Type", "application/json")
+                            .body(ResponseBody.create(
+                                    "1".equals(request.url().queryParameter("page"))
+                                            // page1
+                                            ? PocketBase.jsonEncode(Map.of(
+                                            "page", 1,
+                                            "perPage", 2,
+                                            "totalItems", -1,
+                                            "totalPages", -1,
+                                            "items", new Map[]{
+                                                    Map.of("id", "1"),
+                                                    Map.of("id", "2")
+                                            }))
+                                            // page2
+                                            : "2".equals(request.url().queryParameter("page"))
+                                              ? PocketBase.jsonEncode(Map.of(
+                                            "page", 2,
+                                            "perPage", 2,
+                                            "totalItems", -1,
+                                            "totalPages", -1,
+                                            "items", new Map[]{
+                                                    Map.of("id", "3"),
+                                                    Map.of("id", "2")
+                                            }))
+                                              // page3
+                                              : PocketBase.jsonEncode(Map.of(
+                                            "page", 3,
+                                            "perPage", 2,
+                                            "totalItems", -1,
+                                            "totalPages", -1)),
+                                    MediaType.parse("application/json")
+                            ))
+                            .build();
+                },
+                (request) -> {
+                    assertEquals("GET", request.method());
+                    assertEquals("789", request.header("test"));
+
+                    // page1
+                    if ("1".equals(request.url().queryParameter("page"))) {
+                        assertEquals(
+                                "https://example.com/base/api/" + expectedPath + "?a=1&a=2&b=%40demo&expand=rel&fields=a&filter=f%3D123&page=1&perPage=2&skipTotal=true&sort=s%3D456",
+                                request.url().toString()
+                        );
+                    }
+                    // page2
+                    else if ("2".equals(request.url().queryParameter("page"))) {
+                        assertEquals(
+                                "https://example.com/base/api/" + expectedPath + "?a=1&a=2&b=%40demo&expand=rel&fields=a&filter=f%3D123&page=2&perPage=2&skipTotal=true&sort=s%3D456",
+                                request.url().toString()
+                        );
+                    }
+                    // page3
+                    else {
+                        assertEquals(
+                                "https://example.com/base/api/" + expectedPath + "?a=1&a=2&b=%40demo&expand=rel&fields=a&filter=f%3D123&page=3&perPage=2&skipTotal=true&sort=s%3D456",
+                                request.url().toString()
+                        );
+                    }
+                }
+        );
+
+        final PocketBase client = new PocketBase("https://example.com/base", "en-US", interceptor);
+
+        try {
+            final List<T> result = serviceFactory.apply(client).getFullList(
+                    2,
+                    "rel",
+                    "f=123",
+                    "s=456",
+                    "a",
+                    Map.of("test", "789"),
+                    Map.of(
+                            "a", new Object[]{"1", null, 2},
+                            "b", "@demo"
+                    )
+            );
+
+            assertNotNull(result);
+            assertEquals(4, result.size());
+        } catch (ClientException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
@@ -61,8 +224,7 @@ abstract class CrudServiceTest<T> {
                                             "items", new Map[]{
                                                     Map.of("id", "1"),
                                                     Map.of("id", "2"),
-                                            }
-                                    )),
+                                            })),
                                     MediaType.parse("application/json")
                             ))
                             .build();
@@ -185,8 +347,7 @@ abstract class CrudServiceTest<T> {
                                             "items", new Map[]{
                                                     Map.of("id", "1"),
                                                     Map.of("id", "2"),
-                                            }
-                                    )),
+                                            })),
                                     MediaType.parse("application/json")
                             ))
                             .build();

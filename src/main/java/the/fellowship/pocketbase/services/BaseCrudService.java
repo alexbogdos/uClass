@@ -7,9 +7,10 @@ import the.fellowship.pocketbase.tools.MultipartFile;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.TreeMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class BaseCrudService<T> extends BaseService {
     public BaseCrudService(PocketBase client) {
@@ -36,26 +37,41 @@ public class BaseCrudService<T> extends BaseService {
     }
 
     /**
-     * Creates a new item.
+     * Returns paginated items list.
      *
      * @throws ClientException
      */
-    public T create(
+    public List<T> getFullList(
+            int batch, //= 1000
+            String expand,
+            String filter,
+            String sort,
+            String fields,
             Map<String, String> headers,
-            Map<String, ?> query,
-            Map<String, ?> body,
-            List<MultipartFile> files
+            Map<String, ?> query
     ) throws ClientException {
-        Map<String, ?> json = this.client.send(
-                this.getBaseCrudPath(),
-                "POST",
-                headers,
-                query,
-                body,
-                files
-        );
+        final List<T> result = new ArrayList<>();
+        ResultList<T> list;
+        int page = 1;
 
-        return itemFactory(json);
+        do {
+            list = getList(
+                    page,
+                    batch,
+                    true,
+                    expand,
+                    filter,
+                    sort,
+                    fields,
+                    headers,
+                    query
+            );
+
+            result.addAll(list.getItems());
+            page++;
+        } while (list.getItems().size() == list.getPerPage());
+
+        return result;
     }
 
     /**
@@ -90,9 +106,9 @@ public class BaseCrudService<T> extends BaseService {
      * @throws ClientException
      */
     public ResultList<T> getList(
-            int page,
-            int perPage,
-            boolean skipTotal,
+            int page, //= 1
+            int perPage, //= 30
+            boolean skipTotal, //= false
             String expand,
             String filter,
             String sort,
@@ -164,12 +180,12 @@ public class BaseCrudService<T> extends BaseService {
     }
 
     /**
-     *  Returns the first found list item by the specified filter.
-     *
-     *  Internally it calls `getList()` and returns its first item.
-     *
-     *  For consistency with `getOne`, this method will throw a 404
-     *  `ClientException` if no item was found.
+     * Returns the first found list item by the specified filter.
+     * <p>
+     * Internally it calls `getList()` and returns its first item.
+     * <p>
+     * For consistency with `getOne`, this method will throw a 404
+     * `ClientException` if no item was found.
      */
     public T getFirstListItem(
             String filter,
@@ -205,6 +221,28 @@ public class BaseCrudService<T> extends BaseService {
         return result.getItems().getFirst();
     }
 
+    /**
+     * Creates a new item.
+     *
+     * @throws ClientException
+     */
+    public T create(
+            Map<String, String> headers,
+            Map<String, ?> query,
+            Map<String, ?> body,
+            List<MultipartFile> files
+    ) throws ClientException {
+        Map<String, ?> json = this.client.send(
+                this.getBaseCrudPath(),
+                "POST",
+                headers,
+                query,
+                body,
+                files
+        );
+
+        return itemFactory(json);
+    }
 
     /**
      * Updates a single item by its id.

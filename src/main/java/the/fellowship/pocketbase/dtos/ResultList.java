@@ -2,6 +2,7 @@ package the.fellowship.pocketbase.dtos;
 
 import the.fellowship.pocketbase.PocketBase;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -24,7 +25,9 @@ public class ResultList<T> {
         this.perPage = ((Number) data.get("perPage")).intValue();
         this.totalItems = ((Number) data.get("totalItems")).intValue();
         this.totalPages = ((Number) data.get("totalPages")).intValue();
-        this.items = ((List<Map<String, ?>>) data.get("items")).stream().map(itemFactory).toList();
+        this.items = data.get("items") != null
+                ? ((List<Map<String, ?>>) data.get("items")).stream().map(itemFactory).toList()
+                : new ArrayList<T>();
         this.itemConverter = itemConverter;
     }
 
