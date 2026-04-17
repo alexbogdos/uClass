@@ -1,11 +1,9 @@
 package the.fellowship.pocketbase.sse;
 
-import com.google.gson.GsonBuilder;
-import com.google.gson.ToNumberPolicy;
-import com.google.gson.reflect.TypeToken;
+import the.fellowship.pocketbase.PocketBase;
 
-import java.util.TreeMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class SseMessage {
     /**
@@ -31,14 +29,27 @@ public class SseMessage {
     private final Map<String, Object> json;
 
     public SseMessage() {
-        this.json = new TreeMap<>();
+        this("", "message", "", 0);
+    }
+
+    public SseMessage(String data) {
+        this("", "message", data, 0);
+    }
+
+    public SseMessage(String id, String event, String data, int retry) {
+        this(Map.of(
+                "id", id,
+                "event", event,
+                "data", data,
+                "retry", retry
+        ));
     }
 
     public SseMessage(Map<String, ?> json) {
-        this.id = (String) json.get("id");
-        this.event = (String) json.get("event");
-        this.data = (String) json.get("data");
-        this.retry = (int) json.get("retry");
+        this.id = json.get("id") != null ? (String) json.get("id") : "";
+        this.event = json.get("event") != null ? (String) json.get("event") : "message";
+        this.data = json.get("data") != null ? (String) json.get("data") : "";
+        this.retry = json.get("retry") != null ? (int) json.get("retry") : 0;
         this.json = new TreeMap<>(json);
     }
 
@@ -82,23 +93,29 @@ public class SseMessage {
      * Decodes the event message data as json map.
      */
     public Map<String, ?> getJsonData() {
-        if ("none_object".equals(data)) {
-            return Map.of("data", "none_object");
-        }
-
         if (!data.isEmpty()) {
-            Map<String, ?> decoded = new GsonBuilder()
-                    .setObjectToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE)
-                    .create()
-                    .fromJson(data, new TypeToken<Map<String, ?>>() {}.getType());
-            return decoded;
+            try {
+                return PocketBase.jsonDecode(data);
+            } catch (Exception ignored) {
+                return Map.of("data", data);
+            }
         }
 
         return new TreeMap<>();
     }
 
+    /**
+     * @return JSON as Map<String, ?>
+     */
     public Map<String, ?> getJson() {
         return json;
+    }
+
+    /**
+     * @return JSON encoded to String
+     */
+    public String toJson() {
+        return PocketBase.jsonEncode(getJson());
     }
 
     @Override
