@@ -74,6 +74,9 @@ public class PocketBase {
         this.lang = lang;
     }
 
+    /**
+     * Testing only.
+     */
     public PocketBase(String baseURL, String lang, Interceptor interceptor) {
         this.client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
         this.baseURL = baseURL;

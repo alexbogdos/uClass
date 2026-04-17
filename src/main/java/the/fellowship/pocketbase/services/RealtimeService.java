@@ -289,7 +289,6 @@ public class RealtimeService extends BaseService {
 
         SseClient sse = new SseClient(
                 url,
-                Integer.MAX_VALUE,
                 () -> {
                     if (!clientId.isEmpty() && onDisconnect != null) {
                         onDisconnect.accept(subscriptions);

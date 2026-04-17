@@ -82,6 +82,10 @@ public class SseMessage {
      * Decodes the event message data as json map.
      */
     public Map<String, ?> getJsonData() {
+        if ("none_object".equals(data)) {
+            return Map.of("data", "none_object");
+        }
+
         if (!data.isEmpty()) {
             Map<String, ?> decoded = new GsonBuilder()
                     .setObjectToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE)

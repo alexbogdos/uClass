@@ -4,13 +4,11 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.ToNumberPolicy;
 import com.google.gson.reflect.TypeToken;
 import okhttp3.*;
+import okio.BufferedSource;
 import org.jetbrains.annotations.NotNull;
 import the.fellowship.pocketbase.ClientException;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -79,8 +77,8 @@ public class SseClient {
     private final String url;
     private final OkHttpClient httpClient;
     private ScheduledFuture<?> retryTimer;
+    private final int maxRetry;
     private int retryAttempts = 0;
-    private int maxRetry = Integer.MAX_VALUE;
 
     /**
      * Indicates whether the client was closed.
@@ -90,11 +88,14 @@ public class SseClient {
     /**
      * The local streamed http response subscription.
      */
-    private InputStream responseStreamSubscription;
+    private BufferedSource responseStreamSubscription;
     private Call httpCall;
 
-    public SseClient(String url) {
-        this(url, Integer.MAX_VALUE, () -> System.out.println("SSE Closed"), System.err::println);
+    /**
+     * Initializes the client and connects to the provided url.
+     */
+    public SseClient(String url, Runnable onClose, Consumer<Throwable> onError) {
+        this(url, Integer.MAX_VALUE, onClose, onError);
     }
 
     /**
@@ -111,6 +112,21 @@ public class SseClient {
         this.onClose = onClose;
         this.onError = onError;
         this.httpClient = new OkHttpClient.Builder()
+                .readTimeout(0, TimeUnit.MILLISECONDS)
+                .build();
+        init();
+    }
+
+    /**
+     * Initializes the client and connects to the provided url.
+     */
+    public SseClient(String url, Interceptor interceptor) {
+        this.url = url;
+        this.maxRetry = Integer.MAX_VALUE;
+        this.onClose = () -> {};
+        this.onError = System.err::println;
+        this.httpClient = new OkHttpClient.Builder()
+                .addInterceptor(interceptor)
                 .readTimeout(0, TimeUnit.MILLISECONDS)
                 .build();
         init();
@@ -187,7 +203,8 @@ public class SseClient {
                                 Map<String, ?> responseBody = new GsonBuilder()
                                         .setObjectToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE)
                                         .create()
-                                        .fromJson(response.body().string(), new TypeToken<Map<String, ?>>() {}.getType());
+                                        .fromJson(response.body().string(), new TypeToken<Map<String, ?>>() {
+                                        }.getType());
                                 throw new ClientException(url, response.code(), responseBody);
                             }
 
@@ -196,45 +213,44 @@ public class SseClient {
                             sseMessage = new SseMessage();
                             if (responseStreamSubscription != null) responseStreamSubscription.close();
 
-                            responseStreamSubscription = response.body().byteStream();
-                            try (BufferedReader reader = new BufferedReader(new InputStreamReader(responseStreamSubscription))) {
-                                String line;
-                                while ((line = reader.readLine()) != null && !isClosed.get()) {
-                                    // message end detected
-                                    if (line.isEmpty()) {
-                                        messageStreamController.submit(sseMessage);
-                                        sseMessage = new SseMessage(); // reset for the next chunk
-                                        continue;
-                                    }
+                            responseStreamSubscription = response.body().source();
+                            while (!responseStreamSubscription.exhausted() && !isClosed.get()) {
+                                String line = responseStreamSubscription.readUtf8LineStrict();
 
-                                    Matcher match = lineRegex.matcher(line);
-                                    if (!match.matches()) {
-                                        // ignore invalid lines
-                                        // (some servers may send a different formatted line as a ping)
-                                        continue;
-                                    }
+                                // message end detected
+                                if (line.isEmpty()) {
+                                    messageStreamController.submit(sseMessage);
+                                    sseMessage = new SseMessage(); // reset for the next chunk
+                                    continue;
+                                }
 
-                                    String field = match.group(1);
-                                    String value = match.group(2);
+                                Matcher match = lineRegex.matcher(line);
+                                if (!match.matches()) {
+                                    // ignore invalid lines
+                                    // (some servers may send a different formatted line as a ping)
+                                    continue;
+                                }
 
-                                    switch (field) {
-                                        case "id":
-                                            sseMessage.setId(value);
-                                            break;
-                                        case "event":
-                                            sseMessage.setEvent(value);
-                                            break;
-                                        case "retry":
-                                            try {
-                                                sseMessage.setRetry(Integer.parseInt(value));
-                                            } catch (NumberFormatException ignored) {
-                                                sseMessage.setRetry(0);
-                                            }
-                                            break;
-                                        case "data":
-                                            sseMessage.setData(value);
-                                            break;
-                                    }
+                                String field = match.group(1);
+                                String value = match.group(2);
+
+                                switch (field) {
+                                    case "id":
+                                        sseMessage.setId(value);
+                                        break;
+                                    case "event":
+                                        sseMessage.setEvent(value);
+                                        break;
+                                    case "retry":
+                                        try {
+                                            sseMessage.setRetry(Integer.parseInt(value));
+                                        } catch (NumberFormatException ignored) {
+                                            sseMessage.setRetry(0);
+                                        }
+                                        break;
+                                    case "data":
+                                        sseMessage.setData(value);
+                                        break;
                                 }
                             }
                         } catch (IOException | ClientException e) {
