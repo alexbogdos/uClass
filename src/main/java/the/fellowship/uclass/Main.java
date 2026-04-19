@@ -12,11 +12,22 @@ public class Main {
         Map<String, String> env = Environment.load(".env");
 
         Client client = new Client("https://eclass.aueb.gr");
-        client.login(env.get("username"), env.get("password"));
+        try {
+            client.login(env.get("username"), env.get("password"));
+            System.out.printf("Welcome, %s!\n\n", env.get("username"));
+        } catch (ClientException err) {
+            err.printStackTrace();
+            System.err.println("Login failed!");
+            return;
+        }
 
-        List<Map<String, String>> courses = client.courses();
-        if (courses != null) {
-            courses.forEach(course -> System.out.printf("%s  [%s]\n", course.get("title"), course.get("url")));
+        try {
+            List<Map<String, String>> courses = client.courses();
+            if (courses != null) {
+                courses.forEach(course -> System.out.printf("%s  [%s]\n", course.get("title"), course.get("url")));
+            }
+        } catch (ClientException err) {
+            err.printStackTrace();
         }
     }
 }

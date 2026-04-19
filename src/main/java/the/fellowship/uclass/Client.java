@@ -40,8 +40,8 @@ public class Client {
      *
      * @param path
      */
-    public Map<String, ?> get(String path) {
-        return this.send(HttpUrl.parse(this.service + path), null);
+    public Map<String, ?> get(String path) throws ClientException {
+        return send(HttpUrl.parse(this.service + path), null);
     }
 
     /**
@@ -53,8 +53,7 @@ public class Client {
     private Map<String, ?> send(
             HttpUrl url,
             RequestBody body
-    ) {
-
+    ) throws ClientException {
         Request.Builder request = new Request.Builder()
                 .url(url)
                 .header("User-Agent", agent);
@@ -64,15 +63,17 @@ public class Client {
         }
 
         try (Response response = client.newCall(request.build()).execute()) {
+            if (!response.isSuccessful()) {
+                throw new ClientException(url, response.code(), response.body().string());
+            }
+
             return Map.of(
-                    "code", response.code(),
-                    "successful", response.isSuccessful(),
                     "url", response.request().url(),
                     "body", response.body().string()
             );
-        } catch (IOException e) {
-            System.err.printf("[ERROR] Unable to make request %s/ %s. %s\n", body != null ? "POST" : "GET", url, e.getMessage());
-            return null;
+        } catch (IOException err) {
+            System.err.printf("[ERROR] Unable to make request %s/ %s. %s\n", body != null ? "POST" : "GET", url, err.getMessage());
+            throw new ClientException(url, err);
         }
     }
 
@@ -81,7 +82,7 @@ public class Client {
      * @param password
      * @return <b>True</b> if the credentials authenticated the user successfully
      */
-    public boolean login(String username, String password) {
+    public boolean login(String username, String password) throws ClientException {
         String cookieFile = cookiePath + String.format("%s_cookies.pkl", username);
         Map<String, ?> response;
 
@@ -110,11 +111,10 @@ public class Client {
         // Store current CookieStore to file
         storeCookies(cookieFile);
 
-        System.out.printf("Successfully authenticated as \"%s\"\n\n", username);
         return true;
     }
 
-    public List<Map<String, String>> courses() {
+    public List<Map<String, String>> courses() throws ClientException {
         Map<String, ?> response = get("/main/portfolio.php?countPages=-1");
         if (response == null) {
             return null;
@@ -135,7 +135,7 @@ public class Client {
     /**
      * @return a map containing the SSO's URL <b>["url"]</b> to authenticate to and the execution token <b>["token"]</b> contained in the HTML page
      */
-    private Map<String, ?> retrieveExecutionTicket() {
+    private Map<String, ?> retrieveExecutionTicket() throws ClientException {
         Map<String, ?> response = get("/modules/auth/cas.php");
         if (response == null) {
             return null;
@@ -165,7 +165,7 @@ public class Client {
      * @param token    Execution token
      * @return <b>True</b> if the authentication was successful
      */
-    private boolean authenticate(String username, String password, HttpUrl url, String token) {
+    private boolean authenticate(String username, String password, HttpUrl url, String token) throws ClientException {
         RequestBody form = new FormBody.Builder()
                 .add("username", username)
                 .add("password", password)
@@ -183,7 +183,7 @@ public class Client {
 
     private void loadCookies(String path) {
         if (!new File(path).exists()) {
-            System.err.printf("[WARNING] Cookie file not found on \"%s\"\n", path);
+            System.out.printf("[WARNING] Cookie file not found on \"%s\"\n", path);
             return;
         }
 
