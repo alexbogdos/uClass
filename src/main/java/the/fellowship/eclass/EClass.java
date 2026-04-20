@@ -17,7 +17,7 @@ import java.util.concurrent.CompletableFuture;
 public class EClass {
     private final String service;
     private final String agent;
-    OkHttpClient client;
+    OkHttpClient httpClient;
 
     private final FileCookieJar cookieJar;
     private final EClassSSO sso;
@@ -30,7 +30,7 @@ public class EClass {
         this.agent = UseAgentGenerator.generate();
         this.sso = new EClassSSO(this);
         this.cookieJar = new FileCookieJar();
-        this.client = new OkHttpClient.Builder()
+        this.httpClient = new OkHttpClient.Builder()
                 // TODO: Custom CookieStore. Extract cookie loading/parsing/storing
                 .cookieJar(new JavaNetCookieJar(this.cookieJar.getCookieManager()))
                 .build();
@@ -44,7 +44,7 @@ public class EClass {
         this.agent = UseAgentGenerator.generate();
         this.sso = new EClassSSO(this);
         this.cookieJar = new FileCookieJar();
-        this.client = new OkHttpClient.Builder()
+        this.httpClient = new OkHttpClient.Builder()
                 .cookieJar(new JavaNetCookieJar(this.cookieJar.getCookieManager()))
                 .addInterceptor(interceptor)
                 .build();
@@ -126,7 +126,7 @@ public class EClass {
 
         final CompletableFuture<Map<String, ?>> future = new CompletableFuture<>();
 
-        client.newCall(request.build()).enqueue(new Callback() {
+        httpClient.newCall(request.build()).enqueue(new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
                 //System.err.printf("[ERROR] Unable to make request %s/ %s. %s\n", body != null ? "POST" : "GET", url, e.getMessage());

@@ -29,7 +29,7 @@ public class Main {
                         }
                     }
                 })
-                .handle((result, err) -> {
+                .exceptionally(err -> {
                     if (err != null) {
                         System.err.printf("Failed to login: \"%s\"", err.getMessage().substring(err.getMessage().indexOf(":") + 2));
                     }
