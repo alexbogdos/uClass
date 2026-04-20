@@ -1,4 +1,4 @@
-package the.fellowship.uclass;
+package the.fellowship.eclass;
 
 import the.fellowship.Environment;
 
@@ -10,7 +10,7 @@ public class Main {
     public static void main(String[] args) {
         Map<String, String> env = Environment.load(".env");
 
-        Client client = new Client("https://eclass.aueb.gr");
+        EClass client = new EClass("https://eclass.aueb.gr");
 
         client.login(env.get("username"), env.get("password"))
                 .thenAccept(result -> {

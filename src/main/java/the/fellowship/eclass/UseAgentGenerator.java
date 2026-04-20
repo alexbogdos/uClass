@@ -1,4 +1,4 @@
-package the.fellowship.uclass;
+package the.fellowship.eclass;
 
 import java.util.Random;
 

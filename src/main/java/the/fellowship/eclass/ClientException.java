@@ -1,8 +1,6 @@
-package the.fellowship.uclass;
+package the.fellowship.eclass;
 
 import okhttp3.HttpUrl;
-
-import java.util.Map;
 
 public class ClientException extends Exception {
     /**

@@ -1,4 +1,4 @@
-package the.fellowship.uclass;
+package the.fellowship.eclass;
 
 import okhttp3.HttpUrl;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,15 +11,15 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("eClass")
-class UClassTest {
+class SSOTests {
     final String service = "https://eclass.aueb.gr";
-    Client client;
+    EClass client;
 
     // TODO: Intercept requests, write tests for failing paths
 
     @BeforeEach
     void setUp() {
-        client = new Client(service);
+        client = new EClass(service);
     }
 
     @Test
@@ -44,7 +44,7 @@ class UClassTest {
     @Test
     @DisplayName("retrieveExecutionTicket()")
     void retrieveExecutionTicket() {
-        client.retrieveExecutionTicket()
+        client.getSSO().retrieveExecutionTicket()
                 .thenAccept(result -> {
                     assertNotNull(result);
                     assertNotNull(result.get("url"));
@@ -68,8 +68,8 @@ class UClassTest {
     void authenticate() {
         final Map<String, String> env = Environment.load(".env");
 
-        client.retrieveExecutionTicket()
-                .thenCompose(execution -> client.authenticate(
+        client.getSSO().retrieveExecutionTicket()
+                .thenCompose(execution -> client.getSSO().authenticate(
                         env.get("username"),
                         env.get("password"),
                         (HttpUrl) execution.get("url"),
