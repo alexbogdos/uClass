@@ -2,7 +2,6 @@ package the.fellowship.uclass;
 
 import the.fellowship.Environment;
 
-import java.util.List;
 import java.util.Map;
 
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
@@ -12,22 +11,35 @@ public class Main {
         Map<String, String> env = Environment.load(".env");
 
         Client client = new Client("https://eclass.aueb.gr");
-        try {
-            client.login(env.get("username"), env.get("password"));
-            System.out.printf("Welcome, %s!\n\n", env.get("username"));
-        } catch (ClientException err) {
-            err.printStackTrace();
-            System.err.println("Login failed!");
-            return;
-        }
 
-        try {
-            List<Map<String, String>> courses = client.courses();
-            if (courses != null) {
-                courses.forEach(course -> System.out.printf("%s  [%s]\n", course.get("title"), course.get("url")));
-            }
-        } catch (ClientException err) {
-            err.printStackTrace();
-        }
+        client.login(env.get("username"), env.get("password"))
+                .thenAccept(result -> {
+                    switch (result) {
+                        case "FAILURE": {
+                            System.out.println("Incorrect username or password\n");
+                            break;
+                        }
+                        case "SUCCESS": {
+                            System.out.printf("Welcome, %s!\n\n", env.get("username"));
+                            break;
+                        }
+                        case "RESTORE": {
+                            System.out.printf("Welcome back, %s!\n\n", env.get("username"));
+                            break;
+                        }
+                    }
+                })
+                .handle((result, err) -> {
+                    if (err != null) {
+                        System.err.printf("Failed to login: \"%s\"", err.getMessage().substring(err.getMessage().indexOf(":") + 2));
+                    }
+                    return null;
+                }).join();
+
+
+        client.getCourses()
+                .thenAccept(list -> {
+                    list.forEach(course -> System.out.printf("%s  [%s]\n", course.get("title"), course.get("url")));
+                }).join();
     }
 }

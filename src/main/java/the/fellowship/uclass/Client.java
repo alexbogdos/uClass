@@ -2,6 +2,7 @@ package the.fellowship.uclass;
 
 import okhttp3.*;
 import okhttp3.java.net.cookiejar.JavaNetCookieJar;
+import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -13,6 +14,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 public class Client {
     private final static String cookiePath = "";
@@ -31,16 +33,32 @@ public class Client {
         this.cookieManager = new CookieManager();
         //this.cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
         this.client = new OkHttpClient.Builder()
+                // TODO: Custom CookieStore. Extract cookie loading/parsing/storing
                 .cookieJar(new JavaNetCookieJar(this.cookieManager))
                 .build();
     }
+
+    /**
+     * Testing only.
+     */
+    protected Client(String serviceURL, Interceptor interceptor) {
+        this.service = serviceURL;
+        this.agent = UseAgentGenerator.generate();
+        this.cookieManager = new CookieManager();
+        //this.cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
+        this.client = new OkHttpClient.Builder()
+                .cookieJar(new JavaNetCookieJar(this.cookieManager))
+                .addInterceptor(interceptor)
+                .build();
+    }
+
 
     /**
      * Sends an api http GET/ request.
      *
      * @param path
      */
-    public Map<String, ?> get(String path) throws ClientException {
+    protected CompletableFuture<Map<String, ?>> get(String path) {
         return send(HttpUrl.parse(this.service + path), null);
     }
 
@@ -50,10 +68,10 @@ public class Client {
      * @param url
      * @param body
      */
-    private Map<String, ?> send(
+    protected CompletableFuture<Map<String, ?>> send(
             HttpUrl url,
             RequestBody body
-    ) throws ClientException {
+    ) {
         Request.Builder request = new Request.Builder()
                 .url(url)
                 .header("User-Agent", agent);
@@ -62,19 +80,29 @@ public class Client {
             request.post(body);
         }
 
-        try (Response response = client.newCall(request.build()).execute()) {
-            if (!response.isSuccessful()) {
-                throw new ClientException(url, response.code(), response.body().string());
+        final CompletableFuture<Map<String, ?>> future = new CompletableFuture<>();
+
+        client.newCall(request.build()).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                //System.err.printf("[ERROR] Unable to make request %s/ %s. %s\n", body != null ? "POST" : "GET", url, e.getMessage());
+                future.completeExceptionally(e);
             }
 
-            return Map.of(
-                    "url", response.request().url(),
-                    "body", response.body().string()
-            );
-        } catch (IOException err) {
-            System.err.printf("[ERROR] Unable to make request %s/ %s. %s\n", body != null ? "POST" : "GET", url, err.getMessage());
-            throw new ClientException(url, err);
-        }
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                if (!response.isSuccessful()) {
+                    future.completeExceptionally(new ClientException(url, response.code(), response.body().string()));
+                }
+
+                future.complete(Map.of(
+                        "url", response.request().url(),
+                        "body", response.body().string()
+                ));
+            }
+        });
+
+        return future;
     }
 
     /**
@@ -82,80 +110,70 @@ public class Client {
      * @param password
      * @return <b>True</b> if the credentials authenticated the user successfully
      */
-    public boolean login(String username, String password) throws ClientException {
+    public CompletableFuture<String> login(String username, String password) {
         String cookieFile = cookiePath + String.format("%s_cookies.pkl", username);
-        Map<String, ?> response;
 
         // Load CookieStore from file
         loadCookies(cookieFile);
 
         // Check if the current session is already logged in
-        response = get("/modules/auth/cas.php");
-        if (response != null && !((HttpUrl) response.get("url")).toString().contains("/login")) {
-            System.out.printf("Already authenticated as \"%s\"\n\n", username);
-            return true;
-        }
+        return get("/modules/auth/cas.php")
+                .thenCompose((response) -> {
+                    // Check if the current session is already logged in
+                    if (!((HttpUrl) response.get("url")).toString().contains("/login")) {
+                        return CompletableFuture.completedFuture("RESTORE");
+                    }
 
-        // Obtain SSO's execution ticket
-        response = retrieveExecutionTicket();
-        if (response == null) {
-            return false;
-        }
-
-        // Authenticate to SSO using the credentials and the execution ticket
-        boolean authenticated = authenticate(username, password, (HttpUrl) response.get("url"), (String) response.get("token"));
-        if (!authenticated) {
-            return false;
-        }
-
-        // Store current CookieStore to file
-        storeCookies(cookieFile);
-
-        return true;
+                    // Obtain SSO's execution ticket
+                    return retrieveExecutionTicket()
+                            // Authenticate to SSO using the credentials and the execution ticket
+                            .thenCompose(res -> authenticate(username, password, (HttpUrl) res.get("url"), (String) res.get("token")))
+                            .thenApply(res -> {
+                                if (res) {
+                                    // Store current CookieStore to file
+                                    storeCookies(cookieFile);
+                                }
+                                return res ? "SUCCESS" : "FAILURE";
+                            });
+                });
     }
 
-    public List<Map<String, String>> courses() throws ClientException {
-        Map<String, ?> response = get("/main/portfolio.php?countPages=-1");
-        if (response == null) {
-            return null;
-        }
+    public CompletableFuture<List<Map<String, String>>> getCourses() {
+        return get("/main/portfolio.php?countPages=-1")
+                .thenApply(response -> {
+                    String html = (String) response.get("body");
+                    if (html.isEmpty()) return new ArrayList<>();
 
-        String html = (String) response.get("body");
-        Document document = Jsoup.parse(html);
-        List<Map<String, String>> courses = document.select(".row-course").stream().map(course -> {
-            Element link = course.selectFirst("a");
-            return Map.of(
-                    "url", link.attr("href"),
-                    "title", link.text()
-            );
-        }).toList();
-        return courses;
+                    Document document = Jsoup.parse(html);
+                    List<Map<String, String>> courses = document.select(".row-course").stream().map(course -> {
+                        Element link = course.selectFirst("a");
+                        return Map.of(
+                                "url", link.attr("href"),
+                                "title", link.text()
+                        );
+                    }).toList();
+                    return courses;
+                });
     }
 
     /**
      * @return a map containing the SSO's URL <b>["url"]</b> to authenticate to and the execution token <b>["token"]</b> contained in the HTML page
      */
-    private Map<String, ?> retrieveExecutionTicket() throws ClientException {
-        Map<String, ?> response = get("/modules/auth/cas.php");
-        if (response == null) {
-            return null;
-        }
+    protected CompletableFuture<Map<String, ?>> retrieveExecutionTicket() {
+        return get("/modules/auth/cas.php")
+                .thenApply(response -> {
+                    String html = (String) response.get("body");
+                    if (html.isEmpty()) return null;
 
-        String html = (String) response.get("body");
-        if (html.isEmpty()) {
-            return null;
-        }
+                    Document document = Jsoup.parse(html);
+                    String token = document.select("input[name=execution]").val();
+                    if (token.isEmpty()) return null;
 
-        Document document = Jsoup.parse(html);
-        String token = document.select("input[name=execution]").val();
-        if (token.isEmpty()) {
-            return null;
-        }
-
-        return Map.of(
-                "url", response.get("url"),
-                "token", token
-        );
+                    return Map.of(
+                            "url", response.get("url"),
+                            "token", token
+                    );
+                });
     }
 
     /**
@@ -165,7 +183,7 @@ public class Client {
      * @param token    Execution token
      * @return <b>True</b> if the authentication was successful
      */
-    private boolean authenticate(String username, String password, HttpUrl url, String token) throws ClientException {
+    protected CompletableFuture<Boolean> authenticate(String username, String password, HttpUrl url, String token) {
         RequestBody form = new FormBody.Builder()
                 .add("username", username)
                 .add("password", password)
@@ -173,17 +191,12 @@ public class Client {
                 .add("_eventId", "submit")
                 .build();
 
-        Map<String, ?> response = send(url, form);
-        if (response == null) {
-            return false;
-        }
-
-        return !((HttpUrl) response.get("url")).toString().contains("/login");
+        return send(url, form)
+                .thenApply(res -> !((HttpUrl) res.get("url")).toString().contains("/login"));
     }
 
     private void loadCookies(String path) {
         if (!new File(path).exists()) {
-            System.out.printf("[WARNING] Cookie file not found on \"%s\"\n", path);
             return;
         }
 
