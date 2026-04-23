@@ -6,12 +6,16 @@ import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+
+import com.google.gson.Gson;
+
 import the.fellowship.eclass.cookies.FileCookieJar;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 
 public class EClass {
@@ -77,6 +81,20 @@ public class EClass {
                         );
                     }).toList();
                     return courses;
+                });
+    }
+
+    public CompletableFuture<List<Map<String, ?>>> getAssignments(String courseId) {
+        final String url = String.format("/main/calendar_data.php?from=1776977700000&to=17769802940000", courseId);
+        return get(url)
+                .thenApply(response -> {
+                    String json = (String) response.get("body");
+                    if (json.isEmpty()) return new ArrayList<>();
+
+                    Map<String, ?> events = new Gson().fromJson(json, TreeMap.class);
+
+                    // TODO: Filter entries with ID different than `courseId`
+                    return (List<Map<String, ?>>) events.get("result");
                 });
     }
 

@@ -2,6 +2,7 @@ package the.fellowship.eclass;
 
 import the.fellowship.Environment;
 
+import java.sql.Date;
 import java.util.Map;
 
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
@@ -37,9 +38,15 @@ public class Main {
                 }).join();
 
 
-        client.getCourses()
-                .thenAccept(list -> {
-                    list.forEach(course -> System.out.printf("%s  [%s]\n", course.get("title"), course.get("url")));
-                }).join();
+        // client.getCourses()
+        //         .thenAccept(list -> {
+        //             list.forEach(course -> System.out.printf("%s  [%s]\n", course.get("title"), course.get("url")));
+        //         }).join();
+
+                
+        client.getAssignments("INF104")
+                .thenAccept(assignments -> assignments.forEach(ass -> {
+                    System.out.printf("%s [%s]\n", ((String) ass.get("title")), new Date(((Double) ass.get("end")).longValue()));
+                })).join();
     }
 }
