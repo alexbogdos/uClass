@@ -6,25 +6,24 @@ import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-
-import com.google.gson.Gson;
-
+import the.fellowship.Json;
 import the.fellowship.eclass.cookies.FileCookieJar;
+import the.fellowship.eclass.dtos.Assignment;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 
 public class EClass {
     private final String service;
     private final String agent;
-    OkHttpClient httpClient;
-
     private final FileCookieJar cookieJar;
     private final EClassSSO sso;
+    OkHttpClient httpClient;
 
     /**
      * @param serviceURL
@@ -84,17 +83,30 @@ public class EClass {
                 });
     }
 
-    public CompletableFuture<List<Map<String, ?>>> getAssignments(String courseId) {
-        final String url = String.format("/main/calendar_data.php?from=1776977700000&to=17769802940000", courseId);
+    public CompletableFuture<List<Assignment>> getAssignments(Instant start, Instant end) {
+        return getAssignments(null, start, end);
+    }
+
+    public CompletableFuture<List<Assignment>> getAssignments(String courseId, Instant start, Instant end) {
+        final String url = String.format("/main/calendar_data.php?from=%s&to=%s", start.getEpochSecond() * 1000, end.getEpochSecond() * 1000);
+
         return get(url)
                 .thenApply(response -> {
                     String json = (String) response.get("body");
                     if (json.isEmpty()) return new ArrayList<>();
 
-                    Map<String, ?> events = new Gson().fromJson(json, TreeMap.class);
+                    Map<String, ?> events = Json.decode(json);
 
-                    // TODO: Filter entries with ID different than `courseId`
-                    return (List<Map<String, ?>>) events.get("result");
+                    return ((List<Map<String, ?>>) events.get("result")).stream()
+                            .filter(event -> {
+                                // Calendar event is not an assignment
+                                if (!"assignment".equals(event.get("event_type"))) return false;
+
+                                if (courseId == null || courseId.isEmpty()) return true;
+                                return courseId.equals(event.get("course"));
+                            })
+                            .map(Assignment::new)
+                            .toList();
                 });
     }
 

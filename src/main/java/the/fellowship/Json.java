@@ -5,8 +5,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.ToNumberPolicy;
 import com.google.gson.reflect.TypeToken;
 
-import java.lang.invoke.TypeDescriptor;
-import java.lang.reflect.Type;
 import java.util.Map;
 
 public class Json {
@@ -20,20 +18,13 @@ public class Json {
     }
 
     public static Map<String, ?> decode(String data) {
-        return decode(data, new TypeToken<Map<String, ?>>() {}.getType());
+        return decode(data, new TypeToken<>() {});
     }
 
-    public static <T> T decode(String data, Type typeOfT) {
+    public static <T> T decode(String data, TypeToken<T> typeOfT) {
         return new GsonBuilder()
                 .setObjectToNumberStrategy(numberPolicy)
                 .create()
                 .fromJson(data, typeOfT);
-    }
-
-    public static <T> T decode(String data, Class<T> classOfT) {
-        return new GsonBuilder()
-                .setObjectToNumberStrategy(numberPolicy)
-                .create()
-                .fromJson(data, classOfT);
     }
 }
