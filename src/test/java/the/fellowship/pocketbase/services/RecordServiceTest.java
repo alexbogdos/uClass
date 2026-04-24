@@ -9,10 +9,11 @@ import the.fellowship.pocketbase.MockClient;
 import the.fellowship.pocketbase.PocketBase;
 import the.fellowship.pocketbase.dtos.RecordAuth;
 import the.fellowship.pocketbase.dtos.RecordModel;
-import the.fellowship.pocketbase.tools.Json;
+import the.fellowship.Json;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.TreeMap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -62,11 +63,11 @@ class RecordServiceTest extends CrudServiceTest<RecordModel> {
                         try {
                             request.body().writeTo(buffer);
                             assertEquals(
-                                    Json.encode(Map.of(
+                                    Json.encode(new TreeMap<>(Map.of(
                                             "test_body", 123,
                                             "identity", "test_identity",
                                             "password", "test_password"
-                                    )),
+                                    ))),
                                     buffer.readUtf8()
                             );
                         } catch (IOException e) {

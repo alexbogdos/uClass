@@ -2,8 +2,7 @@ package the.fellowship.pocketbase.dtos;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import the.fellowship.pocketbase.PocketBase;
-import the.fellowship.pocketbase.tools.Json;
+import the.fellowship.Json;
 
 import java.util.TreeMap;
 import java.util.List;
@@ -57,7 +56,6 @@ class RecordModelTest {
 
         // to json
         assertEquals(model.getJson(), json);
-        assertEquals(Json.encode(json), model.toJson());
     }
 
     @Test

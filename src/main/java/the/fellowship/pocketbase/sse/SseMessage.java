@@ -1,6 +1,6 @@
 package the.fellowship.pocketbase.sse;
 
-import the.fellowship.pocketbase.tools.Json;
+import the.fellowship.Json;
 
 import java.util.Map;
 import java.util.TreeMap;

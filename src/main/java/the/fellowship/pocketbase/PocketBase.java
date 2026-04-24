@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import okhttp3.*;
 import the.fellowship.pocketbase.services.RealtimeService;
 import the.fellowship.pocketbase.services.RecordService;
-import the.fellowship.pocketbase.tools.Json;
+import the.fellowship.Json;
 import the.fellowship.pocketbase.tools.MultipartFile;
 
 import java.io.IOException;

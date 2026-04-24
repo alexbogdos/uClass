@@ -1,7 +1,7 @@
 package the.fellowship.pocketbase;
 
 import the.fellowship.pocketbase.dtos.RecordModel;
-import the.fellowship.pocketbase.tools.Json;
+import the.fellowship.Json;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;

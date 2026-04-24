@@ -4,7 +4,7 @@ import okhttp3.*;
 import okio.BufferedSource;
 import org.jetbrains.annotations.NotNull;
 import the.fellowship.pocketbase.ClientException;
-import the.fellowship.pocketbase.tools.Json;
+import the.fellowship.Json;
 
 import java.io.IOException;
 import java.util.Arrays;

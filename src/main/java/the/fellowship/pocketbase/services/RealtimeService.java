@@ -4,7 +4,7 @@ import the.fellowship.pocketbase.ClientException;
 import the.fellowship.pocketbase.PocketBase;
 import the.fellowship.pocketbase.sse.SseClient;
 import the.fellowship.pocketbase.sse.SseMessage;
-import the.fellowship.pocketbase.tools.Json;
+import the.fellowship.Json;
 
 import java.net.URI;
 import java.net.URISyntaxException;
