@@ -1,24 +1,18 @@
 package the.fellowship.uclass;
 
 import android.os.Bundle;
-
-import com.google.android.material.snackbar.Snackbar;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import androidx.appcompat.app.AppCompatActivity;
-
-import android.view.View;
-
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
-import the.fellowship.pocketbase.PocketBase;
-import the.fellowship.pocketbase.dtos.RecordAuth;
-import the.fellowship.uclass.databinding.ActivityMainBinding;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-import android.view.Menu;
-import android.view.MenuItem;
+import the.fellowship.uclass.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -38,33 +32,8 @@ public class MainActivity extends AppCompatActivity {
         appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
 
-        binding.fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                new Thread(() -> {
-                    final PocketBase pb = new PocketBase("https://guacamole230.duckdns.org:8090");
-                    try {
-                        RecordAuth auth = pb.getCollection("users").authWithPassword("", "");
-
-                        runOnUiThread(() -> {
-                            Snackbar.make(view, String.format("Welcome, %s\n", auth.getIdentifier()), Snackbar.LENGTH_LONG)
-                                    .setAnchorView(R.id.fab)
-                                    .setAction("Action", null).show();
-                        });
-                    } catch (Exception e) {
-                        runOnUiThread(() -> {
-                            Snackbar.make(view, e.toString(), Snackbar.LENGTH_LONG)
-                                    .setAnchorView(R.id.fab)
-                                    .setAction("Action", null).show();
-                            e.printStackTrace();
-                        });
-                    }
-
-                    // "logout"
-                    pb.getAuthStore().clear();
-                }).start();
-            }
-        });
+        BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
+        NavigationUI.setupWithNavController(bottomNav, navController);
     }
 
     @Override
