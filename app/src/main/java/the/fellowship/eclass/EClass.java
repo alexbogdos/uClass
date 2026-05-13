@@ -1,25 +1,32 @@
 package the.fellowship.eclass;
 
-import okhttp3.*;
-import okhttp3.java.net.cookiejar.JavaNetCookieJar;
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import the.fellowship.Json;
-import the.fellowship.eclass.cookies.CookieJar;
-import the.fellowship.eclass.cookies.FileCookieJar;
-import the.fellowship.eclass.cookies.PrefsCookieJar;
-import the.fellowship.eclass.dtos.Assignment;
 
 import java.io.IOException;
-import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.HttpUrl;
+import okhttp3.Interceptor;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import okhttp3.java.net.cookiejar.JavaNetCookieJar;
+import the.fellowship.Json;
+import the.fellowship.eclass.cookies.CookieJar;
+import the.fellowship.eclass.cookies.FileCookieJar;
+import the.fellowship.eclass.cookies.PrefsCookieJar;
+import the.fellowship.eclass.dtos.Assignment;
 
 public class EClass {
     private final String service;
@@ -79,14 +86,14 @@ public class EClass {
      *  HTML Parsers
      * - - - - - - - - - - - - - - - - - - - - */
 
-    public CompletableFuture<List<Map<String, String>>> getCourses() {
+    public CompletableFuture<List<Map<String, ?>>> getCourses() {
         return get("/main/portfolio.php?countPages=-1")
                 .thenApply(response -> {
                     String html = (String) response.get("body");
                     if (html.isEmpty()) return new ArrayList<>();
 
                     Document document = Jsoup.parse(html);
-                    List<Map<String, String>> courses = document.select(".row-course").stream().map(course -> {
+                    List<Map<String, ?>> courses = document.select(".row-course").stream().map(course -> {
                         Element link = course.selectFirst("a");
                         return Map.of(
                                 "url", link.attr("href"),
