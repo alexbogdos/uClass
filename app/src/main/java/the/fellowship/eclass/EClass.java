@@ -174,7 +174,7 @@ public class EClass {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
                 //System.err.printf("[ERROR] Unable to make request %s/ %s. %s\n", body != null ? "POST" : "GET", url, e.getMessage());
-                future.completeExceptionally(e);
+                future.completeExceptionally(new ClientException(url, e));
             }
 
             @Override

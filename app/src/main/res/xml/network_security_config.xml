@@ -3,7 +3,13 @@
     <domain-config>
         <domain includeSubdomains="true">guacamole230.duckdns.org</domain>
         <domain includeSubdomains="true">192.168.1.2</domain>
+        <domain includeSubdomains="true">aueb.gr</domain>
+        <domain includeSubdomains="true">eclass.aueb.gr</domain>
+        <domain includeSubdomains="true">sso.aueb.gr</domain>
         <trust-anchors>
+            <certificates src="@raw/aueb" />
+            <certificates src="@raw/eclass_aueb" />
+            <certificates src="@raw/sso_aueb" />
             <certificates src="@raw/caddy" />
         </trust-anchors>
     </domain-config>
