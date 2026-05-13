@@ -1,5 +1,7 @@
 package the.fellowship.uclass.courses;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,6 +18,8 @@ import com.google.android.material.snackbar.Snackbar;
 import java.util.Map;
 
 import the.fellowship.eclass.EClass;
+import the.fellowship.eclass.cookies.CookieJar;
+import the.fellowship.eclass.cookies.PrefsCookieJar;
 import the.fellowship.uclass.R;
 import the.fellowship.uclass.databinding.FragmentCoursesBinding;
 
@@ -30,7 +34,8 @@ public class CoursesFragment extends Fragment {
     ) {
         binding = FragmentCoursesBinding.inflate(inflater, container, false);
 
-        final EClass eclass = new EClass("https://eclass.aueb.gr");
+        PrefsCookieJar jar = new PrefsCookieJar(getActivity().getSharedPreferences("credentials", Context.MODE_PRIVATE));
+        final EClass eclass = new EClass("https://eclass.aueb.gr", jar);
         final String username = "";
         final String password = "";
 

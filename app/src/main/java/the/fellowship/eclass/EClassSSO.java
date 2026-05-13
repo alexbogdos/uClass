@@ -22,7 +22,7 @@ public class EClassSSO {
      * @return <b>True</b> if the credentials authenticated the user successfully
      */
     public CompletableFuture<Boolean> login(String username, String password) {
-        client.getCookieJar().setPath(username);
+        client.getCookieJar().setKey(username);
 
         // Load CookieStore from file
         client.getCookieJar().load();

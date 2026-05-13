@@ -7,7 +7,9 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import the.fellowship.Json;
+import the.fellowship.eclass.cookies.CookieJar;
 import the.fellowship.eclass.cookies.FileCookieJar;
+import the.fellowship.eclass.cookies.PrefsCookieJar;
 import the.fellowship.eclass.dtos.Assignment;
 
 import java.io.IOException;
@@ -22,18 +24,29 @@ import java.util.stream.Collectors;
 public class EClass {
     private final String service;
     private final String agent;
-    private final FileCookieJar cookieJar;
+    private final CookieJar cookieJar;
     private final EClassSSO sso;
     OkHttpClient httpClient;
 
     /**
      * @param serviceURL
      */
-    public EClass(String serviceURL) {
+    public EClass(String serviceURL, PrefsCookieJar cookieJar) {
         this.service = serviceURL;
+        this.cookieJar = cookieJar;
         this.agent = UseAgentGenerator.generate();
         this.sso = new EClassSSO(this);
+        this.httpClient = new OkHttpClient.Builder()
+                // TODO: Custom CookieStore. Extract cookie loading/parsing/storing
+                .cookieJar(new JavaNetCookieJar(this.cookieJar.getCookieManager()))
+                .build();
+    }
+
+    public EClass(String serviceURL) {
+        this.service = serviceURL;
         this.cookieJar = new FileCookieJar();
+        this.agent = UseAgentGenerator.generate();
+        this.sso = new EClassSSO(this);
         this.httpClient = new OkHttpClient.Builder()
                 // TODO: Custom CookieStore. Extract cookie loading/parsing/storing
                 .cookieJar(new JavaNetCookieJar(this.cookieJar.getCookieManager()))
@@ -54,7 +67,7 @@ public class EClass {
                 .build();
     }
 
-    public FileCookieJar getCookieJar() {
+    public CookieJar getCookieJar() {
         return cookieJar;
     }
 

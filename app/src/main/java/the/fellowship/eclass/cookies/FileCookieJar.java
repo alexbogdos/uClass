@@ -7,7 +7,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FileCookieJar {
+public class FileCookieJar implements CookieJar {
     private final static String cookiePath = "";
     final CookieManager cookieManager;
     String path;
@@ -21,7 +21,7 @@ public class FileCookieJar {
         return cookieManager;
     }
 
-    public void setPath(String username) {
+    public void setKey(String username) {
         this.path = cookiePath + String.format("%s_eclass_cookies.pkl", username);
     }
 
