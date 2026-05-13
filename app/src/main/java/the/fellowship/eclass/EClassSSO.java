@@ -21,7 +21,7 @@ public class EClassSSO {
      * @param password
      * @return <b>True</b> if the credentials authenticated the user successfully
      */
-    public CompletableFuture<String> login(String username, String password) {
+    public CompletableFuture<Boolean> login(String username, String password) {
         client.getCookieJar().setPath(username);
 
         // Load CookieStore from file
@@ -32,7 +32,7 @@ public class EClassSSO {
                 .thenCompose((response) -> {
                     // Check if the current session is already logged in
                     if (!((HttpUrl) response.get("url")).toString().contains("/login")) {
-                        return CompletableFuture.completedFuture("RESTORE");
+                        return CompletableFuture.completedFuture(true);
                     }
 
                     // Obtain SSO's execution ticket
@@ -44,7 +44,7 @@ public class EClassSSO {
                                     // Store current CookieStore to file
                                     client.getCookieJar().store();
                                 }
-                                return res ? "SUCCESS" : "FAILURE";
+                                return res;
                             });
                 });
     }

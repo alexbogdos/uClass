@@ -2,15 +2,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="the.fellowship.uclass.MainActivity">
     <item
-        android:id="@+id/FirstFragment"
+        android:id="@+id/CalendarFragment"
         android:icon="@drawable/ic_launcher_foreground"
         android:title="@string/navigation_calendar" />
     <item
-        android:id="@+id/SecondFragment"
+        android:id="@+id/CoursesFragment"
         android:icon="@drawable/ic_launcher_foreground"
         android:title="@string/navigation_courses" />
     <item
-        android:id="@+id/action_announcements"
+        android:id="@+id/AnnouncementsFragment"
         android:icon="@drawable/ic_launcher_foreground"
         android:title="@string/navigation_announcements" />
 </menu>

@@ -1,4 +1,4 @@
-package the.fellowship.uclass;
+package the.fellowship.uclass.calendar;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -8,11 +8,11 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import the.fellowship.uclass.databinding.FragmentFirstBinding;
+import the.fellowship.uclass.databinding.FragmentCalendarBinding;
 
-public class FirstFragment extends Fragment {
+public class CalendarFragment extends Fragment {
 
-    private FragmentFirstBinding binding;
+    private FragmentCalendarBinding binding;
 
     @Override
     public View onCreateView(
@@ -20,7 +20,7 @@ public class FirstFragment extends Fragment {
             Bundle savedInstanceState
     ) {
 
-        binding = FragmentFirstBinding.inflate(inflater, container, false);
+        binding = FragmentCalendarBinding.inflate(inflater, container, false);
         return binding.getRoot();
 
     }

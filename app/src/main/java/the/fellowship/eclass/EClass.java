@@ -120,7 +120,7 @@ public class EClass {
      * @param password
      * @return <b>True</b> if the credentials authenticated the user successfully
      */
-    public CompletableFuture<String> login(String username, String password) {
+    public CompletableFuture<Boolean> login(String username, String password) {
         return sso.login(username, password);
     }
 

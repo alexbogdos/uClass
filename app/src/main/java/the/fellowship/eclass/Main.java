@@ -16,20 +16,11 @@ public class Main {
 
         client.login(env.get("username"), env.get("password"))
                 .thenAccept(result -> {
-                    switch (result) {
-                        case "FAILURE": {
-                            System.out.println("Incorrect username or password\n");
-                            break;
-                        }
-                        case "SUCCESS": {
-                            System.out.printf("Welcome, %s!\n\n", env.get("username"));
-                            break;
-                        }
-                        case "RESTORE": {
-                            System.out.printf("Welcome back, %s!\n\n", env.get("username"));
-                            break;
-                        }
+                    if (!result) {
+                        System.out.println("Incorrect username or password\n");
+                        return;
                     }
+                    System.out.printf("Welcome, %s!\n\n", env.get("username"));
                 })
                 .exceptionally(err -> {
                     if (err != null) {
