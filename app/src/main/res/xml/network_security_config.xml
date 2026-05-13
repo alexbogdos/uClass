@@ -4,7 +4,7 @@
         <domain includeSubdomains="true">guacamole230.duckdns.org</domain>
         <domain includeSubdomains="true">192.168.1.2</domain>
         <trust-anchors>
-            <certificates src="@raw/caddy"/>
+            <certificates src="@raw/caddy" />
         </trust-anchors>
     </domain-config>
 </network-security-config>

@@ -1,14 +1,11 @@
 package the.fellowship.uclass.courses;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -18,8 +15,7 @@ import com.google.android.material.snackbar.Snackbar;
 import java.util.Map;
 
 import the.fellowship.eclass.EClass;
-import the.fellowship.eclass.cookies.CookieJar;
-import the.fellowship.eclass.cookies.PrefsCookieJar;
+import the.fellowship.uclass.LoginActivity;
 import the.fellowship.uclass.R;
 import the.fellowship.uclass.databinding.FragmentCoursesBinding;
 
@@ -34,26 +30,14 @@ public class CoursesFragment extends Fragment {
     ) {
         binding = FragmentCoursesBinding.inflate(inflater, container, false);
 
-        PrefsCookieJar jar = new PrefsCookieJar(getActivity().getSharedPreferences("credentials", Context.MODE_PRIVATE));
-        final EClass eclass = new EClass("https://eclass.aueb.gr", jar);
-        final String username = "";
-        final String password = "";
-
-        eclass.login(username, password)
-                .thenAccept(success -> {
-                    if (!success) {
-                        showMessage("Incorrect username or password");
-                        return;
+        EClass eclass = LoginActivity.eclass;
+        eclass.getCourses().thenAccept(courses -> {
+                    System.out.println(courses);
+                    StringBuilder list = new StringBuilder();
+                    for (Map<String, String> course : courses) {
+                        list.append(String.format("%s\n", course.get("title")));
                     }
-                    showMessage(String.format("Welcome, %s!", username));
-
-                    eclass.getCourses().thenAccept(courses -> {
-                        StringBuilder list = new StringBuilder();
-                        for (Map<String, String> course : courses) {
-                            list.append(String.format("%s\n", course.get("title")));
-                        }
-                        populateCourses(list.toString());
-                    });
+                    populateCourses(list.toString());
                 })
                 .exceptionally(err -> {
                     if (err != null) {
