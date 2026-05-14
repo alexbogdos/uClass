@@ -233,7 +233,7 @@ public class EClass {
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                 if (!response.isSuccessful()) {
-                    Log.e("EClass", String.valueOf(new ClientException(url, response.code(), response.body().string())));
+                    //Log.e("EClass", String.valueOf(new ClientException(url, response.code(), response.body().string())));
                     future.completeExceptionally(new ClientException(url, response.code(), ""));
                 }
 
