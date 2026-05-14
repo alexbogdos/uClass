@@ -226,7 +226,7 @@ public class EClass {
         httpClient.newCall(request.build()).enqueue(new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                //System.err.printf("[ERROR] Unable to make request %s/ %s. %s\n", body != null ? "POST" : "GET", url, e.getMessage());
+                Log.e("EClass/Send", String.valueOf(new ClientException(url, e)));
                 future.completeExceptionally(new ClientException(url, e));
             }
 
@@ -234,7 +234,7 @@ public class EClass {
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                 if (!response.isSuccessful()) {
                     Log.e("EClass", String.valueOf(new ClientException(url, response.code(), response.body().string())));
-                    future.completeExceptionally(new ClientException(url, response.code(), response.body().string()));
+                    future.completeExceptionally(new ClientException(url, response.code(), ""));
                 }
 
                 future.complete(Map.of(
