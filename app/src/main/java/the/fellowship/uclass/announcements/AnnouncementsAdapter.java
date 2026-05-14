@@ -17,9 +17,11 @@ import the.fellowship.uclass.R;
 
 public class AnnouncementsAdapter extends RecyclerView.Adapter<AnnouncementsAdapter.ViewHolder> {
     private final List<Announcement> items;
+    private final SelectionListener listener;
 
-    public AnnouncementsAdapter(List<Announcement> items) {
+    public AnnouncementsAdapter(List<Announcement> items, SelectionListener listener) {
         this.items = items;
+        this.listener = listener;
     }
 
     @NonNull
@@ -34,11 +36,16 @@ public class AnnouncementsAdapter extends RecyclerView.Adapter<AnnouncementsAdap
         holder.name.setText(item.getTitle());
         holder.subtitle.setText(item.getCourse());
         holder.date.setText(item.getDate());
+        holder.view.setOnClickListener(view -> listener.select(item));
     }
 
     @Override
     public int getItemCount() {
         return items.size();
+    }
+
+    public interface SelectionListener {
+        void select(Announcement announcement);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -49,7 +56,7 @@ public class AnnouncementsAdapter extends RecyclerView.Adapter<AnnouncementsAdap
 
         public ViewHolder(@NonNull View view) {
             super(view);
-            view = view.findViewById(R.id.item_view);
+            this.view = view.findViewById(R.id.item_view);
             this.name = view.findViewById(R.id.title_text);
             this.subtitle = view.findViewById(R.id.subtitle_text);
             this.date = view.findViewById(R.id.date_text);
