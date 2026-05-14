@@ -10,6 +10,8 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.snackbar.Snackbar;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +20,7 @@ import the.fellowship.uclass.R;
 import the.fellowship.uclass.UClass;
 import the.fellowship.uclass.databinding.FragmentCoursesBinding;
 
-public class CoursesFragment extends Fragment {
+public class CoursesFragment extends Fragment implements CoursesAdapter.SelectionListener {
 
     private List<Course> items;
     private RecyclerView recycler;
@@ -34,7 +36,7 @@ public class CoursesFragment extends Fragment {
         recycler = binding.getRoot().findViewById(R.id.recycler);
 
         items = new ArrayList<>();
-        adapter = new CoursesAdapter(items);
+        adapter = new CoursesAdapter(items, this);
         recycler.setAdapter(adapter);
 
         UClass.eclass.getCourses().observe(getViewLifecycleOwner(), this::populateCourses);
@@ -67,5 +69,15 @@ public class CoursesFragment extends Fragment {
             items.addAll(courses);
             adapter.notifyDataSetChanged();
         });
+    }
+
+    @Override
+    public void select(Course course) {
+        if (getActivity() == null || getView() == null) {
+            Log.e("CoursesFragment", "Can not use UI Thread");
+            return;
+        }
+
+        getActivity().runOnUiThread(() -> Snackbar.make(getView(), String.format("Selected: %s", course), Snackbar.LENGTH_LONG).setAction("Action", null).show());
     }
 }

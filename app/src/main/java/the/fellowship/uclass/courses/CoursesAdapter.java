@@ -17,9 +17,11 @@ import the.fellowship.uclass.R;
 
 public class CoursesAdapter extends RecyclerView.Adapter<CoursesAdapter.ViewHolder> {
     private final List<Course> items;
+    private final SelectionListener listener;
 
-    public CoursesAdapter(List<Course> items) {
+    public CoursesAdapter(List<Course> items, SelectionListener listener) {
         this.items = items;
+        this.listener = listener;
     }
 
     @NonNull
@@ -33,11 +35,16 @@ public class CoursesAdapter extends RecyclerView.Adapter<CoursesAdapter.ViewHold
         final Course item = items.get(position);
         holder.name.setText(String.valueOf(item.getName()));
         holder.subtitle.setText(String.valueOf(item.getLecturer()));
+        holder.view.setOnClickListener(view -> listener.select(item));
     }
 
     @Override
     public int getItemCount() {
         return items.size();
+    }
+
+    public interface SelectionListener {
+        void select(Course course);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -47,7 +54,7 @@ public class CoursesAdapter extends RecyclerView.Adapter<CoursesAdapter.ViewHold
 
         public ViewHolder(@NonNull View view) {
             super(view);
-            view = view.findViewById(R.id.item_view);
+            this.view = view.findViewById(R.id.item_view);
             this.name = view.findViewById(R.id.title_text);
             this.subtitle = view.findViewById(R.id.subtitle_text);
         }
