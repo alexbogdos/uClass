@@ -140,10 +140,11 @@ public class EClass {
 
                         Document document = Jsoup.parse(content);
                         Element link = document.selectFirst(".table_td_header").selectFirst("a");
+                        String id = link.attr("href").split("\\?")[1].split("&")[1].split("=")[1];
                         String course = document.selectFirst("small").text();
                         String courseId = link.attr("href").split("\\?")[1].split("&")[0].split("=")[1];
                         String body = document.selectFirst(".table_td_body").text();
-                        announcements.add(new Announcement(link.text(), course, courseId, date, link.attr("href"), body));
+                        announcements.add(new Announcement(id, link.text(), course, courseId, date, link.attr("href"), body));
                     }
 
                     return announcements;
