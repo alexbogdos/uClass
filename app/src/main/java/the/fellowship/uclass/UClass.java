@@ -14,7 +14,7 @@ import the.fellowship.eclass.EClass;
 import the.fellowship.eclass.cookies.PrefsCookieJar;
 import the.fellowship.uclass.databinding.ActivityLoginBinding;
 
-public class LoginActivity extends AppCompatActivity {
+public class UClass extends AppCompatActivity {
 
     public static EClass eclass;
     private ActivityLoginBinding binding;
@@ -35,12 +35,13 @@ public class LoginActivity extends AppCompatActivity {
             eclass.login(prefs.getString("username", ""), prefs.getString("password", ""))
                     .thenAccept(success -> {
                         if (!success) {
-                            Intent intent = new Intent(this, LoginActivity.class);
+                            Intent intent = new Intent(this, UClass.class);
                             startActivity(intent);
                         }
+                        eclass.fetchAll();
                     })
                     .exceptionally(err -> {
-                        Intent intent = new Intent(this, LoginActivity.class);
+                        Intent intent = new Intent(this, UClass.class);
                         startActivity(intent);
                         return null;
                     });
@@ -65,6 +66,8 @@ public class LoginActivity extends AppCompatActivity {
                         editor.putString("username", username);
                         editor.putString("password", password);
                         editor.apply();
+
+                        eclass.fetchAll();
 
                         runOnUiThread(() -> {
                             Snackbar.make(view, String.format("Welcome, %s!", username), Snackbar.LENGTH_LONG).setAction("Action", null).show();

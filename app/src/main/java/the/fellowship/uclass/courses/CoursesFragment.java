@@ -10,15 +10,12 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.snackbar.Snackbar;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import the.fellowship.eclass.EClass;
-import the.fellowship.uclass.LoginActivity;
 import the.fellowship.uclass.R;
+import the.fellowship.uclass.UClass;
 import the.fellowship.uclass.databinding.FragmentCoursesBinding;
 
 public class CoursesFragment extends Fragment {
@@ -40,14 +37,7 @@ public class CoursesFragment extends Fragment {
         adapter = new CoursesAdapter(items);
         recycler.setAdapter(adapter);
 
-        EClass eclass = LoginActivity.eclass;
-        eclass.getCourses().thenAccept(this::populateCourses)
-                .exceptionally(err -> {
-                    if (err != null) {
-                        showMessage(String.format("Failed to login: \"%s\"", err.getMessage().substring(err.getMessage().indexOf(":") + 2)));
-                    }
-                    return null;
-                });
+        UClass.eclass.getCourses().observe(getViewLifecycleOwner(), this::populateCourses);
 
         return binding.getRoot();
     }
@@ -63,12 +53,12 @@ public class CoursesFragment extends Fragment {
     }
 
     public void navigateToCourse(String courseId) {
-        showMessage(String.format("Navigate to: %s\n", courseId));
+        Log.d("CoursesFragment", String.format("Navigate to: %s\n", courseId));
     }
 
     public void populateCourses(List<Map<String, ?>> courses) {
-        if (getActivity() == null || !isAdded() || getView() == null) {
-            Log.e("CoursesFragment/populateCourses", "Can not use UI Thread");
+        if (getActivity() == null) {
+            Log.e("CoursesFragment", "Can not use UI Thread");
             return;
         }
 
@@ -76,19 +66,6 @@ public class CoursesFragment extends Fragment {
             items.clear();
             items.addAll(courses);
             adapter.notifyDataSetChanged();
-        });
-    }
-
-    public void showMessage(String msg) {
-        if (getActivity() == null || !isAdded() || getView() == null) {
-            Log.e("CoursesFragment/showMessage", String.format("Can not use UI Thread. MSG: %s", msg));
-            return;
-        }
-
-        getActivity().runOnUiThread(() -> {
-            Snackbar.make(getView(), msg, Snackbar.LENGTH_LONG)
-                    .setAnchorView(R.id.bottom_navigation)
-                    .setAction("Action", null).show();
         });
     }
 }

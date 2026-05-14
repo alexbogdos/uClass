@@ -1,5 +1,10 @@
 package the.fellowship.eclass;
 
+import android.util.Log;
+
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -33,6 +38,10 @@ public class EClass {
     private final String agent;
     private final CookieJar cookieJar;
     private final EClassSSO sso;
+    /**
+     * Cached data
+     */
+    private final MutableLiveData<List<Map<String, ?>>> courses = new MutableLiveData<>();
     OkHttpClient httpClient;
 
     /**
@@ -86,21 +95,35 @@ public class EClass {
      *  HTML Parsers
      * - - - - - - - - - - - - - - - - - - - - */
 
-    public CompletableFuture<List<Map<String, ?>>> getCourses() {
+    public void fetchAll() {
+        Log.d("EClass", "Fetch all");
+        fetchCourses().thenAccept(list -> {
+            courses.postValue(list);
+            Log.d("EClass", String.format("Received courses: %s", list));
+        });
+    }
+
+    public LiveData<List<Map<String, ?>>> getCourses() {
+        if (courses.getValue() == null) {
+            fetchCourses().thenAccept(courses::postValue);
+        }
+        return courses;
+    }
+
+    private CompletableFuture<List<Map<String, ?>>> fetchCourses() {
         return get("/main/portfolio.php?countPages=-1")
                 .thenApply(response -> {
                     String html = (String) response.get("body");
                     if (html.isEmpty()) return new ArrayList<>();
 
                     Document document = Jsoup.parse(html);
-                    List<Map<String, ?>> courses = document.select(".row-course").stream().map(course -> {
+                    return document.select(".row-course").stream().map(course -> {
                         Element link = course.selectFirst("a");
                         return Map.of(
                                 "url", link.attr("href"),
                                 "title", link.text()
                         );
                     }).collect(Collectors.toList());
-                    return courses;
                 });
     }
 

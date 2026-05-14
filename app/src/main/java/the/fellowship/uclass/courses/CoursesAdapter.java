@@ -31,7 +31,6 @@ public class CoursesAdapter extends RecyclerView.Adapter<CoursesAdapter.ViewHold
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         final Map<String, ?> item = items.get(position);
-        System.out.println(item);
         holder.name.setText(String.valueOf(item.get("title")));
         holder.subtitle.setText(String.valueOf(item.get("url")));
     }
