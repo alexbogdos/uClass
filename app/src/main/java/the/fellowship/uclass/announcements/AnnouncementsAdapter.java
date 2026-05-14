@@ -13,26 +13,28 @@ import com.google.android.material.card.MaterialCardView;
 import java.util.List;
 import java.util.Map;
 
+import the.fellowship.eclass.dtos.Announcement;
 import the.fellowship.uclass.R;
 
 public class AnnouncementsAdapter extends RecyclerView.Adapter<AnnouncementsAdapter.ViewHolder> {
-    private final List<Map<String, ?>> items;
+    private final List<Announcement> items;
 
-    public AnnouncementsAdapter(List<Map<String, ?>> items) {
+    public AnnouncementsAdapter(List<Announcement> items) {
         this.items = items;
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_course, parent, false));
+        return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_announcement, parent, false));
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        final Map<String, ?> item = items.get(position);
-        holder.name.setText(String.valueOf(item.get("title")));
-        holder.subtitle.setText(String.valueOf(item.get("url")));
+        final Announcement item = items.get(position);
+        holder.name.setText(item.getTitle());
+        holder.subtitle.setText(item.getCourse());
+        holder.date.setText(item.getDate());
     }
 
     @Override
@@ -43,6 +45,7 @@ public class AnnouncementsAdapter extends RecyclerView.Adapter<AnnouncementsAdap
     public static class ViewHolder extends RecyclerView.ViewHolder {
         private final TextView name;
         private final TextView subtitle;
+        private final TextView date;
         MaterialCardView view;
 
         public ViewHolder(@NonNull View view) {
@@ -50,6 +53,7 @@ public class AnnouncementsAdapter extends RecyclerView.Adapter<AnnouncementsAdap
             view = view.findViewById(R.id.item_view);
             this.name = view.findViewById(R.id.title_text);
             this.subtitle = view.findViewById(R.id.subtitle_text);
+            this.date = view.findViewById(R.id.date_text);
         }
     }
 }

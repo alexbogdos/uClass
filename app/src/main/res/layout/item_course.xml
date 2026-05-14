@@ -29,6 +29,7 @@
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:maxLines="2"
+                android:text="Title"
                 android:textAppearance="?attr/textAppearanceBodyLarge"
                 android:textColor="?attr/colorOnSurface" />
 
@@ -39,6 +40,7 @@
                 android:layout_marginTop="4dp"
                 android:ellipsize="end"
                 android:maxLines="1"
+                android:text="Subtitle"
                 android:textAppearance="?attr/textAppearanceBodyMedium"
                 android:textColor="?attr/colorOnSurfaceVariant" />
         </LinearLayout>

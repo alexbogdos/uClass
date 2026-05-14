@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import the.fellowship.eclass.dtos.Course;
 import the.fellowship.uclass.R;
@@ -32,7 +31,7 @@ public class CoursesFragment extends Fragment {
             Bundle savedInstanceState
     ) {
         binding = FragmentCoursesBinding.inflate(inflater, container, false);
-        recycler = binding.getRoot().findViewById(R.id.courses_recycler);
+        recycler = binding.getRoot().findViewById(R.id.recycler);
 
         items = new ArrayList<>();
         adapter = new CoursesAdapter(items);

@@ -31,6 +31,7 @@ import the.fellowship.Json;
 import the.fellowship.eclass.cookies.CookieJar;
 import the.fellowship.eclass.cookies.FileCookieJar;
 import the.fellowship.eclass.cookies.PrefsCookieJar;
+import the.fellowship.eclass.dtos.Announcement;
 import the.fellowship.eclass.dtos.Assignment;
 import the.fellowship.eclass.dtos.Course;
 
@@ -43,7 +44,7 @@ public class EClass {
      * Cached data
      */
     private final MutableLiveData<List<Course>> courses = new MutableLiveData<>();
-    private final MutableLiveData<Map<String, List<Map<String, ?>>>> announcements = new MutableLiveData<>();
+    private final MutableLiveData<List<Announcement>> announcements = new MutableLiveData<>();
     OkHttpClient httpClient;
 
     /**
@@ -103,6 +104,10 @@ public class EClass {
             courses.postValue(list);
             Log.d("EClass", String.format("Received courses: %s", list));
         });
+        fetchAnnouncements().thenAccept(list -> {
+            announcements.postValue(list);
+            Log.d("EClass", String.format("Received announcements: %s", list));
+        });
     }
 
     public LiveData<List<Course>> getCourses() {
@@ -129,29 +134,35 @@ public class EClass {
     }
 
 
-    // https://eclass.aueb.gr/modules/announcements/myannouncements.php?sEcho=2&iColumns=2&sColumns=%2C&iDisplayStart=0&iDisplayLength=-1&mDataProp_0=0&sSearch_0=&bRegex_0=false&bSearchable_0=true&mDataProp_1=1&sSearch_1=&bRegex_1=false&bSearchable_1=true&sSearch=&bRegex=false&_=1778756567651
-
-    public LiveData<List<Course>> getAnnouncements() {
-        if (courses.getValue() == null) {
-            fetchCourses().thenAccept(courses::postValue);
+    public LiveData<List<Announcement>> getAnnouncements() {
+        if (announcements.getValue() == null) {
+            fetchAnnouncements().thenAccept(announcements::postValue);
         }
-        return courses;
+        return announcements;
     }
 
-    private CompletableFuture<List<Map<String, ?>>> fetchAnnouncements() {
-        return get("/main/portfolio.php?countPages=-1")
+    private CompletableFuture<List<Announcement>> fetchAnnouncements() {
+        return get("/modules/announcements/myannouncements.php")
                 .thenApply(response -> {
-                    String html = (String) response.get("body");
-                    if (html.isEmpty()) return new ArrayList<>();
+                    String json = (String) response.get("body");
+                    if (json.isEmpty()) return new ArrayList<>();
 
-                    Document document = Jsoup.parse(html);
-                    return document.select(".row-course").stream().map(course -> {
-                        Element link = course.selectFirst("a");
-                        return Map.of(
-                                "url", link.attr("href"),
-                                "title", link.text()
-                        );
-                    }).collect(Collectors.toList());
+                    List<List<String>> items = (List<List<String>>) Json.decode(json).get("aaData");
+                    if (items == null) return new ArrayList<>();
+
+                    List<Announcement> announcements = new ArrayList<>(items.size());
+                    for (List<String> an : items) {
+                        String content = an.get(0);
+                        String date = an.get(1);
+
+                        Document document = Jsoup.parse(content);
+                        Element link = document.selectFirst(".table_td_header").selectFirst("a");
+                        String course = document.selectFirst("small").text();
+                        String body = document.selectFirst(".table_td_body").text();
+                        announcements.add(new Announcement(link.text(), course, date, (link.attr("href")), body));
+                    }
+
+                    return announcements;
                 });
     }
 
@@ -220,7 +231,8 @@ public class EClass {
     ) {
         Request.Builder request = new Request.Builder()
                 .url(url)
-                .header("User-Agent", agent);
+                .header("User-Agent", agent)
+                .header("X-Requested-With", "XMLHttpRequest");
 
         if (body != null) {
             request.post(body);

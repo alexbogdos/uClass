@@ -12,15 +12,15 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
+import the.fellowship.eclass.dtos.Announcement;
 import the.fellowship.uclass.R;
 import the.fellowship.uclass.UClass;
 import the.fellowship.uclass.databinding.FragmentCoursesBinding;
 
 public class AnnouncementsFragment extends Fragment {
 
-    private List<Map<String, ?>> items;
+    private List<Announcement> items;
     private RecyclerView recycler;
     private AnnouncementsAdapter adapter;
     private FragmentCoursesBinding binding;
@@ -31,13 +31,13 @@ public class AnnouncementsFragment extends Fragment {
             Bundle savedInstanceState
     ) {
         binding = FragmentCoursesBinding.inflate(inflater, container, false);
-        recycler = binding.getRoot().findViewById(R.id.courses_recycler);
+        recycler = binding.getRoot().findViewById(R.id.recycler);
 
         items = new ArrayList<>();
         adapter = new AnnouncementsAdapter(items);
         recycler.setAdapter(adapter);
 
-        //UClass.eclass.getCourses().observe(getViewLifecycleOwner(), this::populateCourses);
+        UClass.eclass.getAnnouncements().observe(getViewLifecycleOwner(), this::populateAnnouncements);
 
         return binding.getRoot();
     }
@@ -52,19 +52,19 @@ public class AnnouncementsFragment extends Fragment {
         binding = null;
     }
 
-    public void navigateToCourse(String courseId) {
+    public void navigateToAnnouncement(String courseId) {
         Log.d("CoursesFragment", String.format("Navigate to: %s\n", courseId));
     }
 
-    public void populateCourses(List<Map<String, ?>> courses) {
+    public void populateAnnouncements(List<Announcement> announcements) {
         if (getActivity() == null) {
-            Log.e("CoursesFragment", "Can not use UI Thread");
+            Log.e("AnnouncementsFragment", "Can not use UI Thread");
             return;
         }
 
         getActivity().runOnUiThread(() -> {
             items.clear();
-            items.addAll(courses);
+            items.addAll(announcements);
             adapter.notifyDataSetChanged();
         });
     }
