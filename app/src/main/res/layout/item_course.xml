@@ -43,9 +43,17 @@
                 android:textColor="?attr/colorOnSurfaceVariant" />
         </LinearLayout>
 
-        <!-- End Icon (Optional, e.g., chevron) -->
         <ImageView
-            android:id="@+id/end_icon"
+            android:id="@+id/icon_chat"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:alpha="0.6"
+            android:contentDescription="TODO"
+            android:src="@drawable/ic_launcher_foreground"
+            app:tint="?attr/colorOnSurfaceVariant" />
+
+        <ImageView
+            android:id="@+id/icon_announcements"
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:alpha="0.6"

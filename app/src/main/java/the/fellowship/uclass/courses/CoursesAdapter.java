@@ -13,12 +13,13 @@ import com.google.android.material.card.MaterialCardView;
 import java.util.List;
 import java.util.Map;
 
+import the.fellowship.eclass.dtos.Course;
 import the.fellowship.uclass.R;
 
 public class CoursesAdapter extends RecyclerView.Adapter<CoursesAdapter.ViewHolder> {
-    private final List<Map<String, ?>> items;
+    private final List<Course> items;
 
-    public CoursesAdapter(List<Map<String, ?>> items) {
+    public CoursesAdapter(List<Course> items) {
         this.items = items;
     }
 
@@ -30,9 +31,9 @@ public class CoursesAdapter extends RecyclerView.Adapter<CoursesAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        final Map<String, ?> item = items.get(position);
-        holder.name.setText(String.valueOf(item.get("title")));
-        holder.subtitle.setText(String.valueOf(item.get("url")));
+        final Course item = items.get(position);
+        holder.name.setText(String.valueOf(item.getName()));
+        holder.subtitle.setText(String.valueOf(item.getLecturer()));
     }
 
     @Override

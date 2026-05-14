@@ -14,13 +14,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import the.fellowship.eclass.dtos.Course;
 import the.fellowship.uclass.R;
 import the.fellowship.uclass.UClass;
 import the.fellowship.uclass.databinding.FragmentCoursesBinding;
 
 public class CoursesFragment extends Fragment {
 
-    private List<Map<String, ?>> items;
+    private List<Course> items;
     private RecyclerView recycler;
     private CoursesAdapter adapter;
     private FragmentCoursesBinding binding;
@@ -56,7 +57,7 @@ public class CoursesFragment extends Fragment {
         Log.d("CoursesFragment", String.format("Navigate to: %s\n", courseId));
     }
 
-    public void populateCourses(List<Map<String, ?>> courses) {
+    public void populateCourses(List<Course> courses) {
         if (getActivity() == null) {
             Log.e("CoursesFragment", "Can not use UI Thread");
             return;

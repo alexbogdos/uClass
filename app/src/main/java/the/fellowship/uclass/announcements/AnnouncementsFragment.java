@@ -37,7 +37,7 @@ public class AnnouncementsFragment extends Fragment {
         adapter = new AnnouncementsAdapter(items);
         recycler.setAdapter(adapter);
 
-        UClass.eclass.getCourses().observe(getViewLifecycleOwner(), this::populateCourses);
+        //UClass.eclass.getCourses().observe(getViewLifecycleOwner(), this::populateCourses);
 
         return binding.getRoot();
     }

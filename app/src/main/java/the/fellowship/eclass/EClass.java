@@ -32,6 +32,7 @@ import the.fellowship.eclass.cookies.CookieJar;
 import the.fellowship.eclass.cookies.FileCookieJar;
 import the.fellowship.eclass.cookies.PrefsCookieJar;
 import the.fellowship.eclass.dtos.Assignment;
+import the.fellowship.eclass.dtos.Course;
 
 public class EClass {
     private final String service;
@@ -41,7 +42,8 @@ public class EClass {
     /**
      * Cached data
      */
-    private final MutableLiveData<List<Map<String, ?>>> courses = new MutableLiveData<>();
+    private final MutableLiveData<List<Course>> courses = new MutableLiveData<>();
+    private final MutableLiveData<Map<String, List<Map<String, ?>>>> announcements = new MutableLiveData<>();
     OkHttpClient httpClient;
 
     /**
@@ -103,14 +105,40 @@ public class EClass {
         });
     }
 
-    public LiveData<List<Map<String, ?>>> getCourses() {
+    public LiveData<List<Course>> getCourses() {
         if (courses.getValue() == null) {
             fetchCourses().thenAccept(courses::postValue);
         }
         return courses;
     }
 
-    private CompletableFuture<List<Map<String, ?>>> fetchCourses() {
+    private CompletableFuture<List<Course>> fetchCourses() {
+        return get("/main/portfolio.php?countPages=-1")
+                .thenApply(response -> {
+                    String html = (String) response.get("body");
+                    if (html.isEmpty()) return new ArrayList<>();
+
+                    Document document = Jsoup.parse(html);
+                    return document.select(".row-course").stream().map(course -> {
+                        Element link = course.selectFirst("a");
+                        String id = course.selectFirst("div").selectFirst("small").text();
+                        String lecturer = course.select("div").get(1).selectFirst("small").text();
+                        return new Course(id, link.text(), lecturer, link.attr("href"));
+                    }).collect(Collectors.toList());
+                });
+    }
+
+
+    // https://eclass.aueb.gr/modules/announcements/myannouncements.php?sEcho=2&iColumns=2&sColumns=%2C&iDisplayStart=0&iDisplayLength=-1&mDataProp_0=0&sSearch_0=&bRegex_0=false&bSearchable_0=true&mDataProp_1=1&sSearch_1=&bRegex_1=false&bSearchable_1=true&sSearch=&bRegex=false&_=1778756567651
+
+    public LiveData<List<Course>> getAnnouncements() {
+        if (courses.getValue() == null) {
+            fetchCourses().thenAccept(courses::postValue);
+        }
+        return courses;
+    }
+
+    private CompletableFuture<List<Map<String, ?>>> fetchAnnouncements() {
         return get("/main/portfolio.php?countPages=-1")
                 .thenApply(response -> {
                     String html = (String) response.get("body");
