@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 
 import okhttp3.Call;
 import okhttp3.Callback;
+import okhttp3.FormBody;
 import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
@@ -84,6 +85,10 @@ public class EClass {
                 .cookieJar(new JavaNetCookieJar(this.cookieJar.getCookieManager()))
                 .addInterceptor(interceptor)
                 .build();
+    }
+
+    public String getService() {
+        return service;
     }
 
     public CookieJar getCookieJar() {
@@ -250,6 +255,7 @@ public class EClass {
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                 if (!response.isSuccessful()) {
+                    Log.e("EClass", String.valueOf(new ClientException(url, response.code(), response.body().string())));
                     future.completeExceptionally(new ClientException(url, response.code(), response.body().string()));
                 }
 

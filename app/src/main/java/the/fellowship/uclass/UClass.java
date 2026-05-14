@@ -70,7 +70,6 @@ public class UClass extends AppCompatActivity {
                         eclass.fetchAll();
 
                         runOnUiThread(() -> {
-                            Snackbar.make(view, String.format("Welcome, %s!", username), Snackbar.LENGTH_LONG).setAction("Action", null).show();
                             Intent intent = new Intent(this, MainActivity.class);
                             startActivity(intent);
                         });

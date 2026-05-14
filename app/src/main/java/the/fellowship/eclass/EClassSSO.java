@@ -1,13 +1,16 @@
 package the.fellowship.eclass;
 
-import okhttp3.FormBody;
-import okhttp3.HttpUrl;
-import okhttp3.RequestBody;
+import android.util.Log;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+
+import okhttp3.FormBody;
+import okhttp3.HttpUrl;
+import okhttp3.RequestBody;
 
 public class EClassSSO {
     private final EClass client;
@@ -27,8 +30,20 @@ public class EClassSSO {
         // Load CookieStore from file
         client.getCookieJar().load();
 
-        // Check if the current session is already logged in
-        return client.get("/modules/auth/cas.php")
+        // Login with EClass
+        CompletableFuture<Boolean> classic = client.get("/main/login_form.php")
+                .thenCompose(ignored -> {
+                    RequestBody form = new FormBody.Builder()
+                            .add("uname", username)
+                            .add("pass", password)
+                            .add("submit", "Είσοδος")
+                            .build();
+                    return client.send(HttpUrl.parse(client.getService() + "/?login_page=1"), form);
+                })
+                .thenApply(res -> !((HttpUrl) res.get("url")).toString().contains("login"));
+
+        // Login with SSO
+        CompletableFuture<Boolean> sso = client.get("/modules/auth/cas.php")
                 .thenCompose((response) -> {
                     // Check if the current session is already logged in
                     if (!((HttpUrl) response.get("url")).toString().contains("/login")) {
@@ -47,6 +62,16 @@ public class EClassSSO {
                                 return res;
                             });
                 });
+
+        return sso.thenCompose(res -> {
+            if (res) {
+                return CompletableFuture.completedFuture(true);
+            }
+            return classic;
+        }).exceptionally(err -> {
+            Log.e("EClass/Compose", String.valueOf(err));
+            return false;
+        });
     }
 
     /**

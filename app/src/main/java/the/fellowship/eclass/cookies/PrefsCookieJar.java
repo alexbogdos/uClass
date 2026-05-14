@@ -1,11 +1,7 @@
 package the.fellowship.eclass.cookies;
 
 import android.content.SharedPreferences;
-import android.util.Log;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.net.CookieManager;
 import java.net.HttpCookie;
 import java.net.URI;
