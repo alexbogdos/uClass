@@ -109,7 +109,7 @@ public class EClass {
                     Document document = Jsoup.parse(html);
                     return document.select(".row-course").stream().map(course -> {
                         Element link = course.selectFirst("a");
-                        String id = course.selectFirst("div").selectFirst("small").text();
+                        String id = link.attr("href").split("/")[4];
                         String lecturer = course.select("div").get(1).selectFirst("small").text();
                         return new Course(id, link.text(), lecturer, link.attr("href"));
                     }).collect(Collectors.toList());
