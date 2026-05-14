@@ -1,0 +1,55 @@
+package the.fellowship.uclass.announcements;
+
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.card.MaterialCardView;
+
+import java.util.List;
+import java.util.Map;
+
+import the.fellowship.uclass.R;
+
+public class AnnouncementsAdapter extends RecyclerView.Adapter<AnnouncementsAdapter.ViewHolder> {
+    private final List<Map<String, ?>> items;
+
+    public AnnouncementsAdapter(List<Map<String, ?>> items) {
+        this.items = items;
+    }
+
+    @NonNull
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_course, parent, false));
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        final Map<String, ?> item = items.get(position);
+        holder.name.setText(String.valueOf(item.get("title")));
+        holder.subtitle.setText(String.valueOf(item.get("url")));
+    }
+
+    @Override
+    public int getItemCount() {
+        return items.size();
+    }
+
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        private final TextView name;
+        private final TextView subtitle;
+        MaterialCardView view;
+
+        public ViewHolder(@NonNull View view) {
+            super(view);
+            view = view.findViewById(R.id.item_view);
+            this.name = view.findViewById(R.id.title_text);
+            this.subtitle = view.findViewById(R.id.subtitle_text);
+        }
+    }
+}

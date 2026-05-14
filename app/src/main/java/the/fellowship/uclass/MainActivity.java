@@ -31,7 +31,8 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.CalendarFragment,
-                R.id.CoursesFragment
+                R.id.CoursesFragment,
+                R.id.AnnouncementsFragment
         ).build();
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
 
