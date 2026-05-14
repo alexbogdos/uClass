@@ -11,7 +11,6 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 
 import the.fellowship.eclass.EClass;
-import the.fellowship.eclass.cookies.PrefsCookieJar;
 import the.fellowship.uclass.databinding.ActivityLoginBinding;
 
 public class UClass extends AppCompatActivity {
@@ -27,7 +26,7 @@ public class UClass extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         SharedPreferences prefs = getSharedPreferences("credentials", Context.MODE_PRIVATE);
-        eclass = new EClass("https://eclass.aueb.gr", new PrefsCookieJar(prefs));
+        eclass = new EClass("https://eclass.aueb.gr");
 
         // Check for stored credentials, redirect to Main
         if (prefs.contains("username") && prefs.contains("password")) {

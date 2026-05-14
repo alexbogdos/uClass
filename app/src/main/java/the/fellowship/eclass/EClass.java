@@ -11,6 +11,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import java.io.IOException;
+import java.net.CookieManager;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,9 +29,6 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.java.net.cookiejar.JavaNetCookieJar;
 import the.fellowship.Json;
-import the.fellowship.eclass.cookies.CookieJar;
-import the.fellowship.eclass.cookies.FileCookieJar;
-import the.fellowship.eclass.cookies.PrefsCookieJar;
 import the.fellowship.eclass.dtos.Announcement;
 import the.fellowship.eclass.dtos.Assignment;
 import the.fellowship.eclass.dtos.Course;
@@ -38,7 +36,6 @@ import the.fellowship.eclass.dtos.Course;
 public class EClass {
     private final String service;
     private final String agent;
-    private final CookieJar cookieJar;
     private final EClassSSO sso;
     /**
      * Cached data
@@ -50,25 +47,12 @@ public class EClass {
     /**
      * @param serviceURL
      */
-    public EClass(String serviceURL, PrefsCookieJar cookieJar) {
-        this.service = serviceURL;
-        this.cookieJar = cookieJar;
-        this.agent = UseAgentGenerator.generate();
-        this.sso = new EClassSSO(this);
-        this.httpClient = new OkHttpClient.Builder()
-                // TODO: Custom CookieStore. Extract cookie loading/parsing/storing
-                .cookieJar(new JavaNetCookieJar(this.cookieJar.getCookieManager()))
-                .build();
-    }
-
     public EClass(String serviceURL) {
         this.service = serviceURL;
-        this.cookieJar = new FileCookieJar();
         this.agent = UseAgentGenerator.generate();
         this.sso = new EClassSSO(this);
         this.httpClient = new OkHttpClient.Builder()
-                // TODO: Custom CookieStore. Extract cookie loading/parsing/storing
-                .cookieJar(new JavaNetCookieJar(this.cookieJar.getCookieManager()))
+                .cookieJar(new JavaNetCookieJar(new CookieManager()))
                 .build();
     }
 
@@ -79,19 +63,14 @@ public class EClass {
         this.service = serviceURL;
         this.agent = UseAgentGenerator.generate();
         this.sso = new EClassSSO(this);
-        this.cookieJar = new FileCookieJar();
         this.httpClient = new OkHttpClient.Builder()
-                .cookieJar(new JavaNetCookieJar(this.cookieJar.getCookieManager()))
+                .cookieJar(new JavaNetCookieJar(new CookieManager()))
                 .addInterceptor(interceptor)
                 .build();
     }
 
     public String getService() {
         return service;
-    }
-
-    public CookieJar getCookieJar() {
-        return cookieJar;
     }
 
     protected EClassSSO getSSO() {
@@ -103,7 +82,7 @@ public class EClass {
      * - - - - - - - - - - - - - - - - - - - - */
 
     public void fetchAll() {
-        Log.d("EClass", "Fetch all");
+        Log.d("EClass", "Fetch all..");
         fetchCourses().thenAccept(list -> {
             courses.postValue(list);
             Log.d("EClass", String.format("Received courses: %s", list));

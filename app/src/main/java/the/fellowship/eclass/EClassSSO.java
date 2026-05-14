@@ -25,11 +25,6 @@ public class EClassSSO {
      * @return <b>True</b> if the credentials authenticated the user successfully
      */
     public CompletableFuture<Boolean> login(String username, String password) {
-        client.getCookieJar().setKey(username);
-
-        // Load CookieStore from file
-        client.getCookieJar().load();
-
         // Login with EClass
         CompletableFuture<Boolean> classic = client.get("/main/login_form.php")
                 .thenCompose(ignored -> {
@@ -51,16 +46,10 @@ public class EClassSSO {
                     }
 
                     // Obtain SSO's execution ticket
-                    return retrieveExecutionTicket()
+                    return retrieveExecutionTicket().thenCompose(res ->
                             // Authenticate to SSO using the credentials and the execution ticket
-                            .thenCompose(res -> authenticate(username, password, (HttpUrl) res.get("url"), (String) res.get("token")))
-                            .thenApply(res -> {
-                                if (res) {
-                                    // Store current CookieStore to file
-                                    client.getCookieJar().store();
-                                }
-                                return res;
-                            });
+                            authenticate(username, password, (HttpUrl) res.get("url"), (String) res.get("token"))
+                    );
                 });
 
         return sso.thenCompose(res -> {
