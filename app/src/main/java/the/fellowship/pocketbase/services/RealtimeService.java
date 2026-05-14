@@ -1,11 +1,5 @@
 package the.fellowship.pocketbase.services;
 
-import the.fellowship.pocketbase.ClientException;
-import the.fellowship.pocketbase.PocketBase;
-import the.fellowship.pocketbase.sse.SseClient;
-import the.fellowship.pocketbase.sse.SseMessage;
-import the.fellowship.Json;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -15,6 +9,12 @@ import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Flow;
 import java.util.function.Consumer;
+
+import the.fellowship.Json;
+import the.fellowship.pocketbase.ClientException;
+import the.fellowship.pocketbase.PocketBase;
+import the.fellowship.pocketbase.sse.SseClient;
+import the.fellowship.pocketbase.sse.SseMessage;
 
 public class RealtimeService extends BaseService {
     private final Map<String, List<Consumer<SseMessage>>> subscriptions = new TreeMap<>();

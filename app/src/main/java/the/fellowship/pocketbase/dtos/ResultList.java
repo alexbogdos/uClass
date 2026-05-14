@@ -1,12 +1,12 @@
 package the.fellowship.pocketbase.dtos;
 
-import the.fellowship.Json;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import the.fellowship.Json;
 
 public class ResultList<T> {
     private final int page;

@@ -1,10 +1,10 @@
 package the.fellowship.eclass;
 
-import the.fellowship.Environment;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
+
+import the.fellowship.Environment;
 
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.

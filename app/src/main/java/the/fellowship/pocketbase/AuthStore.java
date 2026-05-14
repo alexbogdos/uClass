@@ -1,14 +1,14 @@
 package the.fellowship.pocketbase;
 
-import the.fellowship.pocketbase.dtos.RecordModel;
-import the.fellowship.Json;
-
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
 import java.util.concurrent.Flow;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.function.Consumer;
+
+import the.fellowship.Json;
+import the.fellowship.pocketbase.dtos.RecordModel;
 
 /**
  * Base authentication store management service that keep tracks of

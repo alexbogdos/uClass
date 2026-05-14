@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.card.MaterialCardView;
 
 import java.util.List;
-import java.util.Map;
 
 import the.fellowship.eclass.dtos.Announcement;
 import the.fellowship.uclass.R;

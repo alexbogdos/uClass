@@ -1,10 +1,10 @@
 package the.fellowship.pocketbase.tools;
 
-import okhttp3.MediaType;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+
+import okhttp3.MediaType;
 
 public class MultipartFile {
     private final String field;

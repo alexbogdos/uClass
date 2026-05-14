@@ -1,9 +1,9 @@
 package the.fellowship.pocketbase;
 
+import java.util.Map;
+
 import the.fellowship.Environment;
 import the.fellowship.pocketbase.dtos.RecordAuth;
-
-import java.util.Map;
 
 public class Main {
     public static void main(String[] args) {

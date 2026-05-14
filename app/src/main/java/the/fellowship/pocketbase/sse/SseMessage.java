@@ -1,9 +1,9 @@
 package the.fellowship.pocketbase.sse;
 
-import the.fellowship.Json;
-
 import java.util.Map;
 import java.util.TreeMap;
+
+import the.fellowship.Json;
 
 public class SseMessage {
     private final Map<String, Object> json;

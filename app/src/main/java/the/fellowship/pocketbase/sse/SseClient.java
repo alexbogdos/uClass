@@ -1,20 +1,32 @@
 package the.fellowship.pocketbase.sse;
 
-import okhttp3.*;
-import okio.BufferedSource;
 import org.jetbrains.annotations.NotNull;
-import the.fellowship.pocketbase.ClientException;
-import the.fellowship.Json;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Flow;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.SubmissionPublisher;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.HttpUrl;
+import okhttp3.Interceptor;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okio.BufferedSource;
+import the.fellowship.Json;
+import the.fellowship.pocketbase.ClientException;
 
 /**
  * Very rudimentary streamed response http client wrapper compatible
@@ -204,7 +216,8 @@ public class SseClient {
                             // resets
                             retryAttempts = 0;
                             sseMessage = new SseMessage();
-                            if (responseStreamSubscription != null) responseStreamSubscription.close();
+                            if (responseStreamSubscription != null)
+                                responseStreamSubscription.close();
 
                             responseStreamSubscription = response.body().source();
                             while (!responseStreamSubscription.exhausted() && !isClosed.get()) {

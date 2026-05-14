@@ -1,6 +1,7 @@
 package the.fellowship.pocketbase;
 
 import org.jetbrains.annotations.NotNull;
+
 import the.fellowship.pocketbase.dtos.RecordModel;
 
 /**
@@ -15,8 +16,13 @@ public class AuthStoreEvent {
         this.record = record;
     }
 
-    public String getToken() {return token;}
-    public RecordModel getRecord() {return record;}
+    public String getToken() {
+        return token;
+    }
+
+    public RecordModel getRecord() {
+        return record;
+    }
 
     @NotNull
     @Override

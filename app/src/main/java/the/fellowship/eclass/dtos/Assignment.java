@@ -1,11 +1,11 @@
 package the.fellowship.eclass.dtos;
 
-import okhttp3.HttpUrl;
-
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
+
+import okhttp3.HttpUrl;
 
 public class Assignment {
     private static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");

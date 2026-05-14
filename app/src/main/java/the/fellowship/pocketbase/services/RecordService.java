@@ -1,16 +1,16 @@
 package the.fellowship.pocketbase.services;
 
-import the.fellowship.pocketbase.ClientException;
-import the.fellowship.pocketbase.PocketBase;
-import the.fellowship.pocketbase.dtos.RecordAuth;
-import the.fellowship.pocketbase.dtos.RecordModel;
-import the.fellowship.pocketbase.dtos.RecordSubscriptionEvent;
-
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Consumer;
+
+import the.fellowship.pocketbase.ClientException;
+import the.fellowship.pocketbase.PocketBase;
+import the.fellowship.pocketbase.dtos.RecordAuth;
+import the.fellowship.pocketbase.dtos.RecordModel;
+import the.fellowship.pocketbase.dtos.RecordSubscriptionEvent;
 
 public class RecordService extends BaseCrudService<RecordModel> {
     private final String collectionIdOrName;

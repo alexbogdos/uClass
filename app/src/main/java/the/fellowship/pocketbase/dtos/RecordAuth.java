@@ -1,9 +1,9 @@
 package the.fellowship.pocketbase.dtos;
 
-import the.fellowship.Json;
-
 import java.util.Map;
 import java.util.TreeMap;
+
+import the.fellowship.Json;
 
 public class RecordAuth {
     private final String token;

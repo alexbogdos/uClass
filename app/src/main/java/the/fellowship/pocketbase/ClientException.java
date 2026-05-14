@@ -1,8 +1,8 @@
 package the.fellowship.pocketbase;
 
-import okhttp3.HttpUrl;
-
 import java.util.Map;
+
+import okhttp3.HttpUrl;
 
 public class ClientException extends Exception {
     /**

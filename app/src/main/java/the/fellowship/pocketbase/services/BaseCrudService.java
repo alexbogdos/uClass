@@ -1,16 +1,16 @@
 package the.fellowship.pocketbase.services;
 
-import the.fellowship.pocketbase.ClientException;
-import the.fellowship.pocketbase.PocketBase;
-import the.fellowship.pocketbase.dtos.ResultList;
-import the.fellowship.pocketbase.tools.MultipartFile;
-
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+
+import the.fellowship.pocketbase.ClientException;
+import the.fellowship.pocketbase.PocketBase;
+import the.fellowship.pocketbase.dtos.ResultList;
+import the.fellowship.pocketbase.tools.MultipartFile;
 
 public class BaseCrudService<T> extends BaseService {
     public BaseCrudService(PocketBase client) {
