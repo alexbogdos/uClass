@@ -8,9 +8,9 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,26 +18,25 @@ import java.util.List;
 import the.fellowship.eclass.dtos.Announcement;
 import the.fellowship.uclass.R;
 import the.fellowship.uclass.UClass;
-import the.fellowship.uclass.databinding.FragmentCoursesBinding;
+import the.fellowship.uclass.databinding.FragmentAnnouncementsBinding;
 
 public class AnnouncementsFragment extends Fragment implements AnnouncementsAdapter.SelectionListener {
 
     private List<Announcement> items;
     private RecyclerView recycler;
     private AnnouncementsAdapter adapter;
-    private FragmentCoursesBinding binding;
+    private FragmentAnnouncementsBinding binding;
 
     @Override
     public View onCreateView(
             @NonNull LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState
     ) {
-        binding = FragmentCoursesBinding.inflate(inflater, container, false);
-        recycler = binding.getRoot().findViewById(R.id.recycler);
+        binding = FragmentAnnouncementsBinding.inflate(inflater, container, false);
 
         items = new ArrayList<>();
         adapter = new AnnouncementsAdapter(items, this);
-        recycler.setAdapter(adapter);
+        binding.recycler.setAdapter(adapter);
 
         UClass.eclass.getAnnouncements().observe(getViewLifecycleOwner(), this::populateAnnouncements);
 
@@ -78,6 +77,10 @@ public class AnnouncementsFragment extends Fragment implements AnnouncementsAdap
             return;
         }
 
-        getActivity().runOnUiThread(() -> Snackbar.make(getView(), String.format("Selected: %s", announcement), Snackbar.LENGTH_LONG).setAction("Action", null).show());
+        Bundle bundle = new Bundle();
+        bundle.putString(AnnouncementFragment.EXTRA_ANNOUNCEMENT_ID, announcement.getId());
+
+        NavController navController = Navigation.findNavController(getActivity(), R.id.nav_host_fragment_content_main);
+        navController.navigate(R.id.AnnouncementFragment, bundle);
     }
 }

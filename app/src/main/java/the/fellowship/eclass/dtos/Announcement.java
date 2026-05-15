@@ -41,6 +41,10 @@ public class Announcement {
         return date;
     }
 
+    public String getBody() {
+        return body;
+    }
+
     @NonNull
     @Override
     public String toString() {

@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import the.fellowship.eclass.dtos.Course;
-import the.fellowship.uclass.R;
 import the.fellowship.uclass.UClass;
 import the.fellowship.uclass.databinding.FragmentCoursesBinding;
 
@@ -33,11 +32,10 @@ public class CoursesFragment extends Fragment implements CoursesAdapter.Selectio
             Bundle savedInstanceState
     ) {
         binding = FragmentCoursesBinding.inflate(inflater, container, false);
-        recycler = binding.getRoot().findViewById(R.id.recycler);
 
         items = new ArrayList<>();
         adapter = new CoursesAdapter(items, this);
-        recycler.setAdapter(adapter);
+        binding.recycler.setAdapter(adapter);
 
         UClass.eclass.getCourses().observe(getViewLifecycleOwner(), this::populateCourses);
 

@@ -8,7 +8,6 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.snackbar.Snackbar;
-import com.google.android.material.textfield.TextInputEditText;
 
 import the.fellowship.eclass.EClass;
 import the.fellowship.uclass.databinding.ActivityLoginBinding;
@@ -51,9 +50,9 @@ public class UClass extends AppCompatActivity {
             return;
         }
 
-        findViewById(R.id.login_button).setOnClickListener(view -> {
-            String username = ((TextInputEditText) findViewById(R.id.username_edit)).getText().toString();
-            String password = ((TextInputEditText) findViewById(R.id.password_edit)).getText().toString();
+        binding.loginButton.setOnClickListener(view -> {
+            String username = binding.usernameEdit.getText().toString();
+            String password = binding.passwordEdit.getText().toString();
 
             eclass.login(username, password)
                     .thenAccept(success -> {

@@ -1,10 +1,12 @@
 <resources>
     <string name="app_name">UClass</string>
+    <string name="app_phrase">Μία στάση για την ακαδημαϊκη οργάνωση σας</string>
     <string name="action_settings">Settings</string>
     <!-- Strings used for fragments for navigation -->
     <string name="navigation_calendar">Ημερολόγιο</string>
     <string name="navigation_courses">Μαθήματα</string>
     <string name="navigation_announcements">Ανακοινώσεις</string>
+    <string name="navigation_announcement">Ανακοίνωση</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
 

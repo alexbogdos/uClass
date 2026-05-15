@@ -84,6 +84,15 @@ public class EClass {
         return sso;
     }
 
+    public Announcement getAnnouncement(String id) {
+        for (Announcement announcement : announcements.getValue()) {
+            if (id.equals(announcement.getId())) {
+                return announcement;
+            }
+        }
+        return null;
+    }
+
     /* - - - - - - - - - - - - - - - - - - - -
      *  HTML Parsers
      * - - - - - - - - - - - - - - - - - - - - */

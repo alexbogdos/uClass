@@ -10,8 +10,6 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-
 import the.fellowship.uclass.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity {
@@ -29,15 +27,13 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(binding.toolbar);
 
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
-        AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
+        appBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.CalendarFragment,
                 R.id.CoursesFragment,
                 R.id.AnnouncementsFragment
         ).build();
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
-
-        BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
-        NavigationUI.setupWithNavController(bottomNav, navController);
+        NavigationUI.setupWithNavController(binding.bottomNavigation, navController);
     }
 
     @Override
