@@ -1,7 +1,6 @@
-package the.fellowship.uclass.announcements;
+package the.fellowship.uclass.course.announcements;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,7 +11,6 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import the.fellowship.eclass.dtos.Announcement;
@@ -21,6 +19,7 @@ import the.fellowship.uclass.UClass;
 import the.fellowship.uclass.databinding.FragmentAnnouncementsBinding;
 
 public class AnnouncementsFragment extends Fragment implements AnnouncementsAdapter.SelectionListener {
+    public static final String EXTRA_COURSE_ID = "EXTRA_COURSE_ID";
 
     private List<Announcement> items;
     private RecyclerView recycler;
@@ -34,11 +33,10 @@ public class AnnouncementsFragment extends Fragment implements AnnouncementsAdap
     ) {
         binding = FragmentAnnouncementsBinding.inflate(inflater, container, false);
 
-        items = new ArrayList<>();
+        String id = getArguments().getString(EXTRA_COURSE_ID);
+        items = UClass.eclass.getAnnouncements(id);
         adapter = new AnnouncementsAdapter(items, this);
         binding.recycler.setAdapter(adapter);
-
-        UClass.eclass.getAnnouncements().observe(getViewLifecycleOwner(), this::populateAnnouncements);
 
         return binding.getRoot();
     }
@@ -53,29 +51,12 @@ public class AnnouncementsFragment extends Fragment implements AnnouncementsAdap
         binding = null;
     }
 
-    public void navigateToAnnouncement(String courseId) {
-        Log.d("CoursesFragment", String.format("Navigate to: %s\n", courseId));
-    }
-
-    public void populateAnnouncements(List<Announcement> announcements) {
-        if (getActivity() == null) {
-            Log.e("AnnouncementsFragment", "Can not use UI Thread");
-            return;
-        }
-
-        getActivity().runOnUiThread(() -> {
-            items.clear();
-            items.addAll(announcements);
-            adapter.notifyDataSetChanged();
-        });
-    }
-
     @Override
     public void select(Announcement announcement) {
         Bundle bundle = new Bundle();
         bundle.putString(AnnouncementFragment.EXTRA_ANNOUNCEMENT_ID, announcement.getId());
 
         NavController navController = Navigation.findNavController(getActivity(), R.id.nav_host_fragment_content_main);
-        navController.navigate(R.id.AnnouncementFragment, bundle);
+        navController.navigate(R.id.CourseAnnouncementFragment, bundle);
     }
 }

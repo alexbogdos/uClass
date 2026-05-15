@@ -1,4 +1,4 @@
-package the.fellowship.uclass.courses;
+package the.fellowship.uclass.course.announcements;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,19 +8,18 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 
 import java.util.List;
 
-import the.fellowship.eclass.dtos.Course;
+import the.fellowship.eclass.dtos.Announcement;
 import the.fellowship.uclass.R;
 
-public class CoursesAdapter extends RecyclerView.Adapter<CoursesAdapter.ViewHolder> {
-    private final List<Course> items;
+public class AnnouncementsAdapter extends RecyclerView.Adapter<AnnouncementsAdapter.ViewHolder> {
+    private final List<Announcement> items;
     private final SelectionListener listener;
 
-    public CoursesAdapter(List<Course> items, SelectionListener listener) {
+    public AnnouncementsAdapter(List<Announcement> items, SelectionListener listener) {
         this.items = items;
         this.listener = listener;
     }
@@ -28,18 +27,15 @@ public class CoursesAdapter extends RecyclerView.Adapter<CoursesAdapter.ViewHold
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_course, parent, false));
+        return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_announcement, parent, false));
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        final Course item = items.get(position);
-        holder.name.setText(String.valueOf(item.getName()));
-        holder.subtitle.setText(String.valueOf(item.getLecturer()));
-
-        holder.chat.setOnClickListener(view -> listener.navigateChat(item));
-        holder.announcements.setOnClickListener(view -> listener.navigateAnnouncements(item));
-
+        final Announcement item = items.get(position);
+        holder.name.setText(item.getTitle());
+        holder.subtitle.setText(item.getCourse());
+        holder.date.setText(item.getDate());
         holder.view.setOnClickListener(view -> listener.select(item));
     }
 
@@ -49,16 +45,13 @@ public class CoursesAdapter extends RecyclerView.Adapter<CoursesAdapter.ViewHold
     }
 
     public interface SelectionListener {
-        void select(Course course);
-        void navigateChat(Course course);
-        void navigateAnnouncements(Course course);
+        void select(Announcement announcement);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         private final TextView name;
         private final TextView subtitle;
-        private final MaterialButton chat;
-        private final MaterialButton announcements;
+        private final TextView date;
         MaterialCardView view;
 
         public ViewHolder(@NonNull View view) {
@@ -66,8 +59,7 @@ public class CoursesAdapter extends RecyclerView.Adapter<CoursesAdapter.ViewHold
             this.view = view.findViewById(R.id.item_view);
             this.name = view.findViewById(R.id.title_text);
             this.subtitle = view.findViewById(R.id.subtitle_text);
-            this.chat = view.findViewById(R.id.button_chat);
-            this.announcements = view.findViewById(R.id.button_announcements);
+            this.date = view.findViewById(R.id.date_text);
         }
     }
 }

@@ -93,6 +93,10 @@ public class EClass {
         return null;
     }
 
+    public List<Announcement> getAnnouncements(String courseId) {
+        return announcements.getValue().stream().filter(an -> courseId.equals(an.getCourseId())).collect(Collectors.toList());
+    }
+
     /* - - - - - - - - - - - - - - - - - - - -
      *  HTML Parsers
      * - - - - - - - - - - - - - - - - - - - - */
