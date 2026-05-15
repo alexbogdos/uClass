@@ -3,14 +3,14 @@
     tools:context="the.fellowship.uclass.MainActivity">
     <item
         android:id="@+id/CalendarFragment"
-        android:icon="@drawable/ic_launcher_foreground"
+        android:icon="@drawable/date_range_24dp"
         android:title="@string/navigation_calendar" />
     <item
         android:id="@+id/CoursesFragment"
-        android:icon="@drawable/ic_launcher_foreground"
+        android:icon="@drawable/list_24dp"
         android:title="@string/navigation_courses" />
     <item
         android:id="@+id/AnnouncementsFragment"
-        android:icon="@drawable/ic_launcher_foreground"
+        android:icon="@drawable/notifications_24dp"
         android:title="@string/navigation_announcements" />
 </menu>
