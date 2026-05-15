@@ -25,25 +25,27 @@ public class UClass extends AppCompatActivity {
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        SharedPreferences prefs = getSharedPreferences("credentials", Context.MODE_PRIVATE);
-        eclass = new EClass("https://eclass.aueb.gr");
+        SharedPreferences cache = getSharedPreferences("cache", Context.MODE_PRIVATE);
+        eclass = new EClass("https://eclass.aueb.gr", cache);
 
         // Check for stored credentials, redirect to Main
-        if (prefs.contains("username") && prefs.contains("password")) {
-            // TODO: Instead of `login` create function `loadSession`
-            eclass.login(prefs.getString("username", ""), prefs.getString("password", ""))
+        SharedPreferences credentials = getSharedPreferences("credentials", Context.MODE_PRIVATE);
+        if (credentials.contains("username") && credentials.contains("password")) {
+            eclass.login(credentials.getString("username", ""), credentials.getString("password", ""))
                     .thenAccept(success -> {
                         if (!success) {
                             Intent intent = new Intent(this, UClass.class);
                             startActivity(intent);
                         }
-                        eclass.fetchAll();
+                        eclass.fetchNetwork();
                     })
                     .exceptionally(err -> {
                         Intent intent = new Intent(this, UClass.class);
                         startActivity(intent);
                         return null;
                     });
+
+            eclass.fetchCached();
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
             return;
@@ -60,13 +62,13 @@ public class UClass extends AppCompatActivity {
                             return;
                         }
 
+                        eclass.fetchNetwork();
+
                         // Store credentials
-                        SharedPreferences.Editor editor = prefs.edit();
+                        SharedPreferences.Editor editor = credentials.edit();
                         editor.putString("username", username);
                         editor.putString("password", password);
                         editor.apply();
-
-                        eclass.fetchAll();
 
                         runOnUiThread(() -> {
                             Intent intent = new Intent(this, MainActivity.class);

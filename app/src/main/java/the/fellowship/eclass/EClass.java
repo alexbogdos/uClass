@@ -1,9 +1,12 @@
 package the.fellowship.eclass;
 
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+
+import com.google.gson.reflect.TypeToken;
 
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
@@ -37,6 +40,8 @@ public class EClass {
     private final String service;
     private final String agent;
     private final EClassSSO sso;
+    private final SharedPreferences prefs;
+
     /**
      * Cached data
      */
@@ -47,8 +52,9 @@ public class EClass {
     /**
      * @param serviceURL
      */
-    public EClass(String serviceURL) {
+    public EClass(String serviceURL, SharedPreferences prefs) {
         this.service = serviceURL;
+        this.prefs = prefs;
         this.agent = UseAgentGenerator.generate();
         this.sso = new EClassSSO(this);
         this.httpClient = new OkHttpClient.Builder()
@@ -60,6 +66,7 @@ public class EClass {
      * Testing only.
      */
     protected EClass(String serviceURL, Interceptor interceptor) {
+        this.prefs = null;
         this.service = serviceURL;
         this.agent = UseAgentGenerator.generate();
         this.sso = new EClassSSO(this);
@@ -81,22 +88,45 @@ public class EClass {
      *  HTML Parsers
      * - - - - - - - - - - - - - - - - - - - - */
 
-    public void fetchAll() {
+    public void fetchNetwork() {
         Log.d("EClass", "Fetch all..");
+
         fetchCourses().thenAccept(list -> {
             courses.postValue(list);
             Log.d("EClass", String.format("Received courses: %s", list));
+
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString("cache:courses", Json.encode(list));
+            editor.apply();
         });
+
         fetchAnnouncements().thenAccept(list -> {
             announcements.postValue(list);
             Log.d("EClass", String.format("Received announcements: %s", list));
+
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString("cache:announcements", Json.encode(list));
+            editor.apply();
         });
     }
 
-    public LiveData<List<Course>> getCourses() {
-        if (courses.getValue() == null) {
-            fetchCourses().thenAccept(courses::postValue);
+    public void fetchCached() {
+        Log.d("EClass", "Fetch Cached..");
+
+        if (prefs.contains("cache:courses")) {
+            List<Course> cachedCourses = Json.decode(prefs.getString("cache:courses", "{}"), new TypeToken<List<Course>>() {});
+            Log.d("EClass", String.format("Cached courses: %s", cachedCourses));
+            courses.postValue(cachedCourses);
         }
+
+        if (prefs.contains("cache:announcements")) {
+            List<Announcement> cachedAnnouncements = Json.decode(prefs.getString("cache:announcements", "{}"), new TypeToken<List<Announcement>>() {});
+            Log.d("EClass", String.format("Cached announcements: %s", cachedAnnouncements));
+            announcements.postValue(cachedAnnouncements);
+        }
+    }
+
+    public LiveData<List<Course>> getCourses() {
         return courses;
     }
 
@@ -116,11 +146,7 @@ public class EClass {
                 });
     }
 
-
     public LiveData<List<Announcement>> getAnnouncements() {
-        if (announcements.getValue() == null) {
-            fetchAnnouncements().thenAccept(announcements::postValue);
-        }
         return announcements;
     }
 
@@ -130,11 +156,10 @@ public class EClass {
                     String json = (String) response.get("body");
                     if (json.isEmpty()) return new ArrayList<>();
 
-                    List<List<String>> items = (List<List<String>>) Json.decode(json).get("aaData");
-                    if (items == null) return new ArrayList<>();
+                    List<List<String>> _announcements = (List<List<String>>) Json.decode(json).get("aaData");
+                    if (_announcements == null) return new ArrayList<>();
 
-                    List<Announcement> announcements = new ArrayList<>(items.size());
-                    for (List<String> an : items) {
+                    return _announcements.stream().map(an -> {
                         String content = an.get(0);
                         String date = an.get(1);
 
@@ -144,10 +169,9 @@ public class EClass {
                         String course = document.selectFirst("small").text();
                         String courseId = link.attr("href").split("\\?")[1].split("&")[0].split("=")[1];
                         String body = document.selectFirst(".table_td_body").text();
-                        announcements.add(new Announcement(id, link.text(), course, courseId, date, link.attr("href"), body));
-                    }
 
-                    return announcements;
+                        return new Announcement(id, link.text(), course, courseId, date, link.attr("href"), body);
+                    }).collect(Collectors.toList());
                 });
     }
 

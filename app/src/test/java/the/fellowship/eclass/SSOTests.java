@@ -10,6 +10,8 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import android.content.SharedPreferences;
+
 @DisplayName("eClass")
 class SSOTests {
     final String service = "https://eclass.aueb.gr";
@@ -19,7 +21,7 @@ class SSOTests {
 
     @BeforeEach
     void setUp() {
-        client = new EClass(service);
+        client = new EClass(service, (SharedPreferences) null);
     }
 
     @Test
