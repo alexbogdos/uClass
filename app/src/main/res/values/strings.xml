@@ -14,6 +14,9 @@
 
     <!-- Course Details -->
     <string name="lecturer_label">Καθηγητής</string>
+    <string name="placeholder_email">Ηλεκτρονική Διεύθυνση</string>
+    <string name="placeholder_hours">Ώρες Γραφείου</string>
+    <string name="placeholder_office">Γραφείο</string>
 
     <string name="lorem_ipsum">
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam in scelerisque sem. Mauris
