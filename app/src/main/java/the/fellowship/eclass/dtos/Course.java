@@ -5,10 +5,10 @@ import androidx.annotation.NonNull;
 public class Course {
     private final String id;
     private final String name;
-    private final String lecturer;
+    private final Lecturer lecturer;
     private final String url;
 
-    public Course(String courseId, String name, String lecturer, String url) {
+    public Course(String courseId, String name, Lecturer lecturer, String url) {
         this.id = courseId;
         this.name = name;
         this.lecturer = lecturer;
@@ -19,11 +19,11 @@ public class Course {
         return id;
     }
 
-    public String getName() {
+    public String getTitle() {
         return name;
     }
 
-    public String getLecturer() {
+    public Lecturer getLecturer() {
         return lecturer;
     }
 

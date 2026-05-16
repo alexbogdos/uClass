@@ -34,8 +34,8 @@ public class CoursesAdapter extends RecyclerView.Adapter<CoursesAdapter.ViewHold
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         final Course item = items.get(position);
-        holder.name.setText(String.valueOf(item.getName()));
-        holder.subtitle.setText(String.valueOf(item.getLecturer()));
+        holder.name.setText(String.valueOf(item.getTitle()));
+        holder.subtitle.setText(String.valueOf(item.getLecturer().getName()));
 
         holder.chat.setOnClickListener(view -> listener.navigateChat(item));
         holder.announcements.setOnClickListener(view -> listener.navigateAnnouncements(item));

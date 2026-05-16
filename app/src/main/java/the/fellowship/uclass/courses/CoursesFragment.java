@@ -21,6 +21,7 @@ import the.fellowship.eclass.dtos.Course;
 import the.fellowship.uclass.R;
 import the.fellowship.uclass.UClass;
 import the.fellowship.uclass.course.announcements.AnnouncementsFragment;
+import the.fellowship.uclass.course.details.CourseDetailsFragment;
 import the.fellowship.uclass.databinding.FragmentCoursesBinding;
 
 public class CoursesFragment extends Fragment implements CoursesAdapter.SelectionListener {
@@ -71,12 +72,11 @@ public class CoursesFragment extends Fragment implements CoursesAdapter.Selectio
 
     @Override
     public void select(Course course) {
-        if (getActivity() == null || getView() == null) {
-            Log.e("CoursesFragment", "Can not use UI Thread");
-            return;
-        }
+        Bundle bundle = new Bundle();
+        bundle.putString(CourseDetailsFragment.EXTRA_COURSE_ID, course.getId());
 
-        getActivity().runOnUiThread(() -> Snackbar.make(getView(), String.format("Selected: %s", course), Snackbar.LENGTH_LONG).setAction("Action", null).show());
+        NavController navController = Navigation.findNavController(getActivity(), R.id.nav_host_fragment_content_main);
+        navController.navigate(R.id.CourseDetailsFragment, bundle);
     }
 
     @Override
@@ -86,7 +86,7 @@ public class CoursesFragment extends Fragment implements CoursesAdapter.Selectio
             return;
         }
 
-        getActivity().runOnUiThread(() -> Snackbar.make(getView(), String.format("Chat: [%s] %s", course.getId(), course.getName()), Snackbar.LENGTH_LONG).setAction("Action", null).show());
+        getActivity().runOnUiThread(() -> Snackbar.make(getView(), String.format("Chat: [%s] %s", course.getId(), course.getTitle()), Snackbar.LENGTH_LONG).setAction("Action", null).show());
     }
 
     @Override

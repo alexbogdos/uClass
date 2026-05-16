@@ -35,4 +35,9 @@
         android:name="the.fellowship.uclass.course.announcements.AnnouncementFragment"
         android:label="@string/navigation_announcement"
         tools:layout="@layout/fragment_announcement" />
+    <fragment
+        android:id="@+id/CourseDetailsFragment"
+        android:name="the.fellowship.uclass.course.details.CourseDetailsFragment"
+        android:label="@string/navigation_course_details"
+        tools:layout="@layout/fragment_course_details" />
 </navigation>

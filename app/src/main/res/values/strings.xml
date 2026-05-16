@@ -2,13 +2,18 @@
     <string name="app_name">UClass</string>
     <string name="app_phrase">Μία στάση για την ακαδημαϊκη οργάνωση σας</string>
     <string name="action_settings">Settings</string>
+
     <!-- Strings used for fragments for navigation -->
     <string name="navigation_calendar">Ημερολόγιο</string>
     <string name="navigation_courses">Μαθήματα</string>
     <string name="navigation_announcements">Ανακοινώσεις</string>
     <string name="navigation_announcement">Ανακοίνωση</string>
+    <string name="navigation_course_details">Μάθημα</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
+
+    <!-- Course Details -->
+    <string name="lecturer_label">Καθηγητής</string>
 
     <string name="lorem_ipsum">
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam in scelerisque sem. Mauris

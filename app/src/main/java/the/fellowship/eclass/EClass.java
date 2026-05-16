@@ -35,6 +35,7 @@ import the.fellowship.Json;
 import the.fellowship.eclass.dtos.Announcement;
 import the.fellowship.eclass.dtos.Assignment;
 import the.fellowship.eclass.dtos.Course;
+import the.fellowship.eclass.dtos.Lecturer;
 
 public class EClass {
     private final String service;
@@ -82,6 +83,15 @@ public class EClass {
 
     protected EClassSSO getSSO() {
         return sso;
+    }
+
+    public Course getCourse(String id) {
+        for (Course course : courses.getValue()) {
+            if (id.equals(course.getId())) {
+                return course;
+            }
+        }
+        return null;
     }
 
     public Announcement getAnnouncement(String id) {
@@ -154,7 +164,7 @@ public class EClass {
                         Element link = course.selectFirst("a");
                         String id = link.attr("href").split("/")[4];
                         String lecturer = course.select("div").get(1).selectFirst("small").text();
-                        return new Course(id, link.text(), lecturer, link.attr("href"));
+                        return new Course(id, link.text(), new Lecturer(lecturer), link.attr("href"));
                     }).collect(Collectors.toList());
                 });
     }
