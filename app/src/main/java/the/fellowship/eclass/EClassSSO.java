@@ -26,14 +26,12 @@ public class EClassSSO {
      */
     public CompletableFuture<Boolean> login(String username, String password) {
         return loginClassic(username, password)
-                .handle((res, err) -> err == null && res)
                 .thenCompose(res -> {
                     if (res) {
                         return CompletableFuture.completedFuture(res);
                     }
                     return loginSSO(username, password);
-                })
-                .handle((res, err) -> err == null && res);
+                });
     }
 
     /**
