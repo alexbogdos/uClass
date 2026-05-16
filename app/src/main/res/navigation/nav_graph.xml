@@ -40,4 +40,9 @@
         android:name="the.fellowship.uclass.course.details.CourseDetailsFragment"
         android:label="@string/navigation_course_details"
         tools:layout="@layout/fragment_course_details" />
+    <fragment
+        android:id="@+id/ChatFragment"
+        android:name="the.fellowship.uclass.course.chat.ChatFragment"
+        android:label="@string/navigation_chat"
+        tools:layout="@layout/fragment_chat" />
 </navigation>
