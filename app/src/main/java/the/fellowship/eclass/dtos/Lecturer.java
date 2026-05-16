@@ -2,8 +2,9 @@ package the.fellowship.eclass.dtos;
 
 public class Lecturer {
     private final String name;
-    private String contactDetails;
-    private String visitingHours;
+    private String email;
+    private String hours;
+    private String office;
 
     public Lecturer(String name) {
         this.name = translate(name.strip());
@@ -13,20 +14,28 @@ public class Lecturer {
         return name;
     }
 
-    public String getContactDetails() {
-        return contactDetails;
+    public String getEmail() {
+        return email;
     }
 
-    public void setContactDetails(String contactDetails) {
-        this.contactDetails = contactDetails;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
-    public String getVisitingHours() {
-        return visitingHours;
+    public String getHours() {
+        return hours;
     }
 
-    public void setVisitingHours(String visitingHours) {
-        this.visitingHours = visitingHours;
+    public void setHours(String hours) {
+        this.hours = hours;
+    }
+
+    public String getOffice() {
+        return office;
+    }
+
+    public void setOffice(String office) {
+        this.office = office;
     }
 
     /**
@@ -120,6 +129,8 @@ public class Lecturer {
                 return "Κωνσταντόπουλος Πάνος";
             case "Ρέμος Αρμάος":
                 return "Αρμάος Ρέμος";
+            case "Χρυσόστομος Καπέτης":
+                return "Καπέτης Μάκης";
             default:
                 return name;
         }

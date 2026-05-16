@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.net.CookieManager;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -118,9 +119,12 @@ public class EClass {
             courses.postValue(list);
             Log.d("EClass", String.format("Received courses: %s", list));
 
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.putString("cache:courses", Json.encode(list));
-            editor.apply();
+            // Receive all lecturers to cache them
+            CompletableFuture.allOf(list.stream().map(course -> fetchLecturerDetails(course.getId())).toArray(CompletableFuture[]::new)).thenAccept(v -> {
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.putString("cache:courses", Json.encode(list));
+                editor.apply();
+            });
         });
 
         fetchAnnouncements().thenAccept(list -> {
@@ -195,6 +199,42 @@ public class EClass {
 
                         return new Announcement(id, link.text(), course, courseId, date, link.attr("href"), body);
                     }).collect(Collectors.toList());
+                });
+    }
+
+    public CompletableFuture<Lecturer> fetchLecturerDetails(String courseId) {
+        Lecturer lecturer = getCourse(courseId).getLecturer();
+        if (lecturer.getEmail() != null) {
+            return CompletableFuture.completedFuture(lecturer);
+        }
+
+        return send(HttpUrl.parse("https://www.dept.aueb.gr/el/content/CS_OfficeHours"), null)
+                .thenApply(response -> {
+                    String name = lecturer.getName();
+
+                    String html = (String) response.get("body");
+                    if (html.isEmpty()) return lecturer;
+
+                    Document document = Jsoup.parse(html);
+                    Element table = document.selectFirst("tbody");
+
+                    for (Element row : table.getElementsByTag("tr")) {
+                        if (row.selectFirst("td").text().contains(name)) {
+                            List<Element> columns = row.select("td");
+
+                            if (columns.get(1).selectFirst("a") != null) {
+                                lecturer.setEmail(columns.get(1).selectFirst("a").text());
+                            }
+                            if (!columns.get(2).html().isEmpty()) {
+                                lecturer.setHours(String.join(", ", Arrays.stream(columns.get(2).html().split("<br>")).map((el -> Jsoup.parse(el).text())).collect(Collectors.toList())));
+                            }
+                            if (columns.get(1).html().contains("<br>")) {
+                                lecturer.setOffice(Jsoup.parse(columns.get(1).html().split("<br>")[0]).text());
+                            }
+                            break;
+                        }
+                    }
+                    return lecturer;
                 });
     }
 

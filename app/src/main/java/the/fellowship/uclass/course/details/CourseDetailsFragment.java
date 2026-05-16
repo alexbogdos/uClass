@@ -32,6 +32,18 @@ public class CourseDetailsFragment extends Fragment {
         binding.titleText.setText(course.getTitle());
         binding.lecturerNameText.setText(lecturer.getName());
 
+        UClass.eclass.fetchLecturerDetails(id).thenAccept(lec -> {
+            if (getActivity() == null) {
+                return;
+            }
+
+            getActivity().runOnUiThread(() -> {
+                binding.lecturerEmailText.setText(lec.getEmail() != null ? lec.getEmail() : "Δεν βρέθηκε ηλεκτρονική διεύθυνση");
+                binding.lecturerHoursText.setText(lec.getHours() != null ? lec.getHours() : "Δεν βρέθηκαν ώρες γραφείου");
+                binding.lecturerOfficeText.setText(lec.getOffice() != null ? lec.getOffice() : "Δεν βρέθηκε γραφείο");
+            });
+        });
+
         return binding.getRoot();
     }
 
