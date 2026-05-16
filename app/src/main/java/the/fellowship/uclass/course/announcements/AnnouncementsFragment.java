@@ -22,7 +22,6 @@ public class AnnouncementsFragment extends Fragment implements AnnouncementsAdap
     public static final String EXTRA_COURSE_ID = "EXTRA_COURSE_ID";
 
     private List<Announcement> items;
-    private RecyclerView recycler;
     private AnnouncementsAdapter adapter;
     private FragmentAnnouncementsBinding binding;
 

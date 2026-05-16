@@ -28,7 +28,6 @@ import the.fellowship.uclass.databinding.FragmentCoursesBinding;
 public class CoursesFragment extends Fragment implements CoursesAdapter.SelectionListener {
 
     private List<Course> items;
-    private RecyclerView recycler;
     private CoursesAdapter adapter;
     private FragmentCoursesBinding binding;
 

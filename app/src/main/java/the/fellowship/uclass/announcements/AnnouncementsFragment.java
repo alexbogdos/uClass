@@ -23,7 +23,6 @@ import the.fellowship.uclass.databinding.FragmentAnnouncementsBinding;
 public class AnnouncementsFragment extends Fragment implements AnnouncementsAdapter.SelectionListener {
 
     private List<Announcement> items;
-    private RecyclerView recycler;
     private AnnouncementsAdapter adapter;
     private FragmentAnnouncementsBinding binding;
 

@@ -51,6 +51,15 @@ public class BaseCrudService<T> extends BaseService {
      *
      * @throws ClientException
      */
+    public List<T> getFullList(String filter) throws ClientException {
+        return getFullList(1000, null, filter, null, null, null, null);
+    }
+
+    /**
+     * Returns paginated items list.
+     *
+     * @throws ClientException
+     */
     public List<T> getFullList(int batch) throws ClientException {
         return getFullList(batch, null, null, null, null, null, null);
     }

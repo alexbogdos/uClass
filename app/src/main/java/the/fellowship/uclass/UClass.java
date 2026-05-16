@@ -16,6 +16,8 @@ import java.util.concurrent.CompletableFuture;
 import the.fellowship.eclass.EClass;
 import the.fellowship.pocketbase.ClientException;
 import the.fellowship.pocketbase.PocketBase;
+import the.fellowship.pocketbase.dtos.RecordAuth;
+import the.fellowship.pocketbase.dtos.RecordModel;
 import the.fellowship.uclass.databinding.ActivityLoginBinding;
 
 public class UClass extends AppCompatActivity {
@@ -50,6 +52,9 @@ public class UClass extends AppCompatActivity {
                         eclass.fetchNetwork();
                     })
                     .exceptionally(err -> {
+                        Log.e("Login", String.format("Failed connecting to EClass: \n%s", err));
+                        runOnUiThread(() -> Snackbar.make(binding.getRoot(), String.format("Failed connecting to EClass: \n%s", err), Snackbar.LENGTH_LONG).setAction("Action", null).show());
+
                         Intent intent = new Intent(this, UClass.class);
                         startActivity(intent);
                         return null;
@@ -59,10 +64,11 @@ public class UClass extends AppCompatActivity {
 
             CompletableFuture.runAsync(() -> {
                 try {
-                    pocketbase.getCollection("users").authWithPassword(String.format("%s@aueb.gr", username), password);
+                    final RecordAuth auth = pocketbase.getCollection("users").authWithPassword(String.format("%s@aueb.gr", username), password);
+                    Log.d("Login", String.format("Connected to PocketBase as \"%s\"", auth.getRecord().<String>getValue("name")));
                 } catch (ClientException err) {
-                    Log.d("Login", String.valueOf(err));
-                    runOnUiThread(() -> Snackbar.make(binding.getRoot(), String.format("Failed connecting to PocketBase: \"%s\"", err.getResponse()), Snackbar.LENGTH_LONG).setAction("Action", null).show());
+                    Log.e("Login", String.format("Failed connecting to PocketBase: \n%s", err));
+                    runOnUiThread(() -> Snackbar.make(binding.getRoot(), String.format("Failed connecting to PocketBase: \n%s", err), Snackbar.LENGTH_LONG).setAction("Action", null).show());
                 }
             });
 
@@ -96,7 +102,8 @@ public class UClass extends AppCompatActivity {
                         });
                     })
                     .exceptionally(err -> {
-                        runOnUiThread(() -> Snackbar.make(view, String.format("Failed to login: \"%s\"", err.getMessage()), Snackbar.LENGTH_LONG).setAction("Action", null).show());
+                        Log.e("Login", String.format("Failed connecting to EClass: \n%s", err));
+                        runOnUiThread(() -> Snackbar.make(view, String.format("Failed connecting to EClass: \n%s", err), Snackbar.LENGTH_LONG).setAction("Action", null).show());
                         return null;
                     });
 
@@ -108,10 +115,11 @@ public class UClass extends AppCompatActivity {
                             "password", password,
                             "passwordConfirm", password
                     );
-                    pocketbase.getCollection("users").create(body, null);
+                    RecordModel auth = pocketbase.getCollection("users").create(body, null);
+                    Log.d("Login", String.format("Connected to PocketBase as \"%s\"", auth.<String>getValue("name")));
                 } catch (ClientException err) {
-                    Log.d("Login", String.valueOf(err));
-                    runOnUiThread(() -> Snackbar.make(view, String.format("Failed connecting to PocketBase: \"%s\"", err.getResponse()), Snackbar.LENGTH_LONG).setAction("Action", null).show());
+                    Log.e("Login", String.format("Failed connecting to PocketBase: \n%s", err));
+                    runOnUiThread(() -> Snackbar.make(view, String.format("Failed connecting to PocketBase: \n%s", err), Snackbar.LENGTH_LONG).setAction("Action", null).show());
                 }
             });
         });
