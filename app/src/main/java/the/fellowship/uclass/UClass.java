@@ -53,7 +53,7 @@ public class UClass extends AppCompatActivity {
                     })
                     .exceptionally(err -> {
                         Log.e("Login", String.format("Failed connecting to EClass: \n%s", err));
-                        runOnUiThread(() -> Snackbar.make(binding.getRoot(), String.format("Failed connecting to EClass: \n%s", err), Snackbar.LENGTH_LONG).setAction("Action", null).show());
+                        runOnUiThread(() -> Snackbar.make(binding.getRoot(), String.format("Failed connecting to EClass: \n%s", err), Snackbar.LENGTH_LONG).setTextMaxLines(16).setAction("Action", null).show());
 
                         Intent intent = new Intent(this, UClass.class);
                         startActivity(intent);
@@ -68,7 +68,7 @@ public class UClass extends AppCompatActivity {
                     Log.d("Login", String.format("Connected to PocketBase as \"%s\"", auth.getRecord().<String>getValue("name")));
                 } catch (ClientException err) {
                     Log.e("Login", String.format("Failed connecting to PocketBase: \n%s", err));
-                    runOnUiThread(() -> Snackbar.make(binding.getRoot(), String.format("Failed connecting to PocketBase: \n%s", err), Snackbar.LENGTH_LONG).setAction("Action", null).show());
+                    runOnUiThread(() -> Snackbar.make(binding.getRoot(), String.format("Failed connecting to PocketBase: \n%s", err), Snackbar.LENGTH_LONG).setTextMaxLines(16).setAction("Action", null).show());
                 }
             });
 
@@ -84,7 +84,7 @@ public class UClass extends AppCompatActivity {
             eclass.login(username, password)
                     .thenAccept(success -> {
                         if (!success) {
-                            runOnUiThread(() -> Snackbar.make(view, "Incorrect username or password", Snackbar.LENGTH_LONG).setAction("Action", null).show());
+                            runOnUiThread(() -> Snackbar.make(view, "Incorrect username or password", Snackbar.LENGTH_LONG).setTextMaxLines(16).setAction("Action", null).show());
                             return;
                         }
 
@@ -103,7 +103,7 @@ public class UClass extends AppCompatActivity {
                     })
                     .exceptionally(err -> {
                         Log.e("Login", String.format("Failed connecting to EClass: \n%s", err));
-                        runOnUiThread(() -> Snackbar.make(view, String.format("Failed connecting to EClass: \n%s", err), Snackbar.LENGTH_LONG).setAction("Action", null).show());
+                        runOnUiThread(() -> Snackbar.make(view, String.format("Failed connecting to EClass: \n%s", err), Snackbar.LENGTH_LONG).setTextMaxLines(16).setAction("Action", null).show());
                         return null;
                     });
 
@@ -119,7 +119,7 @@ public class UClass extends AppCompatActivity {
                     Log.d("Login", String.format("Connected to PocketBase as \"%s\"", auth.<String>getValue("name")));
                 } catch (ClientException err) {
                     Log.e("Login", String.format("Failed connecting to PocketBase: \n%s", err));
-                    runOnUiThread(() -> Snackbar.make(view, String.format("Failed connecting to PocketBase: \n%s", err), Snackbar.LENGTH_LONG).setAction("Action", null).show());
+                    runOnUiThread(() -> Snackbar.make(view, String.format("Failed connecting to PocketBase: \n%s", err), Snackbar.LENGTH_LONG).setTextMaxLines(16).setAction("Action", null).show());
                 }
             });
         });

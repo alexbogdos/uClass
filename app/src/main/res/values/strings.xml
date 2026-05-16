@@ -19,6 +19,9 @@
     <string name="placeholder_hours">Ώρες Γραφείου</string>
     <string name="placeholder_office">Γραφείο</string>
 
+    <!-- Chat -->
+    <string name="message_hint">Μήνυμα...</string>
+
     <string name="lorem_ipsum">
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam in scelerisque sem. Mauris
         volutpat, dolor id interdum ullamcorper, risus dolor egestas lectus, sit amet mattis purus
