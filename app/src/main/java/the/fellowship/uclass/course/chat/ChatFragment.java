@@ -127,6 +127,7 @@ public class ChatFragment extends Fragment {
     private void sendMessage(View view) {
         String content = binding.messageEdit.getText().toString();
         binding.messageEdit.setText("");
+        binding.messageEdit.clearFocus();
 
         CompletableFuture.runAsync(() -> {
             try {
@@ -149,6 +150,10 @@ public class ChatFragment extends Fragment {
     }
 
     private void receiveMessage(RecordSubscriptionEvent event) {
+        // Check that the message is destined for the currently viewed course
+        if (!course.getId().equals(event.getRecord().<String>getValue("course"))) return;
+        Log.d("Chat", String.format("Received: %s", event));
+
         String id = event.getRecord().getId();
         String action = event.getAction().toUpperCase();
 
