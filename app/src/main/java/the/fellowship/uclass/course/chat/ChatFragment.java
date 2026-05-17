@@ -92,6 +92,7 @@ public class ChatFragment extends Fragment {
         CompletableFuture.runAsync(() -> {
             try {
                 final List<RecordModel> messages = UClass.pocketbase.getCollection("chat").getFullList(filter);
+                Log.d("Chat", String.format("Messages: %s", messages));
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
                         items.clear();

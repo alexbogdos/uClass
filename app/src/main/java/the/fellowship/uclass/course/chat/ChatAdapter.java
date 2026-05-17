@@ -39,6 +39,14 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
         final RecordModel message = items.get(position);
         if (!holder.owned) holder.author.setText(message.<String>getValue("name"));
         holder.content.setText(message.<String>getValue("content"));
+
+        String file = message.<String>getValue("file", "");
+        if (!file.isEmpty()) {
+            holder.thumbnail.setVisibility(View.VISIBLE);
+            holder.file.setText(file);
+        } else {
+            holder.thumbnail.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -49,6 +57,8 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
     public static class ViewHolder extends RecyclerView.ViewHolder {
         private final TextView author;
         private final TextView content;
+        private final LinearLayout thumbnail;
+        private final TextView file;
         private final LinearLayout view;
         private final Boolean owned;
 
@@ -58,6 +68,8 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
             this.view = view.findViewById(R.id.item_view);
             this.author = view.findViewById(R.id.author_text);
             this.content = view.findViewById(R.id.content_text);
+            this.thumbnail = view.findViewById(R.id.thumbnail_view);
+            this.file = view.findViewById(R.id.file_text);
         }
     }
 }

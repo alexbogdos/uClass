@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="start"
-    android:layout_marginVertical="6dp"
+    android:layout_marginVertical="4dp"
     android:orientation="vertical">
 
     <TextView
@@ -24,18 +24,54 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
-        app:cardCornerRadius="24dp">
+        app:cardCornerRadius="18dp">
 
-        <TextView
-            android:id="@+id/content_text"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:maxWidth="256dp"
-            android:paddingHorizontal="16dp"
-            android:paddingVertical="8dp"
-            android:text="Content"
-            android:textAppearance="?attr/textAppearanceBodyLarge"
-            android:textColor="?attr/colorOnSurface" />
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/thumbnail_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="visible">
+
+                <ImageView
+                    android:id="@+id/thumbnail_image"
+                    android:layout_width="212dp"
+                    android:layout_height="212dp"
+                    android:layout_gravity="center|top"
+                    android:layout_marginHorizontal="12dp"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginBottom="6dp"
+                    android:contentDescription="TODO"
+                    android:src="@drawable/placeholder" />
+
+                <TextView
+                    android:id="@+id/file_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxWidth="224dp"
+                    android:paddingHorizontal="12dp"
+                    android:text="file"
+                    android:textAppearance="?attr/textAppearanceBodyMediumEmphasized"
+                    android:textColor="?attr/colorOnSurface" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/content_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxWidth="224dp"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="8dp"
+                android:text="Content"
+                android:textAppearance="?attr/textAppearanceBodyLarge"
+                android:textColor="?attr/colorOnSurface" />
+        </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 </LinearLayout>
