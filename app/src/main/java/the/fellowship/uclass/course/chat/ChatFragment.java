@@ -187,6 +187,7 @@ public class ChatFragment extends Fragment {
                     }
                     break;
                 case "DELETE":
+                    // FIXME: Deleting whole chat crashes app
                     if (index >= 0) {
                         items.remove(index);
                         adapter.notifyItemRemoved(index);

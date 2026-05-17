@@ -18,6 +18,7 @@ import java.net.CookieManager;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -95,9 +96,9 @@ public class EClass {
         return null;
     }
 
-    public Announcement getAnnouncement(String id) {
+    public Announcement getAnnouncement(int id) {
         for (Announcement announcement : announcements.getValue()) {
-            if (id.equals(announcement.getId())) {
+            if (id == announcement.getId()) {
                 return announcement;
             }
         }
@@ -133,6 +134,7 @@ public class EClass {
 
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString("cache:announcements", Json.encode(list));
+            editor.putInt("cache:announcements_latest_id", list.stream().max(Comparator.comparingInt(Announcement::getId)).get().getId());
             editor.apply();
         });
     }
@@ -150,6 +152,10 @@ public class EClass {
             List<Announcement> cachedAnnouncements = Json.decode(prefs.getString("cache:announcements", "{}"), new TypeToken<List<Announcement>>() {});
             Log.d("EClass", String.format("Cached announcements: %s", cachedAnnouncements));
             announcements.postValue(cachedAnnouncements);
+
+            if (prefs.contains("cache:announcements_latest_id")) {
+                Announcement.setLatestId(prefs.getInt("cache:announcements_latest_id", 0));
+            }
         }
     }
 
@@ -197,7 +203,7 @@ public class EClass {
                         String courseId = link.attr("href").split("\\?")[1].split("&")[0].split("=")[1];
                         String body = document.selectFirst(".table_td_body").text();
 
-                        return new Announcement(id, link.text(), course, courseId, date, link.attr("href"), body);
+                        return new Announcement(Integer.parseInt(id), link.text(), course, courseId, date, link.attr("href"), body);
                     }).collect(Collectors.toList());
                 });
     }

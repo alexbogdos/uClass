@@ -13,6 +13,8 @@
     <string name="next">Next</string>
     <string name="previous">Previous</string>
 
+    <string name="new_announcement">Νέα Ανακοίνωση</string>
+
     <!-- Course Details -->
     <string name="lecturer_label">Καθηγητής</string>
     <string name="placeholder_email">Ηλεκτρονική Διεύθυνση</string>

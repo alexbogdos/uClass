@@ -24,7 +24,7 @@ public class AnnouncementFragment extends Fragment {
     ) {
         binding = FragmentAnnouncementBinding.inflate(inflater, container, false);
 
-        String id = getArguments().getString(EXTRA_ANNOUNCEMENT_ID);
+        int id = getArguments().getInt(EXTRA_ANNOUNCEMENT_ID);
         Announcement announcement = UClass.eclass.getAnnouncement(id);
 
         binding.titleText.setText(announcement.getTitle());

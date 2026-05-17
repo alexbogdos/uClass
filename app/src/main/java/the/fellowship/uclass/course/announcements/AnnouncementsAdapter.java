@@ -3,6 +3,7 @@ package the.fellowship.uclass.course.announcements;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -36,6 +37,7 @@ public class AnnouncementsAdapter extends RecyclerView.Adapter<AnnouncementsAdap
         holder.name.setText(item.getTitle());
         holder.subtitle.setText(item.getCourse());
         holder.date.setText(item.getDate());
+        holder.star.setVisibility(item.getId() > Announcement.getLatestId() ? View.VISIBLE : View.GONE);
         holder.view.setOnClickListener(view -> listener.select(item));
     }
 
@@ -52,6 +54,7 @@ public class AnnouncementsAdapter extends RecyclerView.Adapter<AnnouncementsAdap
         private final TextView name;
         private final TextView subtitle;
         private final TextView date;
+        private final ImageView star;
         MaterialCardView view;
 
         public ViewHolder(@NonNull View view) {
@@ -60,6 +63,7 @@ public class AnnouncementsAdapter extends RecyclerView.Adapter<AnnouncementsAdap
             this.name = view.findViewById(R.id.title_text);
             this.subtitle = view.findViewById(R.id.subtitle_text);
             this.date = view.findViewById(R.id.date_text);
+            this.star = view.findViewById(R.id.star_icon);
         }
     }
 }

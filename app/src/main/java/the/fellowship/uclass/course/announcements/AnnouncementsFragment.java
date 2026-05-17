@@ -53,7 +53,7 @@ public class AnnouncementsFragment extends Fragment implements AnnouncementsAdap
     @Override
     public void select(Announcement announcement) {
         Bundle bundle = new Bundle();
-        bundle.putString(AnnouncementFragment.EXTRA_ANNOUNCEMENT_ID, announcement.getId());
+        bundle.putInt(AnnouncementFragment.EXTRA_ANNOUNCEMENT_ID, announcement.getId());
 
         NavController navController = Navigation.findNavController(getActivity(), R.id.nav_host_fragment_content_main);
         navController.navigate(R.id.CourseAnnouncementFragment, bundle);

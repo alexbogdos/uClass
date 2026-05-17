@@ -3,7 +3,9 @@ package the.fellowship.eclass.dtos;
 import androidx.annotation.NonNull;
 
 public class Announcement {
-    private final String id;
+    private static int LATEST_ID = 0;
+
+    private final int id;
     private final String title;
     private final String course;
     private final String courseId;
@@ -11,7 +13,7 @@ public class Announcement {
     private final String url;
     private final String body;
 
-    public Announcement(String id, String title, String course, String courseId, String date, String url, String body) {
+    public Announcement(int id, String title, String course, String courseId, String date, String url, String body) {
         this.id = id;
         this.title = title;
         this.course = course;
@@ -21,7 +23,15 @@ public class Announcement {
         this.body = body;
     }
 
-    public String getId() {
+    public static int getLatestId() {
+        return LATEST_ID;
+    }
+
+    public static void setLatestId(int latestId) {
+        LATEST_ID = latestId;
+    }
+
+    public int getId() {
         return id;
     }
 
