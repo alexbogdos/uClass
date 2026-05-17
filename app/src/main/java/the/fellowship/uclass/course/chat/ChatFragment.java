@@ -180,7 +180,7 @@ public class ChatFragment extends Fragment {
                 case "CREATE":
                     items.add(event.getRecord());
                     adapter.notifyItemInserted(items.size() - 1);
-                    scrollToPosition(items.size() - 1);
+                    binding.recycler.smoothScrollToPosition(items.size() - 1);
                     break;
                 case "UPDATE":
                     if (index >= 0) {

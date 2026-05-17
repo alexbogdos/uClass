@@ -15,7 +15,9 @@ import org.jsoup.nodes.Element;
 
 import java.io.IOException;
 import java.net.CookieManager;
-import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -50,6 +52,7 @@ public class EClass {
      */
     private final MutableLiveData<List<Course>> courses = new MutableLiveData<>();
     private final MutableLiveData<List<Announcement>> announcements = new MutableLiveData<>();
+    private final MutableLiveData<List<Assignment>> assignments = new MutableLiveData<>();
     OkHttpClient httpClient;
 
     /**
@@ -137,6 +140,16 @@ public class EClass {
             editor.putInt("cache:announcements_latest_id", list.stream().max(Comparator.comparingInt(Announcement::getId)).get().getId());
             editor.apply();
         });
+
+        fetchAssignments(LocalDateTime.now(), LocalDateTime.now().plusMonths(6)).thenAccept(list -> {
+            assignments.postValue(list);
+            Log.d("EClass", String.format("Received assignments: %s", list));
+
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString("cache:assignments", Json.encode(list));
+            editor.putInt("cache:assignments_latest_id", list.stream().max(Comparator.comparingInt(Assignment::getId)).get().getId());
+            editor.apply();
+        });
     }
 
     public void fetchCached() {
@@ -155,6 +168,16 @@ public class EClass {
 
             if (prefs.contains("cache:announcements_latest_id")) {
                 Announcement.setLatestId(prefs.getInt("cache:announcements_latest_id", 0));
+            }
+        }
+
+        if (prefs.contains("cache:assignments")) {
+            List<Assignment> cachedAssignments = Json.decode(prefs.getString("cache:assignments", "{}"), new TypeToken<List<Assignment>>() {});
+            Log.d("EClass", String.format("Cached assignments: %s", cachedAssignments));
+            assignments.postValue(cachedAssignments);
+
+            if (prefs.contains("cache:assignments_latest_id")) {
+                Assignment.setLatestId(prefs.getInt("cache:assignments_latest_id", 0));
             }
         }
     }
@@ -244,20 +267,30 @@ public class EClass {
                 });
     }
 
-    public CompletableFuture<List<Assignment>> getAssignments(Instant start, Instant end) {
-        return getAssignments(null, start, end);
+    public LiveData<List<Assignment>> getAssignments() {
+        return assignments;
     }
 
-    public CompletableFuture<List<Assignment>> getAssignments(String courseId, Instant start, Instant end) {
-        final String url = String.format("/main/calendar_data.php?from=%s&to=%s", start.getEpochSecond() * 1000, end.getEpochSecond() * 1000);
+    public CompletableFuture<List<Assignment>> fetchAssignments(LocalDateTime start, LocalDateTime end) {
+        return fetchAssignments(null, start, end);
+    }
 
+    public CompletableFuture<List<Assignment>> fetchAssignments(String courseId, LocalDateTime start, LocalDateTime end) {
+        final ZoneId zone = ZoneId.of("Europe/Athens");
+
+        final ZonedDateTime startDate = start.atZone(zone);
+        final ZonedDateTime endDate = end.atZone(zone);
+
+        final long start_ms = startDate.toInstant().getEpochSecond() * 1000;
+        final long end_ms = endDate.toInstant().getEpochSecond() * 1000;
+
+        final String url = String.format("/main/calendar_data.php?from=%s&to=%s&utc_offset_from=-180&utc_offset_to=-180", start_ms, end_ms);
         return get(url)
                 .thenApply(response -> {
                     String json = (String) response.get("body");
                     if (json.isEmpty()) return new ArrayList<>();
 
                     Map<String, ?> events = Json.decode(json);
-
                     return ((List<Map<String, ?>>) events.get("result")).stream()
                             .filter(event -> {
                                 // Calendar event is not an assignment

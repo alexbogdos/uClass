@@ -16,6 +16,7 @@
     <string name="new_announcement">Νέα Ανακοίνωση</string>
 
     <!-- Course Details -->
+    <string name="assignments_label">Εργασίες</string>
     <string name="lecturer_label">Καθηγητής</string>
     <string name="placeholder_email">Ηλεκτρονική Διεύθυνση</string>
     <string name="placeholder_hours">Ώρες Γραφείου</string>
