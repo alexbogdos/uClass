@@ -2,6 +2,8 @@ package the.fellowship.uclass.course.chat;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -95,6 +97,7 @@ public class ChatFragment extends Fragment {
                         items.clear();
                         items.addAll(messages);
                         adapter.notifyDataSetChanged();
+                        scrollToPosition(items.size() - 1);
                     });
                 } else {
                     Log.e("Chat", "Can not use UI Thread");
@@ -170,6 +173,7 @@ public class ChatFragment extends Fragment {
                 case "CREATE":
                     items.add(event.getRecord());
                     adapter.notifyItemInserted(items.size() - 1);
+                    scrollToPosition(items.size() - 1);
                     break;
                 case "UPDATE":
                     if (index >= 0) {
@@ -181,6 +185,7 @@ public class ChatFragment extends Fragment {
                     if (index >= 0) {
                         items.remove(index);
                         adapter.notifyItemRemoved(index);
+                        scrollToPosition(items.size() - 1);
                     }
                     break;
             }
@@ -192,6 +197,14 @@ public class ChatFragment extends Fragment {
             getActivity().runOnUiThread(() -> Snackbar.make(binding.getRoot(), "Pick attachments", Snackbar.LENGTH_LONG).setTextMaxLines(16).setAction("Action", null).show());
         }
         Log.d("Chat", "Pick attachments");
+    }
+
+    private void scrollToPosition(int position) {
+        if (position < 0) return;
+
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            binding.recycler.smoothScrollToPosition(items.size() - 1);
+        }, 150);
     }
 
     @Override
