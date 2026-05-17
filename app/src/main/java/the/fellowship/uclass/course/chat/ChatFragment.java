@@ -20,6 +20,7 @@ import java.util.concurrent.CompletableFuture;
 import the.fellowship.eclass.dtos.Course;
 import the.fellowship.pocketbase.ClientException;
 import the.fellowship.pocketbase.dtos.RecordModel;
+import the.fellowship.pocketbase.dtos.RecordSubscriptionEvent;
 import the.fellowship.uclass.MainActivity;
 import the.fellowship.uclass.R;
 import the.fellowship.uclass.UClass;
@@ -63,11 +64,12 @@ public class ChatFragment extends Fragment {
         CompletableFuture.runAsync(() -> {
             try {
                 final List<RecordModel> messages = UClass.pocketbase.getCollection("chat").getFullList(filter);
-                items.clear();
-                items.addAll(messages);
-
                 if (getActivity() != null) {
-                    getActivity().runOnUiThread(() -> adapter.notifyDataSetChanged());
+                    getActivity().runOnUiThread(() -> {
+                        items.clear();
+                        items.addAll(messages);
+                        adapter.notifyDataSetChanged();
+                    });
                 } else {
                     Log.e("Chat", "Can not use UI Thread");
                 }
@@ -83,50 +85,7 @@ public class ChatFragment extends Fragment {
     private void subscribeToTopicAsync() {
         CompletableFuture.runAsync(() -> {
             try {
-                UClass.pocketbase.getCollection("chat").subscribe("*", filter, event -> {
-                    final String id = event.getRecord().getId();
-                    int size = items.size();
-                    switch (event.getAction().toUpperCase()) {
-                        case "CREATE":
-                            items.add(event.getRecord());
-                            if (getActivity() != null) {
-                                getActivity().runOnUiThread(() -> adapter.notifyItemInserted(items.size() - 1));
-                            } else {
-                                Log.e("Chat", "Can not use UI Thread");
-                            }
-                            break;
-                        case "UPDATE":
-                            for (int i = 0; i < size; i++) {
-                                final RecordModel model = items.get(i);
-                                if (id.equals(model.getId())) {
-                                    items.set(i, event.getRecord());
-                                    if (getActivity() != null) {
-                                        final int index = i;
-                                        getActivity().runOnUiThread(() -> adapter.notifyItemChanged(index));
-                                    } else {
-                                        Log.e("Chat", "Can not use UI Thread");
-                                    }
-                                    break;
-                                }
-                            }
-                            break;
-                        case "DELETE":
-                            for (int i = 0; i < size; i++) {
-                                final RecordModel model = items.get(i);
-                                if (id.equals(model.getId())) {
-                                    items.remove(i);
-                                    if (getActivity() != null) {
-                                        final int index = i;
-                                        getActivity().runOnUiThread(() -> adapter.notifyItemRemoved(index));
-                                    } else {
-                                        Log.e("Chat", "Can not use UI Thread");
-                                    }
-                                    break;
-                                }
-                            }
-                            break;
-                    }
-                });
+                UClass.pocketbase.getCollection("chat").subscribe("*", filter, this::receiveMessage);
             } catch (ClientException err) {
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> Snackbar.make(binding.getRoot(), String.format("Failed connecting to PocketBase: \n%s", err), Snackbar.LENGTH_LONG).setTextMaxLines(16).setAction("Action", null).show());
@@ -152,8 +111,52 @@ public class ChatFragment extends Fragment {
 
                 final RecordModel message = UClass.pocketbase.getCollection("chat").create(body, null);
             } catch (ClientException err) {
-                getActivity().runOnUiThread(() -> Snackbar.make(view, String.format("Failed connecting to PocketBase: \n%s", err), Snackbar.LENGTH_LONG).setTextMaxLines(16).setAction("Action", null).show());
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> Snackbar.make(view, String.format("Failed connecting to PocketBase: \n%s", err), Snackbar.LENGTH_LONG).setTextMaxLines(16).setAction("Action", null).show());
+                }
                 Log.e("Chat", String.format("Failed connecting to PocketBase: \n%s", err));
+            }
+        });
+    }
+
+    private void receiveMessage(RecordSubscriptionEvent event) {
+        String id = event.getRecord().getId();
+        String action = event.getAction().toUpperCase();
+
+        if (getActivity() == null) {
+            Log.e("Chat", "Can not use UI Thread");
+            return;
+        }
+
+        getActivity().runOnUiThread(() -> {
+            int index = -1;
+            // Find item index for UPDATE & DELETE
+            if (!"CREATE".equals(action)) {
+                for (int i = 0; i < items.size(); i++) {
+                    if (id.equals(items.get(i).getId())) {
+                        index = i;
+                        break;
+                    }
+                }
+            }
+
+            switch (action) {
+                case "CREATE":
+                    items.add(event.getRecord());
+                    adapter.notifyItemInserted(items.size() - 1);
+                    break;
+                case "UPDATE":
+                    if (index >= 0) {
+                        items.set(index, event.getRecord());
+                        adapter.notifyItemChanged(index);
+                    }
+                    break;
+                case "DELETE":
+                    if (index >= 0) {
+                        items.remove(index);
+                        adapter.notifyItemRemoved(index);
+                    }
+                    break;
             }
         });
     }
@@ -191,7 +194,9 @@ public class ChatFragment extends Fragment {
                 UClass.pocketbase.getCollection("chat").unsubscribe("*");
                 Log.d("Chat", String.format("Unsubscribed from \"%s\"", course.getTitle()));
             } catch (ClientException err) {
-                getActivity().runOnUiThread(() -> Snackbar.make(binding.getRoot(), String.format("Failed connecting to PocketBase: \n%s", err), Snackbar.LENGTH_LONG).setTextMaxLines(16).setAction("Action", null).show());
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> Snackbar.make(binding.getRoot(), String.format("Failed connecting to PocketBase: \n%s", err), Snackbar.LENGTH_LONG).setTextMaxLines(16).setAction("Action", null).show());
+                }
                 Log.e("Chat", String.format("Failed connecting to PocketBase: \n%s", err));
             }
         });
