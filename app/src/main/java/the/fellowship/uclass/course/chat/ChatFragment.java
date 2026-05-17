@@ -62,6 +62,7 @@ public class ChatFragment extends Fragment {
         binding.addButton.setOnClickListener(this::pickAttachments);
         binding.sendButton.setOnClickListener(this::sendMessage);
 
+        binding.messageEdit.setOnFocusChangeListener((View v, boolean hasFocus) -> {if (hasFocus) scrollToPosition(items.size() - 1);});
         binding.messageEdit.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
