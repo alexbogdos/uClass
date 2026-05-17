@@ -85,6 +85,29 @@ public class RecordService extends BaseCrudService<RecordModel> {
      */
     public Runnable subscribe(
             String topic,
+            String filter,
+            Consumer<RecordSubscriptionEvent> callback
+            ) throws ClientException {
+        return subscribe(topic, callback, null, filter, null, null, null);
+    }
+
+    /**
+     * Subscribe to realtime changes to the specified topic ("*" or record id).
+     * <p>
+     * If [topic] is the wildcard "*", then this method will subscribe to
+     * any record changes in the collection.
+     * <p>
+     * If [topic] is a record id, then this method will subscribe only
+     * to changes of the specified record id.
+     * <p>
+     * It's OK to subscribe multiple times to the same topic.
+     * <p>
+     * You can use the returned [UnsubscribeFunc] to remove the subscription.
+     * Or use [unsubscribe(topic)] if you want to remove all
+     * subscriptions attached to the topic.
+     */
+    public Runnable subscribe(
+            String topic,
             Consumer<RecordSubscriptionEvent> callback,
             String expand,
             String filter,
