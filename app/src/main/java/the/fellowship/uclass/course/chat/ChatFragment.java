@@ -2,6 +2,8 @@ package the.fellowship.uclass.course.chat;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -55,7 +57,31 @@ public class ChatFragment extends Fragment {
         fetchMessagesAsync();
         subscribeToTopicAsync();
 
+        binding.addButton.setOnClickListener(this::pickAttachments);
         binding.sendButton.setOnClickListener(this::sendMessage);
+
+        binding.messageEdit.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (s.length() > 0 && binding.sendButton.getVisibility() == View.GONE) {
+                    binding.sendButton.setVisibility(View.VISIBLE);
+                    binding.addButton.setVisibility(View.GONE);
+                } else if (s.length() == 0 && binding.sendButton.getVisibility() == View.VISIBLE) {
+                    binding.sendButton.setVisibility(View.GONE);
+                    binding.addButton.setVisibility(View.VISIBLE);
+                }
+            }
+        });
 
         return binding.getRoot();
     }
@@ -159,6 +185,13 @@ public class ChatFragment extends Fragment {
                     break;
             }
         });
+    }
+
+    private void pickAttachments(View view) {
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(() -> Snackbar.make(binding.getRoot(), "Pick attachments", Snackbar.LENGTH_LONG).setTextMaxLines(16).setAction("Action", null).show());
+        }
+        Log.d("Chat", "Pick attachments");
     }
 
     @Override

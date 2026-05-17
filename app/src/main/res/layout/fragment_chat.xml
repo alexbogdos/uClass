@@ -57,12 +57,23 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/send_button"
+            android:id="@+id/add_button"
             style="@style/Widget.Material3.Button.IconButton.Filled"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:contentDescription="TODO"
             app:icon="@drawable/ic_add"
+            app:iconGravity="textStart"
+            app:iconSize="26dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/send_button"
+            style="@style/Widget.Material3.Button.IconButton.Filled"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:contentDescription="TODO"
+            android:visibility="gone"
+            app:icon="@drawable/ic_send"
             app:iconGravity="textStart"
             app:iconSize="26dp" />
     </LinearLayout>
