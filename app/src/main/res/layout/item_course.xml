@@ -54,7 +54,7 @@
             android:layout_marginRight="3dp"
             android:backgroundTint="?attr/colorSecondaryVariant"
             android:contentDescription="TODO"
-            app:icon="@drawable/chat_bubble_24dp"
+            app:icon="@drawable/ic_chat_bubble"
             app:iconGravity="textStart" />
 
         <com.google.android.material.button.MaterialButton
@@ -65,7 +65,7 @@
             android:layout_marginRight="3dp"
             android:backgroundTint="?attr/colorSecondaryVariant"
             android:contentDescription="TODO"
-            app:icon="@drawable/notifications_24dp"
+            app:icon="@drawable/ic_notifications"
             app:iconGravity="textStart" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
