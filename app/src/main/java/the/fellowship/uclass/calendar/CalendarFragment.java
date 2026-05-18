@@ -167,7 +167,7 @@ public class CalendarFragment extends Fragment {
     private synchronized void populateEvents() {
         events.clear();
         events.addAll(assignments.stream().filter(assignment -> equals(selected, assignment.getEnd())).map(Event::new).collect(Collectors.toList()));
-        adapter.notifyDataSetChanged();
+        adapter.notifyItemRangeChanged(0, this.events.size());
     }
 
     static private boolean equals(LocalDateTime dateA, LocalDateTime dateB) {

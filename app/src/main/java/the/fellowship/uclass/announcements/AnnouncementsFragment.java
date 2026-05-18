@@ -65,7 +65,7 @@ public class AnnouncementsFragment extends Fragment implements AnnouncementsAdap
         getActivity().runOnUiThread(() -> {
             items.clear();
             items.addAll(announcements);
-            adapter.notifyDataSetChanged();
+            adapter.notifyItemRangeChanged(0, this.items.size());
         });
     }
 

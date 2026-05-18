@@ -98,8 +98,8 @@ public class ChatFragment extends Fragment {
                     getActivity().runOnUiThread(() -> {
                         items.clear();
                         items.addAll(messages);
-                        adapter.notifyDataSetChanged();
-                        scrollToPosition(items.size() - 1);
+                        adapter.notifyItemRangeInserted(0, this.items.size());
+                        binding.recycler.scrollToPosition(items.size() - 1);
                     });
                 } else {
                     Log.e("Chat", "Cannot use UI Thread");

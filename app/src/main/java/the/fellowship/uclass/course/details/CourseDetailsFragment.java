@@ -89,7 +89,7 @@ public class CourseDetailsFragment extends Fragment {
             } else {
                 assignments.clear();
                 assignments.addAll(filtered);
-                assignmentAdapter.notifyDataSetChanged();
+                assignmentAdapter.notifyItemRangeChanged(0, this.assignments.size());
 
                 binding.assignmentsLabel.setVisibility(View.VISIBLE);
                 binding.assignmentsRecycler.setVisibility(View.VISIBLE);
@@ -106,7 +106,7 @@ public class CourseDetailsFragment extends Fragment {
                     getActivity().runOnUiThread(() -> {
                         this.ratings.clear();
                         this.ratings.addAll(ratings);
-                        ratingsAdapter.notifyDataSetChanged();
+                        ratingsAdapter.notifyItemRangeInserted(0, this.ratings.size());
                     });
                 } else {
                     Log.e("Chat", "Cannot use UI Thread");
