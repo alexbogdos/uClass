@@ -59,7 +59,7 @@ public class CoursesFragment extends Fragment implements CoursesAdapter.Selectio
 
     public void populateCourses(List<Course> courses) {
         if (getActivity() == null) {
-            Log.e("CoursesFragment", "Can not use UI Thread");
+            Log.e("CoursesFragment", "Cannot use UI Thread");
             return;
         }
 

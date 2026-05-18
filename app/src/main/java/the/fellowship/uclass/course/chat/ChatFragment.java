@@ -102,7 +102,7 @@ public class ChatFragment extends Fragment {
                         scrollToPosition(items.size() - 1);
                     });
                 } else {
-                    Log.e("Chat", "Can not use UI Thread");
+                    Log.e("Chat", "Cannot use UI Thread");
                 }
             } catch (ClientException err) {
                 if (getActivity() != null) {
@@ -160,7 +160,7 @@ public class ChatFragment extends Fragment {
         String action = event.getAction().toUpperCase();
 
         if (getActivity() == null) {
-            Log.e("Chat", "Can not use UI Thread");
+            Log.e("Chat", "Cannot use UI Thread");
             return;
         }
 

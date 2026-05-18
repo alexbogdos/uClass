@@ -10,8 +10,8 @@
     <string name="navigation_announcement">Ανακοίνωση</string>
     <string name="navigation_course_details">Μάθημα</string>
     <string name="navigation_chat">Συνομιλία</string>
-    <string name="next">Next</string>
-    <string name="previous">Previous</string>
+    <string name="next">Επόμενο</string>
+    <string name="previous">Προηγούμενο</string>
 
     <string name="new_announcement">Νέα Ανακοίνωση</string>
 

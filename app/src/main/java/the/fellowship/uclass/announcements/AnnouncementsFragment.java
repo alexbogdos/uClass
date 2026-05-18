@@ -58,7 +58,7 @@ public class AnnouncementsFragment extends Fragment implements AnnouncementsAdap
 
     public void populateAnnouncements(List<Announcement> announcements) {
         if (getActivity() == null) {
-            Log.e("AnnouncementsFragment", "Can not use UI Thread");
+            Log.e("AnnouncementsFragment", "Cannot use UI Thread");
             return;
         }
 

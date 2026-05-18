@@ -64,7 +64,7 @@ public class CourseDetailsFragment extends Fragment {
 
     public void populateAssignment(List<Assignment> list) {
         if (getActivity() == null) {
-            Log.e("Course", "Can not use UI Thread");
+            Log.e("Course", "Cannot use UI Thread");
             return;
         }
 
