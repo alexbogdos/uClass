@@ -52,7 +52,7 @@ public class CalendarFragment extends Fragment {
         populateCalendar();
 
         // Update current date text
-        binding.dateText.setText(String.format("%s, %s %s", days[now.getDayOfWeek().getValue() - 1], now.getDayOfMonth(), months[now.getMonth().getValue() - 1]));
+        binding.dateText.setText(String.format("%s, %s %s", days[now.getDayOfWeek().getValue() - 1], now.getDayOfMonth(), months[now.getMonthValue() - 1]));
 
         UClass.eclass.getAssignments().observe(getViewLifecycleOwner(), this::populateAssignments);
 
@@ -101,7 +101,7 @@ public class CalendarFragment extends Fragment {
             selected = week.plusDays(index + 1 - week.getDayOfWeek().getValue());
 
             offset = selected.getDayOfWeek().getValue() - 1;
-            binding.dateText.setText(String.format("%s, %s %s", days[offset], selected.getDayOfMonth(), months[offset]));
+            binding.dateText.setText(String.format("%s, %s %s", days[offset], selected.getDayOfMonth(), months[selected.getMonthValue() - 1]));
 
             buttons[offset].plain.setVisibility(View.GONE);
             buttons[offset].outlined.setVisibility(View.GONE);
