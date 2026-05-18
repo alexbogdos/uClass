@@ -1,6 +1,7 @@
 package the.fellowship.eclass.dtos;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
@@ -53,7 +54,11 @@ public class Assignment {
         return title;
     }
 
-    public String getEnd() {
+    public LocalDateTime getEnd() {
+        return end.atZone(zoneId).toLocalDateTime();
+    }
+
+    public String getEndString() {
         return dateFormatter.format(end.atZone(zoneId));
     }
 

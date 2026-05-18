@@ -6,13 +6,14 @@
     android:layout_weight="1">
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/outlined"
+        android:id="@+id/plain"
         style="@style/Widget.Material3.Button.IconButton"
         android:layout_width="44dp"
         android:layout_height="44dp"
         android:padding="0dp"
         android:text="dd"
         android:textAppearance="?attr/textAppearanceBodyMedium"
+        android:textColor="?attr/colorOnSurfaceVariant"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -32,4 +33,20 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/outlined"
+        style="@style/Widget.Material3.Button.IconButton.Outlined"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="0dp"
+        android:text="dd"
+        android:textAppearance="?attr/textAppearanceBodyMedium"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:strokeColor="?attr/colorPrimary" />
 </androidx.constraintlayout.widget.ConstraintLayout>

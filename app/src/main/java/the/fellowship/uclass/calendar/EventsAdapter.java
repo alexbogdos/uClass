@@ -1,4 +1,4 @@
-package the.fellowship.uclass.course.details;
+package the.fellowship.uclass.calendar;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,27 +12,26 @@ import com.google.android.material.card.MaterialCardView;
 
 import java.util.List;
 
-import the.fellowship.eclass.dtos.Assignment;
 import the.fellowship.uclass.R;
 
-public class AssignmentsAdapter extends RecyclerView.Adapter<AssignmentsAdapter.ViewHolder> {
-    private final List<Assignment> items;
+public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.ViewHolder> {
+    private final List<Event> items;
 
-    public AssignmentsAdapter(List<Assignment> items) {
+    public EventsAdapter(List<Event> items) {
         this.items = items;
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_assignment, parent, false));
+        return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_event, parent, false));
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        final Assignment item = items.get(position);
+        final Event item = items.get(position);
         holder.name.setText(item.getTitle());
-        holder.subtitle.setText(item.getEndString());
+        holder.subtitle.setText(String.format("%s:%s", item.getDate().getHour(), item.getDate().getMinute()));
     }
 
     @Override
