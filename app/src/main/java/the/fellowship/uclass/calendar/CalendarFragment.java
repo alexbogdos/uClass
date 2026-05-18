@@ -91,6 +91,7 @@ public class CalendarFragment extends Fragment {
             buttons[offset].filled.setVisibility(View.GONE);
             buttons[offset].plain.setVisibility(selected.equals(now) ? View.GONE : View.VISIBLE);
             buttons[offset].outlined.setVisibility(selected.equals(now) ? View.VISIBLE : View.GONE);
+            if (selected.equals(now)) buttons[offset].outlined.setText(buttons[offset].plain.getText());
 
             selected = week.plusDays(index + 1 - week.getDayOfWeek().getValue());
 
