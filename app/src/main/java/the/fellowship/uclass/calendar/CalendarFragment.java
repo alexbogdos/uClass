@@ -87,22 +87,17 @@ public class CalendarFragment extends Fragment {
         getActivity().runOnUiThread(() -> {
             int offset = selected.getDayOfWeek().getValue() - 1;
 
-            if (buttons[offset].outlined.getVisibility() == View.GONE) {
-                buttons[offset].filled.setVisibility(View.GONE);
-                if (selected.equals(now)) {
-                    buttons[offset].plain.setVisibility(View.GONE);
-                    buttons[offset].outlined.setVisibility(View.VISIBLE);
-                } else {
-                    buttons[offset].plain.setVisibility(View.VISIBLE);
-                    buttons[offset].outlined.setVisibility(View.GONE);
-                }
-            }
+            // Unselect previous button and restore outline if it was day.now()
+            buttons[offset].filled.setVisibility(View.GONE);
+            buttons[offset].plain.setVisibility(selected.equals(now) ? View.GONE : View.VISIBLE);
+            buttons[offset].outlined.setVisibility(selected.equals(now) ? View.VISIBLE : View.GONE);
 
             selected = week.plusDays(index + 1 - week.getDayOfWeek().getValue());
 
             offset = selected.getDayOfWeek().getValue() - 1;
             binding.dateText.setText(String.format("%s, %s %s", days[offset], selected.getDayOfMonth(), months[selected.getMonthValue() - 1]));
 
+            // Select current button
             buttons[offset].plain.setVisibility(View.GONE);
             buttons[offset].outlined.setVisibility(View.GONE);
             buttons[offset].filled.setVisibility(View.VISIBLE);
@@ -119,13 +114,9 @@ public class CalendarFragment extends Fragment {
 
         final int offset = week.getDayOfWeek().getValue() - 1;
         getActivity().runOnUiThread(() -> {
-            binding.button1.plain.setText(String.valueOf(week.plusDays(0 - offset).getDayOfMonth()));
-            binding.button2.plain.setText(String.valueOf(week.plusDays(1 - offset).getDayOfMonth()));
-            binding.button3.plain.setText(String.valueOf(week.plusDays(2 - offset).getDayOfMonth()));
-            binding.button4.plain.setText(String.valueOf(week.plusDays(3 - offset).getDayOfMonth()));
-            binding.button5.plain.setText(String.valueOf(week.plusDays(4 - offset).getDayOfMonth()));
-            binding.button6.plain.setText(String.valueOf(week.plusDays(5 - offset).getDayOfMonth()));
-            binding.button7.plain.setText(String.valueOf(week.plusDays(6 - offset).getDayOfMonth()));
+            for (int i = 0; i < buttons.length; i++) {
+                buttons[i].plain.setText(String.valueOf(week.plusDays(i - offset).getDayOfMonth()));
+            }
 
             // If week shown is week.now(), show date.now() as outlined.
             // Else, show that button as filled.
@@ -146,7 +137,7 @@ public class CalendarFragment extends Fragment {
                 current.outlined.setVisibility(View.GONE);
             }
 
-            Log.d("Calendar", String.format("%s: %s", week.plusDays(6 - offset), events.stream().map(event -> event.getDate()).collect(Collectors.toList())));
+            populateBadged();
         });
     }
 
@@ -160,18 +151,26 @@ public class CalendarFragment extends Fragment {
             assignments.clear();
             assignments.addAll(list);
             populateEvents();
+            populateBadged();
         });
+    }
+
+    private synchronized void populateBadged() {
+        final int offset = week.getDayOfWeek().getValue() - 1;
+        for (int i = 0; i < buttons.length; i++) {
+            final int index = i;
+            buttons[i].icon.setVisibility(assignments.stream().anyMatch(assignment -> equals(week.plusDays(index - offset), assignment.getEnd())) ? View.VISIBLE : View.INVISIBLE);
+        }
     }
 
     private synchronized void populateEvents() {
         events.clear();
-        events.addAll(assignments.stream().filter(assignment -> {
-            final LocalDateTime date = assignment.getEnd();
-            return selected.getYear() == date.getYear() && selected.getMonth() == date.getMonth() && selected.getDayOfMonth() == date.getDayOfMonth();
-        }).map(Event::new).collect(Collectors.toList()));
+        events.addAll(assignments.stream().filter(assignment -> equals(selected, assignment.getEnd())).map(Event::new).collect(Collectors.toList()));
         adapter.notifyDataSetChanged();
+    }
 
-        populateCalendar();
+    static private boolean equals(LocalDateTime dateA, LocalDateTime dateB) {
+        return dateA.getYear() == dateB.getYear() && dateA.getMonth() == dateB.getMonth() && dateA.getDayOfMonth() == dateB.getDayOfMonth();
     }
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
