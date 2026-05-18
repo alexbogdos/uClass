@@ -25,7 +25,7 @@ public class CalendarFragment extends Fragment {
 
     private LocalDateTime now;
     private LocalDateTime week;
-    private LocalDateTime current;
+    private LocalDateTime selected;
     private List<Assignment> assignments;
     private List<Event> events;
     private EventsAdapter adapter;
@@ -40,37 +40,37 @@ public class CalendarFragment extends Fragment {
         binding = FragmentCalendarBinding.inflate(inflater, container, false);
         buttons = new ButtonCalendarBinding[]{binding.button1, binding.button2, binding.button3, binding.button4, binding.button5, binding.button6, binding.button7};
 
-        // Populate the calendar with the current week's days
-        now = LocalDateTime.now();
-        week = now;
-        current = now;
-        populateCalendar(week);
-
-        // Update current date text
-        binding.dateText.setText(String.format("%s, %s %s", days[now.getDayOfWeek().getValue() - 1], now.getDayOfMonth(), months[now.getMonth().getValue() - 1]));
-
         assignments = new ArrayList<>();
         events = new ArrayList<>();
         adapter = new EventsAdapter(events);
         binding.recycler.setAdapter(adapter);
+
+        // Populate the calendar with the current week's days
+        now = LocalDateTime.now();
+        week = now;
+        selected = now;
+        populateCalendar();
+
+        // Update current date text
+        binding.dateText.setText(String.format("%s, %s %s", days[now.getDayOfWeek().getValue() - 1], now.getDayOfMonth(), months[now.getMonth().getValue() - 1]));
 
         UClass.eclass.getAssignments().observe(getViewLifecycleOwner(), this::populateAssignments);
 
         // Previous & Next week
         binding.buttonPrev.setOnClickListener(v -> {
             week = week.minusWeeks(1);
-            populateCalendar(week);
-            changeToDate(v, current.getDayOfWeek().getValue() - 1);
+            populateCalendar();
+            changeToDate(v, selected.getDayOfWeek().getValue() - 1);
         });
 
         binding.buttonNext.setOnClickListener(v -> {
             week = week.plusWeeks(1);
-            populateCalendar(week);
-            changeToDate(v, current.getDayOfWeek().getValue() - 1);
+            populateCalendar();
+            changeToDate(v, selected.getDayOfWeek().getValue() - 1);
         });
 
         // Select date
-        buttons[now.getDayOfWeek().getValue() - 1].filled.setOnClickListener(v -> changeToDate(v, now.getDayOfWeek().getValue() - 1));
+        buttons[now.getDayOfWeek().getValue() - 1].outlined.setOnClickListener(v -> changeToDate(v, now.getDayOfWeek().getValue() - 1));
         for (int i = 0; i < buttons.length; i++) {
             final int index = i;
             buttons[i].plain.setOnClickListener(v -> changeToDate(v, index));
@@ -85,54 +85,68 @@ public class CalendarFragment extends Fragment {
         }
 
         getActivity().runOnUiThread(() -> {
-            int offset = current.getDayOfWeek().getValue() - 1;
+            int offset = selected.getDayOfWeek().getValue() - 1;
 
-            if (buttons[offset].filled.getVisibility() == View.GONE) {
-                buttons[offset].plain.setVisibility(View.VISIBLE);
-                buttons[offset].outlined.setVisibility(View.GONE);
+            if (buttons[offset].outlined.getVisibility() == View.GONE) {
+                buttons[offset].filled.setVisibility(View.GONE);
+                if (selected.equals(now)) {
+                    buttons[offset].plain.setVisibility(View.GONE);
+                    buttons[offset].outlined.setVisibility(View.VISIBLE);
+                } else {
+                    buttons[offset].plain.setVisibility(View.VISIBLE);
+                    buttons[offset].outlined.setVisibility(View.GONE);
+                }
             }
 
-            current = week.plusDays(index + 1 - week.getDayOfWeek().getValue());
+            selected = week.plusDays(index + 1 - week.getDayOfWeek().getValue());
 
-            offset = current.getDayOfWeek().getValue() - 1;
-            binding.dateText.setText(String.format("%s, %s %s", days[offset], current.getDayOfMonth(), months[offset]));
+            offset = selected.getDayOfWeek().getValue() - 1;
+            binding.dateText.setText(String.format("%s, %s %s", days[offset], selected.getDayOfMonth(), months[offset]));
 
-            if (buttons[offset].filled.getVisibility() == View.GONE) {
-                buttons[offset].plain.setVisibility(View.GONE);
-                buttons[offset].outlined.setVisibility(View.VISIBLE);
-                buttons[offset].outlined.setText(buttons[offset].plain.getText());
-            }
+            buttons[offset].plain.setVisibility(View.GONE);
+            buttons[offset].outlined.setVisibility(View.GONE);
+            buttons[offset].filled.setVisibility(View.VISIBLE);
+            buttons[offset].filled.setText(buttons[offset].plain.getText());
 
             populateEvents();
         });
     }
 
-    private void populateCalendar(LocalDateTime date) {
+    private void populateCalendar() {
         if (getActivity() == null) {
             Log.e("Calendar", "Cannot use UI thread");
         }
 
-        final int offset = date.getDayOfWeek().getValue() - 1;
+        final int offset = week.getDayOfWeek().getValue() - 1;
         getActivity().runOnUiThread(() -> {
-            binding.button1.plain.setText(String.valueOf(date.plusDays(0 - offset).getDayOfMonth()));
-            binding.button2.plain.setText(String.valueOf(date.plusDays(1 - offset).getDayOfMonth()));
-            binding.button3.plain.setText(String.valueOf(date.plusDays(2 - offset).getDayOfMonth()));
-            binding.button4.plain.setText(String.valueOf(date.plusDays(3 - offset).getDayOfMonth()));
-            binding.button5.plain.setText(String.valueOf(date.plusDays(4 - offset).getDayOfMonth()));
-            binding.button6.plain.setText(String.valueOf(date.plusDays(5 - offset).getDayOfMonth()));
-            binding.button7.plain.setText(String.valueOf(date.plusDays(6 - offset).getDayOfMonth()));
+            binding.button1.plain.setText(String.valueOf(week.plusDays(0 - offset).getDayOfMonth()));
+            binding.button2.plain.setText(String.valueOf(week.plusDays(1 - offset).getDayOfMonth()));
+            binding.button3.plain.setText(String.valueOf(week.plusDays(2 - offset).getDayOfMonth()));
+            binding.button4.plain.setText(String.valueOf(week.plusDays(3 - offset).getDayOfMonth()));
+            binding.button5.plain.setText(String.valueOf(week.plusDays(4 - offset).getDayOfMonth()));
+            binding.button6.plain.setText(String.valueOf(week.plusDays(5 - offset).getDayOfMonth()));
+            binding.button7.plain.setText(String.valueOf(week.plusDays(6 - offset).getDayOfMonth()));
 
-            // If week shown is week.now(), show date.now() as filled.
-            // Else, show that button as outlined.
+            // If week shown is week.now(), show date.now() as outlined.
+            // Else, show that button as filled.
             final ButtonCalendarBinding current = buttons[offset];
-            if (now.toString().equals(date.toString())) {
+            if (now.equals(week)) {
                 current.plain.setVisibility(View.GONE);
-                current.filled.setVisibility(View.VISIBLE);
-                current.filled.setText(current.plain.getText());
-            } else {
+                if (!now.equals(selected)) {
+                    current.filled.setVisibility(View.GONE);
+                    current.outlined.setVisibility(View.VISIBLE);
+                    current.outlined.setText(current.plain.getText());
+                } else {
+                    current.outlined.setVisibility(View.GONE);
+                    current.filled.setVisibility(View.VISIBLE);
+                    current.filled.setText(current.plain.getText());
+                }
+            } else if (current.filled.getVisibility() == View.GONE) {
                 current.plain.setVisibility(View.VISIBLE);
-                current.filled.setVisibility(View.GONE);
+                current.outlined.setVisibility(View.GONE);
             }
+
+            Log.d("Calendar", String.format("%s: %s", week.plusDays(6 - offset), events.stream().map(event -> event.getDate()).collect(Collectors.toList())));
         });
     }
 
@@ -153,9 +167,11 @@ public class CalendarFragment extends Fragment {
         events.clear();
         events.addAll(assignments.stream().filter(assignment -> {
             final LocalDateTime date = assignment.getEnd();
-            return current.getYear() == date.getYear() && current.getMonth() == date.getMonth() && current.getDayOfMonth() == date.getDayOfMonth();
+            return selected.getYear() == date.getYear() && selected.getMonth() == date.getMonth() && selected.getDayOfMonth() == date.getDayOfMonth();
         }).map(Event::new).collect(Collectors.toList()));
         adapter.notifyDataSetChanged();
+
+        populateCalendar();
     }
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
