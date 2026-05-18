@@ -89,7 +89,7 @@ public class CourseDetailsFragment extends Fragment {
             } else {
                 assignments.clear();
                 assignments.addAll(filtered);
-                assignmentAdapter.notifyItemRangeChanged(0, this.assignments.size());
+                assignmentAdapter.notifyDataSetChanged();
 
                 binding.assignmentsLabel.setVisibility(View.VISIBLE);
                 binding.assignmentsRecycler.setVisibility(View.VISIBLE);

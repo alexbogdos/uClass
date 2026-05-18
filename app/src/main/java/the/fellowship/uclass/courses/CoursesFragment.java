@@ -66,7 +66,7 @@ public class CoursesFragment extends Fragment implements CoursesAdapter.Selectio
         getActivity().runOnUiThread(() -> {
             items.clear();
             items.addAll(courses);
-            adapter.notifyItemRangeChanged(0, this.items.size());
+            adapter.notifyDataSetChanged();
         });
     }
 
