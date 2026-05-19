@@ -31,7 +31,9 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.ViewHolder
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         final Event item = items.get(position);
         holder.name.setText(item.getTitle());
-        holder.subtitle.setText(String.format("%s:%s", item.getDate().getHour(), item.getDate().getMinute()));
+        String subtitle = String.format("%s:%s", item.getDate().getHour(), item.getDate().getMinute() < 10 ? String.format("0%s", item.getDate().getMinute()) : item.getDate().getMinute());
+        if (item.hasLocation()) subtitle = String.format("%s | %s", subtitle, item.getLocation());
+        holder.subtitle.setText(subtitle);
     }
 
     @Override

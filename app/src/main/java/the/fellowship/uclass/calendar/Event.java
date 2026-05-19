@@ -3,6 +3,7 @@ package the.fellowship.uclass.calendar;
 import java.time.LocalDateTime;
 
 import the.fellowship.eclass.dtos.Assignment;
+import the.fellowship.eclass.dtos.Occurrence;
 
 public class Event {
     private final String title;
@@ -11,6 +12,10 @@ public class Event {
 
     public Event(String title, LocalDateTime date) {
         this(title, date, null);
+    }
+
+    public Event(Occurrence occurrence, LocalDateTime date) {
+        this(occurrence.getTitle(), occurrence.getStart(date), occurrence.getLocation());
     }
 
     public Event(Assignment assignment) {

@@ -11,10 +11,14 @@ import androidx.fragment.app.Fragment;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import the.fellowship.eclass.dtos.Assignment;
+import the.fellowship.eclass.dtos.Course;
+import the.fellowship.eclass.dtos.Occurrence;
+import the.fellowship.eclass.dtos.Schedule;
 import the.fellowship.uclass.UClass;
 import the.fellowship.uclass.databinding.ButtonCalendarBinding;
 import the.fellowship.uclass.databinding.FragmentCalendarBinding;
@@ -27,6 +31,7 @@ public class CalendarFragment extends Fragment {
     private LocalDateTime week;
     private LocalDateTime selected;
     private List<Assignment> assignments;
+    private List<Occurrence> occurrences;
     private List<Event> events;
     private EventsAdapter adapter;
     private ButtonCalendarBinding[] buttons;
@@ -41,6 +46,7 @@ public class CalendarFragment extends Fragment {
         buttons = new ButtonCalendarBinding[]{binding.button1, binding.button2, binding.button3, binding.button4, binding.button5, binding.button6, binding.button7};
 
         assignments = new ArrayList<>();
+        occurrences = new ArrayList<>();
         events = new ArrayList<>();
         adapter = new EventsAdapter(events);
         binding.recycler.setAdapter(adapter);
@@ -54,6 +60,7 @@ public class CalendarFragment extends Fragment {
         // Update current date text
         binding.dateText.setText(String.format("%s, %s %s", days[now.getDayOfWeek().getValue() - 1], now.getDayOfMonth(), months[now.getMonthValue() - 1]));
 
+        UClass.eclass.getCourses().observe(getViewLifecycleOwner(), this::populateOccurrences);
         UClass.eclass.getAssignments().observe(getViewLifecycleOwner(), this::populateAssignments);
 
         // Previous & Next week
@@ -142,6 +149,23 @@ public class CalendarFragment extends Fragment {
         });
     }
 
+    // Schedule.schedule.stream().filter(lesson -> UClass.eclass.getCourses().getValue().stream().anyMatch(course -> course.getTitle().equals(lesson.getTitle()))).collect(Collectors.toList());
+    private void populateOccurrences(List<Course> list) {
+        if (getActivity() == null) {
+            Log.e("Calendar", "Cannot use UI Thread");
+            return;
+        }
+
+        getActivity().runOnUiThread(() -> {
+            occurrences.clear();
+            // Contains: "`Title` (Type)"
+            // FIXME: Some lessons have titles "Title I" which will be contained in course "Title II": "`Title I`I"
+            occurrences.addAll(Schedule.schedule.stream().filter(lesson -> list.stream().anyMatch(course -> lesson.getTitle().contains(course.getTitle()))).flatMap(lesson -> lesson.getOccurrences().stream()).collect(Collectors.toList()));
+            populateEvents();
+            populateBadged();
+        });
+    }
+
     private void populateAssignments(List<Assignment> list) {
         if (getActivity() == null) {
             Log.e("Calendar", "Cannot use UI Thread");
@@ -160,13 +184,16 @@ public class CalendarFragment extends Fragment {
         final int offset = week.getDayOfWeek().getValue() - 1;
         for (int i = 0; i < buttons.length; i++) {
             final int index = i;
-            buttons[i].icon.setVisibility(assignments.stream().anyMatch(assignment -> equals(week.plusDays(index - offset), assignment.getEnd())) ? View.VISIBLE : View.INVISIBLE);
+            boolean hasEvent = assignments.stream().anyMatch(assignment -> equals(week.plusDays(index - offset), assignment.getEnd())) || occurrences.stream().anyMatch(occurrence -> equals(week.plusDays(index - offset), occurrence.getStart(week.plusDays(index - offset))));
+            buttons[i].icon.setVisibility(hasEvent ? View.VISIBLE : View.INVISIBLE);
         }
     }
 
     private synchronized void populateEvents() {
         events.clear();
         events.addAll(assignments.stream().filter(assignment -> equals(selected, assignment.getEnd())).map(Event::new).collect(Collectors.toList()));
+        events.addAll(occurrences.stream().filter(occurrence -> equals(selected, occurrence.getStart(selected))).map(occurrence -> new Event(occurrence, selected)).collect(Collectors.toList()));
+        events.sort(Comparator.comparing(Event::getDate));
         adapter.notifyDataSetChanged();
     }
 
