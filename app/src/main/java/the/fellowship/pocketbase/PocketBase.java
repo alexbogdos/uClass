@@ -22,6 +22,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import the.fellowship.Json;
+import the.fellowship.pocketbase.services.FileService;
 import the.fellowship.pocketbase.services.RealtimeService;
 import the.fellowship.pocketbase.services.RecordService;
 import the.fellowship.pocketbase.tools.MultipartFile;
@@ -42,6 +43,11 @@ public class PocketBase {
      * An instance of the local [AuthStore] service.
      */
     private final AuthStore authStore;
+
+    /**
+     * An instance of the service that handles the **File APIs**.
+     */
+    private final FileService files;
 
     /**
      * An instance of the service that handles the **Realtime APIs**.
@@ -76,6 +82,7 @@ public class PocketBase {
         this.client = new OkHttpClient();
         this.baseURL = baseURL;
         this.authStore = authStore;
+        this.files = new FileService(this);
         this.realtime = new RealtimeService(this);
         this.lang = lang;
     }
@@ -87,6 +94,7 @@ public class PocketBase {
         this.client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
         this.baseURL = baseURL;
         this.authStore = new AuthStore();
+        this.files = new FileService(this);
         this.realtime = new RealtimeService(this);
         this.lang = lang;
     }
@@ -101,6 +109,10 @@ public class PocketBase {
 
     public AuthStore getAuthStore() {
         return authStore;
+    }
+
+    public FileService getFiles() {
+        return files;
     }
 
     public RealtimeService getRealtime() {
