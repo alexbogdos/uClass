@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.android.material.snackbar.Snackbar;
 
@@ -129,8 +130,7 @@ public class CourseDetailsFragment extends Fragment {
         Bundle bundle = new Bundle();
         bundle.putString(RatingFragment.EXTRA_COURSE_ID, course.getId());
 
-        NavController navController = Navigation.findNavController(getActivity(), R.id.nav_host_fragment_content_main);
-        navController.navigate(R.id.RatingFragment, bundle);
+        NavHostFragment.findNavController(CourseDetailsFragment.this).navigate(R.id.action_CourseDetailsFragment_to_RatingFragment, bundle);
     }
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {

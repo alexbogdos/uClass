@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.snackbar.Snackbar;
@@ -75,8 +76,7 @@ public class CoursesFragment extends Fragment implements CoursesAdapter.Selectio
         Bundle bundle = new Bundle();
         bundle.putString(CourseDetailsFragment.EXTRA_COURSE_ID, course.getId());
 
-        NavController navController = Navigation.findNavController(getActivity(), R.id.nav_host_fragment_content_main);
-        navController.navigate(R.id.CourseDetailsFragment, bundle);
+        NavHostFragment.findNavController(CoursesFragment.this).navigate(R.id.action_CoursesFragment_to_CourseDetailsFragment, bundle);
     }
 
     @Override
@@ -84,8 +84,7 @@ public class CoursesFragment extends Fragment implements CoursesAdapter.Selectio
         Bundle bundle = new Bundle();
         bundle.putString(ChatFragment.EXTRA_COURSE_ID, course.getId());
 
-        NavController navController = Navigation.findNavController(getActivity(), R.id.nav_host_fragment_content_main);
-        navController.navigate(R.id.ChatFragment, bundle);
+        NavHostFragment.findNavController(CoursesFragment.this).navigate(R.id.action_CoursesFragment_to_ChatFragment, bundle);
     }
 
     @Override
@@ -93,7 +92,6 @@ public class CoursesFragment extends Fragment implements CoursesAdapter.Selectio
         Bundle bundle = new Bundle();
         bundle.putString(AnnouncementsFragment.EXTRA_COURSE_ID, course.getId());
 
-        NavController navController = Navigation.findNavController(getActivity(), R.id.nav_host_fragment_content_main);
-        navController.navigate(R.id.CourseAnnouncementsFragment, bundle);
+        NavHostFragment.findNavController(CoursesFragment.this).navigate(R.id.action_CoursesFragment_to_CourseAnnouncementsFragment, bundle);
     }
 }

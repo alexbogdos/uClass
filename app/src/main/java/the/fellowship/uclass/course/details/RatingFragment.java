@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.android.material.snackbar.Snackbar;
 
@@ -18,6 +19,7 @@ import java.util.concurrent.CompletableFuture;
 import the.fellowship.eclass.dtos.Course;
 import the.fellowship.pocketbase.ClientException;
 import the.fellowship.pocketbase.dtos.RecordModel;
+import the.fellowship.uclass.R;
 import the.fellowship.uclass.UClass;
 import the.fellowship.uclass.databinding.FragmentRatingBinding;
 
@@ -65,6 +67,8 @@ public class RatingFragment extends Fragment {
                 );
 
                 final RecordModel message = UClass.pocketbase.getCollection("ratings").create(body, null);
+
+                //NavHostFragment.findNavController(RatingFragment.this).popBackStack();
 
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> Snackbar.make(binding.getRoot(), "Η αξιολόγηση υποβλήθηκε με επιτυχία!", Snackbar.LENGTH_LONG).setTextMaxLines(16).setAction("Action", null).show());

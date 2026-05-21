@@ -9,17 +9,44 @@
         android:id="@+id/CalendarFragment"
         android:name="the.fellowship.uclass.calendar.CalendarFragment"
         android:label="@string/navigation_calendar"
-        tools:layout="@layout/fragment_calendar" />
+        tools:layout="@layout/fragment_calendar">
+        <action
+            android:id="@+id/action_CalendarFragment_to_CoursesFragment"
+            app:destination="@id/CoursesFragment" />
+        <action
+            android:id="@+id/action_CalendarFragment_to_AnnouncementsFragment"
+            app:destination="@id/AnnouncementsFragment" />
+    </fragment>
     <fragment
         android:id="@+id/CoursesFragment"
         android:name="the.fellowship.uclass.courses.CoursesFragment"
         android:label="@string/navigation_courses"
-        tools:layout="@layout/fragment_courses" />
+        tools:layout="@layout/fragment_courses">
+        <action
+            android:id="@+id/action_CoursesFragment_to_CourseDetailsFragment"
+            app:destination="@id/CourseDetailsFragment" />
+        <action
+            android:id="@+id/action_CoursesFragment_to_ChatFragment"
+            app:destination="@id/ChatFragment" />
+        <action
+            android:id="@+id/action_CoursesFragment_to_CourseAnnouncementsFragment"
+            app:destination="@id/CourseAnnouncementsFragment" />
+        <action
+            android:id="@+id/action_CoursesFragment_to_AnnouncementsFragment"
+            app:destination="@id/AnnouncementsFragment" />
+    </fragment>
     <fragment
         android:id="@+id/AnnouncementsFragment"
         android:name="the.fellowship.uclass.announcements.AnnouncementsFragment"
         android:label="@string/navigation_announcements"
-        tools:layout="@layout/fragment_announcements" />
+        tools:layout="@layout/fragment_announcements">
+        <action
+            android:id="@+id/action_AnnouncementsFragment_to_AnnouncementFragment"
+            app:destination="@id/AnnouncementFragment" />
+        <action
+            android:id="@+id/action_AnnouncementsFragment_to_CoursesFragment"
+            app:destination="@id/CoursesFragment" />
+    </fragment>
     <fragment
         android:id="@+id/AnnouncementFragment"
         android:name="the.fellowship.uclass.announcements.AnnouncementFragment"
@@ -29,7 +56,11 @@
         android:id="@+id/CourseAnnouncementsFragment"
         android:name="the.fellowship.uclass.course.announcements.AnnouncementsFragment"
         android:label="@string/navigation_announcements"
-        tools:layout="@layout/fragment_announcement" />
+        tools:layout="@layout/fragment_announcement">
+        <action
+            android:id="@+id/action_CourseAnnouncementsFragment_to_CourseAnnouncementFragment"
+            app:destination="@id/CourseAnnouncementFragment" />
+    </fragment>
     <fragment
         android:id="@+id/CourseAnnouncementFragment"
         android:name="the.fellowship.uclass.course.announcements.AnnouncementFragment"
@@ -39,7 +70,12 @@
         android:id="@+id/CourseDetailsFragment"
         android:name="the.fellowship.uclass.course.details.CourseDetailsFragment"
         android:label="@string/navigation_course_details"
-        tools:layout="@layout/fragment_course_details" />
+        tools:layout="@layout/fragment_course_details">
+        <action
+            android:id="@+id/action_CourseDetailsFragment_to_RatingFragment"
+            app:destination="@id/RatingFragment"
+            app:popUpTo="@id/CourseDetailsFragment" />
+    </fragment>
     <fragment
         android:id="@+id/ChatFragment"
         android:name="the.fellowship.uclass.course.chat.ChatFragment"
@@ -49,5 +85,6 @@
         android:id="@+id/RatingFragment"
         android:name="the.fellowship.uclass.course.details.RatingFragment"
         android:label="@string/navigation_rating"
-        tools:layout="@layout/fragment_rating" />
+        tools:layout="@layout/fragment_rating">
+    </fragment>
 </navigation>

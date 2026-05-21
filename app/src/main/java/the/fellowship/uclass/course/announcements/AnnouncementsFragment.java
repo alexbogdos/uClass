@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
@@ -55,7 +56,6 @@ public class AnnouncementsFragment extends Fragment implements AnnouncementsAdap
         Bundle bundle = new Bundle();
         bundle.putInt(AnnouncementFragment.EXTRA_ANNOUNCEMENT_ID, announcement.getId());
 
-        NavController navController = Navigation.findNavController(getActivity(), R.id.nav_host_fragment_content_main);
-        navController.navigate(R.id.CourseAnnouncementFragment, bundle);
+        NavHostFragment.findNavController(AnnouncementsFragment.this).navigate(R.id.action_CourseAnnouncementsFragment_to_CourseAnnouncementFragment, bundle);
     }
 }
