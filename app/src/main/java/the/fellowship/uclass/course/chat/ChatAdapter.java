@@ -17,9 +17,11 @@ import the.fellowship.uclass.UClass;
 
 public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
     private final List<RecordModel> items;
+    private final SelectionListener listener;
 
-    public ChatAdapter(List<RecordModel> items) {
+    public ChatAdapter(List<RecordModel> items, SelectionListener listener) {
         this.items = items;
+        this.listener = listener;
     }
 
     @Override
@@ -44,6 +46,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
         if (!file.isEmpty()) {
             holder.thumbnail.setVisibility(View.VISIBLE);
             holder.file.setText(file);
+            holder.thumbnail.setOnClickListener(v -> listener.select(v, message));
         } else {
             holder.thumbnail.setVisibility(View.GONE);
         }
@@ -52,6 +55,10 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
     @Override
     public int getItemCount() {
         return items.size();
+    }
+
+    public interface SelectionListener {
+        void select(View view, RecordModel record);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import okhttp3.HttpUrl;
+import the.fellowship.pocketbase.ClientException;
 import the.fellowship.pocketbase.PocketBase;
 import the.fellowship.pocketbase.dtos.RecordModel;
 
@@ -21,7 +22,15 @@ public class FileService extends BaseService {
     /**
      * Builds and returns an absolute record file url.
      */
-    HttpUrl getURL(
+    public HttpUrl getURL(
+            RecordModel record,
+            String filename,
+            String token
+    ) {
+        return getURL(record, filename, null, token, false, null);
+    }
+
+    public HttpUrl getURL(
             RecordModel record,
             String filename,
             String thumb,
@@ -43,8 +52,31 @@ public class FileService extends BaseService {
                 : record.getCollectionId();
 
         return client.buildURL(
-                "/api/files/${Uri.encodeComponent(collectionIdOrName)}/${Uri.encodeComponent(record.id)}/${Uri.encodeComponent(filename)}",
+                String.format("/api/files/%s/%s/%s", collectionIdOrName, record.getId(), filename),
                 params
         );
+    }
+
+    /**
+     * Requests a new private file access token for the current auth model.
+     */
+    public String getToken() throws ClientException {
+        return getToken(Map.of("", ""), null, null);
+    }
+
+    public String getToken(
+            Map<String, ?> body,
+            Map<String, ?> query,
+            Map<String, String> headers
+    ) throws ClientException {
+        Map<String, ?> data = client.send(
+                "/api/files/token",
+                "POST",
+                headers,
+                query,
+                body,
+                null
+        );
+        return (String) data.get("token");
     }
 }

@@ -1,9 +1,12 @@
 package the.fellowship.uclass.course.chat;
 
 import android.app.Activity;
+import android.content.ContentValues;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -16,11 +19,17 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.material.snackbar.Snackbar;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import the.fellowship.eclass.dtos.Course;
 import the.fellowship.pocketbase.ClientException;
 import the.fellowship.pocketbase.dtos.RecordModel;
@@ -30,7 +39,7 @@ import the.fellowship.uclass.R;
 import the.fellowship.uclass.UClass;
 import the.fellowship.uclass.databinding.FragmentChatBinding;
 
-public class ChatFragment extends Fragment {
+public class ChatFragment extends Fragment implements ChatAdapter.SelectionListener {
     public static final String EXTRA_COURSE_ID = "EXTRA_COURSE_ID";
 
     private List<RecordModel> items;
@@ -53,7 +62,7 @@ public class ChatFragment extends Fragment {
         binding.titleText.setText(course.getTitle());
 
         items = new ArrayList<>();
-        adapter = new ChatAdapter(items);
+        adapter = new ChatAdapter(items, this);
         binding.recycler.setAdapter(adapter);
 
         fetchMessagesAsync();
@@ -62,7 +71,9 @@ public class ChatFragment extends Fragment {
         binding.addButton.setOnClickListener(this::pickAttachments);
         binding.sendButton.setOnClickListener(this::sendMessage);
 
-        binding.messageEdit.setOnFocusChangeListener((View v, boolean hasFocus) -> {if (hasFocus) scrollToPosition(items.size() - 1);});
+        binding.messageEdit.setOnFocusChangeListener((View v, boolean hasFocus) -> {
+            if (hasFocus) scrollToPosition(items.size() - 1);
+        });
         binding.messageEdit.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -256,5 +267,57 @@ public class ChatFragment extends Fragment {
         });
 
         binding = null;
+    }
+
+    @Override
+    public void select(View view, RecordModel record) {
+        CompletableFuture.runAsync(() -> {
+            try {
+                final String name = record.<String>getValue("file");
+                // Generate short-lived access token & build file's url
+                final String token = UClass.pocketbase.getFiles().getToken();
+                final HttpUrl url = UClass.pocketbase.getFiles().getURL(record, name, token);
+                Log.d("Chat", String.format("Downloading: %s", name));
+
+                // Create new request to download file
+                Request request = new Request.Builder().url(url).get().build();
+                try (Response response = new OkHttpClient().newCall(request).execute()) {
+                    // Initialize file in Downloads to save to
+                    ContentValues values = new ContentValues();
+                    values.put(MediaStore.Downloads.DISPLAY_NAME, name);
+                    values.put(MediaStore.Downloads.MIME_TYPE, "application/octet-stream");
+                    values.put(MediaStore.Downloads.IS_PENDING, 1);
+                    Uri uri = view.getContext().getContentResolver().insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
+                    if (uri == null) throw new IOException("Failed to create MediaStore entry");
+
+                    // Read response's InputBuffer
+                    try (OutputStream outputStream = view.getContext().getContentResolver().openOutputStream(uri)) {
+                        byte[] buffer = new byte[4096];
+                        int length;
+                        while ((length = response.body().byteStream().read(buffer)) > 0) {
+                            outputStream.write(buffer, 0, length);
+                        }
+
+                        // Notify user upon download completion
+                        if (getActivity() != null) {
+                            getActivity().runOnUiThread(() -> Snackbar.make(view, String.format("Downloaded: %s", name), Snackbar.LENGTH_LONG).setTextMaxLines(16).setAction("Action", null).show());
+                        }
+                        Log.d("Chat", String.format("Downloaded: %s", name));
+                    } finally {
+                        // Finalize initialized file
+                        values.clear();
+                        values.put(MediaStore.Downloads.IS_PENDING, 0);
+                        view.getContext().getContentResolver().update(uri, values, null, null);
+                    }
+                } catch (IOException e) {
+                    throw new ClientException(url, e);
+                }
+            } catch (ClientException err) {
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> Snackbar.make(view, String.format("Failed downloading file: \n%s", err), Snackbar.LENGTH_LONG).setTextMaxLines(16).setAction("Action", null).show());
+                }
+                Log.e("Chat", String.format("Failed downloading file: \n%s", err));
+            }
+        });
     }
 }
