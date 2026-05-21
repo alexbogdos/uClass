@@ -8,6 +8,8 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 
 import com.google.android.material.snackbar.Snackbar;
 
@@ -20,6 +22,7 @@ import the.fellowship.eclass.dtos.Assignment;
 import the.fellowship.eclass.dtos.Course;
 import the.fellowship.pocketbase.ClientException;
 import the.fellowship.pocketbase.dtos.RecordModel;
+import the.fellowship.uclass.R;
 import the.fellowship.uclass.UClass;
 import the.fellowship.uclass.databinding.FragmentCourseDetailsBinding;
 
@@ -61,7 +64,7 @@ public class CourseDetailsFragment extends Fragment {
         UClass.eclass.getAssignments().observe(getViewLifecycleOwner(), this::populateAssignment);
 
         UClass.eclass.fetchLecturerDetails(id).thenAccept(lec -> {
-            if (getActivity() == null) {
+            if (getActivity() == null || binding == null) {
                 return;
             }
 
@@ -72,11 +75,13 @@ public class CourseDetailsFragment extends Fragment {
             });
         });
 
+        binding.buttonAdd.setOnClickListener(this::navigateToRating);
+
         return binding.getRoot();
     }
 
     public void populateAssignment(List<Assignment> list) {
-        if (getActivity() == null) {
+        if (getActivity() == null || binding == null) {
             Log.e("Course", "Cannot use UI Thread");
             return;
         }
@@ -118,6 +123,14 @@ public class CourseDetailsFragment extends Fragment {
                 Log.e("Chat", String.format("Failed connecting to PocketBase: \n%s", err));
             }
         });
+    }
+
+    private void navigateToRating(View view) {
+        Bundle bundle = new Bundle();
+        bundle.putString(RatingFragment.EXTRA_COURSE_ID, course.getId());
+
+        NavController navController = Navigation.findNavController(getActivity(), R.id.nav_host_fragment_content_main);
+        navController.navigate(R.id.RatingFragment, bundle);
     }
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {

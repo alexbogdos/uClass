@@ -45,4 +45,9 @@
         android:name="the.fellowship.uclass.course.chat.ChatFragment"
         android:label="@string/navigation_chat"
         tools:layout="@layout/fragment_chat" />
+    <fragment
+        android:id="@+id/RatingFragment"
+        android:name="the.fellowship.uclass.course.details.RatingFragment"
+        android:label="@string/navigation_rating"
+        tools:layout="@layout/fragment_rating" />
 </navigation>
