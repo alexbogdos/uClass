@@ -29,54 +29,77 @@
         app:layout_constraintBottom_toTopOf="@+id/message_layout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/title_text" />
+        app:layout_constraintTop_toBottomOf="@+id/title_text"
+        tools:itemCount="9"
+        tools:listitem="@layout/item_message" />
 
     <LinearLayout
         android:id="@+id/message_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
+        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/recycler">
 
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Material3.TextInputLayout.FilledBox"
-            android:layout_width="0dp"
+        <TextView
+            android:id="@+id/attachment_text"
+            android:layout_width="325dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="6dp"
-            android:layout_weight="1"
-            app:hintEnabled="true">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/message_edit"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/message_hint"
-                android:inputType="textCapSentences|textAutoCorrect" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/add_button"
-            style="@style/Widget.Material3.Button.IconButton.Filled"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:contentDescription="TODO"
-            app:icon="@drawable/ic_add"
-            app:iconGravity="textStart"
-            app:iconSize="26dp" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/send_button"
-            style="@style/Widget.Material3.Button.IconButton.Filled"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:contentDescription="TODO"
+            android:layout_marginBottom="6dp"
+            android:ellipsize="end"
+            android:gravity="center_vertical"
+            android:maxLines="1"
+            android:text="Attachment"
+            android:textColor="?attr/colorOnSurfaceVariant"
             android:visibility="gone"
-            app:icon="@drawable/ic_send"
-            app:iconGravity="textStart"
-            app:iconSize="26dp" />
+            app:drawableStartCompat="@drawable/ic_attach_file"
+            app:drawableTint="?attr/colorOnSurfaceVariant" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical">
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.Material3.TextInputLayout.FilledBox"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="6dp"
+                android:layout_weight="1"
+                app:hintEnabled="true">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/message_edit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/message_hint"
+                    android:inputType="textCapSentences|textAutoCorrect" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/add_button"
+                style="@style/Widget.Material3.Button.IconButton.Filled"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:contentDescription="TODO"
+                app:icon="@drawable/ic_add"
+                app:iconGravity="textStart"
+                app:iconSize="26dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/send_button"
+                style="@style/Widget.Material3.Button.IconButton.Filled"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:contentDescription="TODO"
+                android:visibility="gone"
+                app:icon="@drawable/ic_send"
+                app:iconGravity="textStart"
+                app:iconSize="26dp" />
+        </LinearLayout>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

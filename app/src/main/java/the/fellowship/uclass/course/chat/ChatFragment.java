@@ -2,11 +2,15 @@ package the.fellowship.uclass.course.chat;
 
 import android.app.Activity;
 import android.content.ContentValues;
+import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -19,6 +23,8 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.material.snackbar.Snackbar;
 
+import java.io.FileDescriptor;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -41,9 +47,12 @@ import the.fellowship.uclass.databinding.FragmentChatBinding;
 
 public class ChatFragment extends Fragment implements ChatAdapter.SelectionListener {
     public static final String EXTRA_COURSE_ID = "EXTRA_COURSE_ID";
-
+    private static final int PICK_FILE = 2;
+    
     private List<RecordModel> items;
     private Course course;
+    private FileDescriptor attachmentDescriptor;
+    private String attachmentName;
     private String filter;
     private ChatAdapter adapter;
     private FragmentChatBinding binding;
@@ -142,6 +151,10 @@ public class ChatFragment extends Fragment implements ChatAdapter.SelectionListe
         binding.messageEdit.setText("");
         binding.messageEdit.clearFocus();
 
+        binding.attachmentText.setVisibility(View.GONE);
+        attachmentDescriptor = null;
+        attachmentName = null;
+
         CompletableFuture.runAsync(() -> {
             try {
                 RecordModel auth = UClass.pocketbase.getAuthStore().getRecord();
@@ -151,6 +164,8 @@ public class ChatFragment extends Fragment implements ChatAdapter.SelectionListe
                         "name", auth.<String>getValue("name"),
                         "content", content.strip()
                 );
+
+                // TODO: Pass `attachment` to PocketBase
 
                 final RecordModel message = UClass.pocketbase.getCollection("chat").create(body, null);
             } catch (ClientException err) {
@@ -212,10 +227,47 @@ public class ChatFragment extends Fragment implements ChatAdapter.SelectionListe
     }
 
     private void pickAttachments(View view) {
-        if (getActivity() != null) {
-            getActivity().runOnUiThread(() -> Snackbar.make(binding.getRoot(), "Pick attachments", Snackbar.LENGTH_LONG).setTextMaxLines(16).setAction("Action", null).show());
+        attachmentDescriptor = null;
+        attachmentName = null;
+        binding.attachmentText.setVisibility(View.GONE);
+
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("application/pdf");
+
+        startActivityForResult(intent, PICK_FILE);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
+        if (requestCode == PICK_FILE && resultCode == Activity.RESULT_OK) {
+            // The result data contains a URI for the document or directory that
+            // the user selected.
+            if (resultData != null && resultData.getData() != null) {
+                Uri uri = resultData.getData();
+                // Perform operations on the document using its URI.
+                Log.d("Chat", String.format("Selected: %s", uri));
+                try (Cursor cursor = binding.getRoot().getContext().getContentResolver().query(uri, new String[]{OpenableColumns.DISPLAY_NAME}, null, null, null)) {
+                    if (cursor != null && cursor.moveToFirst()) {
+                        int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                        if (nameIndex != -1) {
+                            attachmentName = cursor.getString(nameIndex);
+                        }
+                    }
+
+                    ParcelFileDescriptor parcelDescriptor = binding.getRoot().getContext().getContentResolver().openFileDescriptor(uri, "r");
+                    attachmentDescriptor = parcelDescriptor.getFileDescriptor();
+
+                    binding.attachmentText.setText(attachmentName);
+                    binding.attachmentText.setVisibility(View.VISIBLE);
+                } catch (NullPointerException | FileNotFoundException e) {
+                    if (getActivity() != null) {
+                        getActivity().runOnUiThread(() -> Snackbar.make(binding.getRoot(), String.format("Failed reading attachment: \n%s", e), Snackbar.LENGTH_LONG).setTextMaxLines(16).setAction("Action", null).show());
+                    }
+                    Log.e("Chat", String.format("Failed reading attachment: \n%s", binding.getRoot()));
+                }
+            }
         }
-        Log.d("Chat", "Pick attachments");
     }
 
     private void scrollToPosition(int position) {

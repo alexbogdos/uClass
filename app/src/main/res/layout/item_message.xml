@@ -38,7 +38,7 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:orientation="vertical"
-                android:visibility="visible">
+                android:visibility="gone">
 
                 <ImageView
                     android:id="@+id/thumbnail_image"
