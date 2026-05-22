@@ -240,7 +240,7 @@ public class ChatFragment extends Fragment implements ChatAdapter.SelectionListe
 
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType("application/pdf");
+        intent.setType("*/*");
 
         startActivityForResult(intent, PICK_FILE);
     }
