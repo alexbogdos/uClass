@@ -12,7 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end"
-        app:cardBackgroundColor="?attr/colorPrimaryContainer"
+        app:cardBackgroundColor="?attr/colorTertiaryContainer"
         app:cardCornerRadius="18dp">
 
         <LinearLayout
@@ -40,7 +40,7 @@
                     android:contentDescription="TODO"
                     android:src="@drawable/placeholder"
                     android:tintMode="multiply"
-                    app:tint="?attr/colorPrimaryContainer" />
+                    app:tint="?attr/colorTertiaryContainer" />
 
                 <TextView
                     android:id="@+id/file_text"

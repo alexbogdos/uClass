@@ -226,6 +226,7 @@ public class ChatFragment extends Fragment implements ChatAdapter.SelectionListe
         });
     }
 
+    // https://developer.android.com/training/data-storage/shared/documents-files
     private void pickAttachments(View view) {
         attachmentDescriptor = null;
         attachmentName = null;
