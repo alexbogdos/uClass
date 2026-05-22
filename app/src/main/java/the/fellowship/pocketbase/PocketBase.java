@@ -25,7 +25,7 @@ import the.fellowship.Json;
 import the.fellowship.pocketbase.services.FileService;
 import the.fellowship.pocketbase.services.RealtimeService;
 import the.fellowship.pocketbase.services.RecordService;
-import the.fellowship.pocketbase.tools.MultipartFile;
+import the.fellowship.pocketbase.dtos.MultipartFile;
 
 public class PocketBase {
     /**
@@ -351,7 +351,7 @@ public class PocketBase {
             RequestBody fileBody;
             if (file.hasFile()) {
                 fileBody = RequestBody.create(
-                        file.getFile(),
+                        file.getFileDescriptor(),
                         file.getType() != null ? file.getType() : MediaType.parse("application/octet-stream")
                 );
             } else {

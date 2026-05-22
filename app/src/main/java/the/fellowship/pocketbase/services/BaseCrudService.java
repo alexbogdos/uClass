@@ -10,7 +10,7 @@ import java.util.TreeMap;
 import the.fellowship.pocketbase.ClientException;
 import the.fellowship.pocketbase.PocketBase;
 import the.fellowship.pocketbase.dtos.ResultList;
-import the.fellowship.pocketbase.tools.MultipartFile;
+import the.fellowship.pocketbase.dtos.MultipartFile;
 
 public class BaseCrudService<T> extends BaseService {
     public BaseCrudService(PocketBase client) {

@@ -38,6 +38,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 import the.fellowship.eclass.dtos.Course;
 import the.fellowship.pocketbase.ClientException;
+import the.fellowship.pocketbase.dtos.MultipartFile;
 import the.fellowship.pocketbase.dtos.RecordModel;
 import the.fellowship.pocketbase.dtos.RecordSubscriptionEvent;
 import the.fellowship.uclass.MainActivity;
@@ -48,7 +49,7 @@ import the.fellowship.uclass.databinding.FragmentChatBinding;
 public class ChatFragment extends Fragment implements ChatAdapter.SelectionListener {
     public static final String EXTRA_COURSE_ID = "EXTRA_COURSE_ID";
     private static final int PICK_FILE = 2;
-    
+
     private List<RecordModel> items;
     private Course course;
     private FileDescriptor attachmentDescriptor;
@@ -148,6 +149,9 @@ public class ChatFragment extends Fragment implements ChatAdapter.SelectionListe
 
     private void sendMessage(View view) {
         String content = binding.messageEdit.getText().toString();
+        FileDescriptor fileDescriptor = attachmentDescriptor;
+        String fileName = attachmentName;
+
         binding.messageEdit.setText("");
         binding.messageEdit.clearFocus();
 
@@ -165,9 +169,11 @@ public class ChatFragment extends Fragment implements ChatAdapter.SelectionListe
                         "content", content.strip()
                 );
 
-                // TODO: Pass `attachment` to PocketBase
-
-                final RecordModel message = UClass.pocketbase.getCollection("chat").create(body, null);
+                List<MultipartFile> files = null;
+                if (fileDescriptor != null && fileName != null) {
+                    files = List.of(new MultipartFile("file", fileName, fileDescriptor));
+                }
+                final RecordModel message = UClass.pocketbase.getCollection("chat").create(body, files);
             } catch (ClientException err) {
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> Snackbar.make(view, String.format("Failed connecting to PocketBase: \n%s", err), Snackbar.LENGTH_LONG).setTextMaxLines(16).setAction("Action", null).show());

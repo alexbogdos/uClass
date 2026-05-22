@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import the.fellowship.pocketbase.dtos.RecordModel;
 import the.fellowship.pocketbase.services.RecordService;
 import the.fellowship.Json;
-import the.fellowship.pocketbase.tools.MultipartFile;
+import the.fellowship.pocketbase.dtos.MultipartFile;
 
 import java.io.IOException;
 import java.time.ZoneOffset;

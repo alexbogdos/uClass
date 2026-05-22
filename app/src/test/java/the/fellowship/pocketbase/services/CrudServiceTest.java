@@ -9,7 +9,7 @@ import the.fellowship.pocketbase.MockClient;
 import the.fellowship.pocketbase.PocketBase;
 import the.fellowship.pocketbase.dtos.ResultList;
 import the.fellowship.Json;
-import the.fellowship.pocketbase.tools.MultipartFile;
+import the.fellowship.pocketbase.dtos.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;

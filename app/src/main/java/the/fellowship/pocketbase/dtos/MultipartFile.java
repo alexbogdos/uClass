@@ -1,8 +1,6 @@
-package the.fellowship.pocketbase.tools;
+package the.fellowship.pocketbase.dtos;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
+import java.io.FileDescriptor;
 
 import okhttp3.MediaType;
 
@@ -10,19 +8,14 @@ public class MultipartFile {
     private final String field;
     private final String name;
     private String content;
-    private File file;
+    private FileDescriptor descriptor;
     private MediaType type;
 
-    public MultipartFile(String field, File file) {
+    public MultipartFile(String field, String name, FileDescriptor descriptor) {
         this.field = field;
-        this.file = file;
-        this.name = file.getName();
-
-        try {
-            this.type = MediaType.parse(Files.probeContentType(file.toPath()));
-        } catch (IOException e) {
-            this.type = MediaType.parse("application/octet-stream");
-        }
+        this.name = name;
+        this.descriptor = descriptor;
+        this.type = MediaType.parse("application/octet-stream");
     }
 
     public MultipartFile(String field, String content) {
@@ -36,7 +29,7 @@ public class MultipartFile {
     }
 
     public boolean hasFile() {
-        return file != null;
+        return descriptor != null;
     }
 
     public String getField() {
@@ -51,8 +44,8 @@ public class MultipartFile {
         return content;
     }
 
-    public File getFile() {
-        return file;
+    public FileDescriptor getFileDescriptor() {
+        return descriptor;
     }
 
     public MediaType getType() {
