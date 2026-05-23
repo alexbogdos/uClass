@@ -10,133 +10,140 @@
     android:paddingBottom="96dp"
     tools:context=".calendar.CalendarFragment">
 
-    <LinearLayout
+    <com.google.android.material.card.MaterialCardView
+        style="@style/Widget.Material3.CardView.Filled"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="wrap_content">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="vertical"
+            android:padding="16dp" >
 
-            <TextView
-                android:id="@+id/date_text"
-                android:layout_width="0dp"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Πέμ, Μαϊ 17"
-                android:textAppearance="?attr/textAppearanceTitleLarge"
-                android:textColor="?attr/colorOnSurface" />
+                android:orientation="horizontal">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/button_prev"
-                style="@style/Widget.Material3.Button.IconButton"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
-                android:layout_marginEnd="2dp"
-                android:contentDescription="@string/previous"
-                app:icon="@drawable/ic_chevron_backward"
-                app:iconGravity="textStart"
-                app:iconSize="28dp"
-                app:iconTint="?attr/colorOnSurfaceVariant" />
+                <TextView
+                    android:id="@+id/date_text"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Day, Month dd"
+                    android:textAppearance="?attr/textAppearanceTitleLarge"
+                    android:textColor="?attr/colorOnSurface" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/button_next"
-                style="@style/Widget.Material3.Button.IconButton"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
-                android:contentDescription="@string/next"
-                app:icon="@drawable/ic_chevron_forward"
-                app:iconGravity="textStart"
-                app:iconSize="28dp"
-                app:iconTint="?attr/colorOnSurfaceVariant" />
-        </LinearLayout>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/button_prev"
+                    style="@style/Widget.Material3.Button.IconButton"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:layout_marginEnd="2dp"
+                    android:contentDescription="@string/previous"
+                    app:icon="@drawable/ic_chevron_backward"
+                    app:iconGravity="textStart"
+                    app:iconSize="28dp"
+                    app:iconTint="?attr/colorOnSurfaceVariant" />
 
-        <com.google.android.material.divider.MaterialDivider
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            android:alpha="0.4"
-            app:dividerThickness="2dp" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/button_next"
+                    style="@style/Widget.Material3.Button.IconButton"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:contentDescription="@string/next"
+                    app:icon="@drawable/ic_chevron_forward"
+                    app:iconGravity="textStart"
+                    app:iconSize="28dp"
+                    app:iconTint="?attr/colorOnSurfaceVariant" />
+            </LinearLayout>
 
-        <!--    Labels    -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="wrap_content"
+            <com.google.android.material.divider.MaterialDivider
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Δ"
-                android:textAlignment="center"
-                android:textAppearance="?attr/textAppearanceBodyMedium"
-                android:textColor="?attr/colorOnSurface" />
+                android:layout_marginBottom="12dp"
+                android:alpha="0.4"
+                app:dividerColor="?attr/colorSecondary"
+                app:dividerThickness="2dp" />
 
-            <TextView
-                android:layout_width="wrap_content"
+            <!--    Labels    -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Τ"
-                android:textAlignment="center"
-                android:textAppearance="?attr/textAppearanceBodyMedium"
-                android:textColor="?attr/colorOnSurface" />
+                android:orientation="horizontal">
 
-            <TextView
-                android:layout_width="wrap_content"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Δ"
+                    android:textAlignment="center"
+                    android:textAppearance="?attr/textAppearanceBodyMedium"
+                    android:textColor="?attr/colorOnSurface" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Τ"
+                    android:textAlignment="center"
+                    android:textAppearance="?attr/textAppearanceBodyMedium"
+                    android:textColor="?attr/colorOnSurface" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Τ"
+                    android:textAlignment="center"
+                    android:textAppearance="?attr/textAppearanceBodyMedium"
+                    android:textColor="?attr/colorOnSurface" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Π"
+                    android:textAlignment="center"
+                    android:textAppearance="?attr/textAppearanceBodyMedium"
+                    android:textColor="?attr/colorOnSurface" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Π"
+                    android:textAlignment="center"
+                    android:textAppearance="?attr/textAppearanceBodyMedium"
+                    android:textColor="?attr/colorOnSurface" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Σ"
+                    android:textAlignment="center"
+                    android:textAppearance="?attr/textAppearanceBodyMedium"
+                    android:textColor="?attr/colorOnSurface" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Κ"
+                    android:textAlignment="center"
+                    android:textAppearance="?attr/textAppearanceBodyMedium"
+                    android:textColor="?attr/colorOnSurface" />
+            </LinearLayout>
+
+            <!--    Dates    -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Τ"
-                android:textAlignment="center"
-                android:textAppearance="?attr/textAppearanceBodyMedium"
-                android:textColor="?attr/colorOnSurface" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Π"
-                android:textAlignment="center"
-                android:textAppearance="?attr/textAppearanceBodyMedium"
-                android:textColor="?attr/colorOnSurface" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Π"
-                android:textAlignment="center"
-                android:textAppearance="?attr/textAppearanceBodyMedium"
-                android:textColor="?attr/colorOnSurface" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Σ"
-                android:textAlignment="center"
-                android:textAppearance="?attr/textAppearanceBodyMedium"
-                android:textColor="?attr/colorOnSurface" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Κ"
-                android:textAlignment="center"
-                android:textAppearance="?attr/textAppearanceBodyMedium"
-                android:textColor="?attr/colorOnSurface" />
-        </LinearLayout>
-
-        <!--    Dates    -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:baselineAligned="false"
-            android:orientation="horizontal">
+                android:layout_marginTop="8dp"
+                android:baselineAligned="false"
+                android:orientation="horizontal">
 
             <include android:id="@+id/button_1" layout="@layout/button_calendar" />
             <include android:id="@+id/button_2" layout="@layout/button_calendar" />
@@ -145,9 +152,10 @@
             <include android:id="@+id/button_5" layout="@layout/button_calendar" />
             <include android:id="@+id/button_6" layout="@layout/button_calendar" />
             <include android:id="@+id/button_7" layout="@layout/button_calendar" />
-        </LinearLayout>
+            </LinearLayout>
 
-    </LinearLayout>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
 
     <com.google.android.material.divider.MaterialDivider
         android:layout_width="80dp"
@@ -162,5 +170,7 @@
         android:id="@+id/recycler"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        tools:itemCount="3"
+        tools:listitem="@layout/item_event" />
 </LinearLayout>
