@@ -182,7 +182,7 @@ public class EClass {
             announcements.postValue(cachedAnnouncements);
 
             if (prefs.contains("cache:announcements_latest_id")) {
-                //Announcement.setLatestId(prefs.getInt("cache:announcements_latest_id", 0));
+                Announcement.setLatestId(prefs.getInt("cache:announcements_latest_id", 0));
             }
         }
 
