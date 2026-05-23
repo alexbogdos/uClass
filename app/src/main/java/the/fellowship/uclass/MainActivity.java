@@ -1,14 +1,15 @@
 package the.fellowship.uclass;
 
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import the.fellowship.uclass.databinding.ActivityMainBinding;
 
@@ -34,12 +35,19 @@ public class MainActivity extends AppCompatActivity {
         ).build();
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(binding.bottomNavigation, navController);
+
+        UClass.eclass.getNotification().observe(this, this::showSnackbar);
+        UClass.pocketbase.getNotification().observe(this, this::showSnackbar);
+    }
+
+    private void showSnackbar(String notification) {
+        runOnUiThread(() -> Snackbar.make(binding.getRoot(), notification, Snackbar.LENGTH_LONG).setTextMaxLines(16).setAction("Action", null).setAnchorView(binding.bottomNavigation).show());
+        Log.i("Notification", notification);
     }
 
     @Override
     public boolean onSupportNavigateUp() {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
-        return NavigationUI.navigateUp(navController, appBarConfiguration)
-                || super.onSupportNavigateUp();
+        return NavigationUI.navigateUp(navController, appBarConfiguration) || super.onSupportNavigateUp();
     }
 }

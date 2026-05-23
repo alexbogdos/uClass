@@ -1,5 +1,8 @@
 package the.fellowship.pocketbase;
 
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+
 import com.google.gson.Gson;
 
 import java.io.IOException;
@@ -70,6 +73,8 @@ public class PocketBase {
      */
     private final String lang;
 
+    private final MutableLiveData<String> notification = new MutableLiveData<>();
+
     public PocketBase(String baseURL) {
         this(baseURL, "en-US", new AuthStore());
     }
@@ -128,6 +133,14 @@ public class PocketBase {
         }
 
         return this.recordServices.get(idOrName);
+    }
+
+    public LiveData<String> getNotification() {
+        return notification;
+    }
+
+    public void postNotification(String notification) {
+        this.notification.postValue(notification);
     }
 
     /**

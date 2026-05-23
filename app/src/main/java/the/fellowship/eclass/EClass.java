@@ -53,6 +53,7 @@ public class EClass {
     private final MutableLiveData<List<Course>> courses = new MutableLiveData<>();
     private final MutableLiveData<List<Announcement>> announcements = new MutableLiveData<>();
     private final MutableLiveData<List<Assignment>> assignments = new MutableLiveData<>();
+    private final MutableLiveData<String> notification = new MutableLiveData<>();
     OkHttpClient httpClient;
 
     /**
@@ -112,6 +113,14 @@ public class EClass {
         return announcements.getValue().stream().filter(an -> courseId.equals(an.getCourseId())).collect(Collectors.toList());
     }
 
+    public LiveData<String> getNotification() {
+        return notification;
+    }
+
+    public void postNotification(String notification) {
+        this.notification.postValue(notification);
+    }
+
     /* - - - - - - - - - - - - - - - - - - - -
      *  HTML Parsers
      * - - - - - - - - - - - - - - - - - - - - */
@@ -135,10 +144,16 @@ public class EClass {
             announcements.postValue(list);
             Log.d("EClass", String.format("Received announcements: %s", list));
 
+            final int latestId = list.stream().max(Comparator.comparingInt(Announcement::getId)).get().getId();
+
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString("cache:announcements", Json.encode(list));
-            editor.putInt("cache:announcements_latest_id", list.stream().max(Comparator.comparingInt(Announcement::getId)).get().getId());
+            editor.putInt("cache:announcements_latest_id", latestId);
             editor.apply();
+
+            if (latestId > Announcement.getLatestId()) {
+                notification.postValue("Έχετε νέες ανακοινώσεις");
+            }
         });
 
         fetchAssignments(LocalDateTime.now(), LocalDateTime.now().plusMonths(6)).thenAccept(list -> {
@@ -167,7 +182,7 @@ public class EClass {
             announcements.postValue(cachedAnnouncements);
 
             if (prefs.contains("cache:announcements_latest_id")) {
-                Announcement.setLatestId(prefs.getInt("cache:announcements_latest_id", 0));
+                //Announcement.setLatestId(prefs.getInt("cache:announcements_latest_id", 0));
             }
         }
 
