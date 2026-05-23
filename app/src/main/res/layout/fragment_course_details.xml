@@ -129,7 +129,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/ratings_label"
-                android:textAppearance="?attr/textAppearanceTitleMedium"
+                android:textAppearance="?attr/textAppearanceTitleMedium" />
 
             <!-- Add Rating Button -->
             <com.google.android.material.button.MaterialButton
