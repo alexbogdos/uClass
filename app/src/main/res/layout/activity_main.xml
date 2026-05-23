@@ -21,6 +21,7 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
+    <!-- Fragment Views -->
     <include
         layout="@layout/content_main"
         android:layout_width="match_parent"

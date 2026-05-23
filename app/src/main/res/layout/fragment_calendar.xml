@@ -15,26 +15,29 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
+        <!-- Calendar -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp" >
+            android:padding="16dp">
 
+            <!-- Top Bar -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
+                <!-- Selected Date -->
                 <TextView
                     android:id="@+id/date_text"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Day, Month dd"
-                    android:textAppearance="?attr/textAppearanceTitleLarge"
-                    android:textColor="?attr/colorOnSurface" />
+                    android:textAppearance="?attr/textAppearanceTitleLarge" />
 
+                <!-- Previous Week -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/button_prev"
                     style="@style/Widget.Material3.Button.IconButton"
@@ -47,6 +50,7 @@
                     app:iconSize="28dp"
                     app:iconTint="?attr/colorOnSurfaceVariant" />
 
+                <!-- Next Week -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/button_next"
                     style="@style/Widget.Material3.Button.IconButton"
@@ -67,7 +71,7 @@
                 app:dividerColor="?attr/colorSecondary"
                 app:dividerThickness="2dp" />
 
-            <!--    Labels    -->
+            <!-- Day Labels (Δευτέρα, Τρίτη, ...) -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -79,8 +83,7 @@
                     android:layout_weight="1"
                     android:text="Δ"
                     android:textAlignment="center"
-                    android:textAppearance="?attr/textAppearanceBodyMedium"
-                    android:textColor="?attr/colorOnSurface" />
+                    android:textAppearance="?attr/textAppearanceBodyMedium" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -88,8 +91,7 @@
                     android:layout_weight="1"
                     android:text="Τ"
                     android:textAlignment="center"
-                    android:textAppearance="?attr/textAppearanceBodyMedium"
-                    android:textColor="?attr/colorOnSurface" />
+                    android:textAppearance="?attr/textAppearanceBodyMedium" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -97,8 +99,7 @@
                     android:layout_weight="1"
                     android:text="Τ"
                     android:textAlignment="center"
-                    android:textAppearance="?attr/textAppearanceBodyMedium"
-                    android:textColor="?attr/colorOnSurface" />
+                    android:textAppearance="?attr/textAppearanceBodyMedium" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -106,8 +107,7 @@
                     android:layout_weight="1"
                     android:text="Π"
                     android:textAlignment="center"
-                    android:textAppearance="?attr/textAppearanceBodyMedium"
-                    android:textColor="?attr/colorOnSurface" />
+                    android:textAppearance="?attr/textAppearanceBodyMedium" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -115,8 +115,7 @@
                     android:layout_weight="1"
                     android:text="Π"
                     android:textAlignment="center"
-                    android:textAppearance="?attr/textAppearanceBodyMedium"
-                    android:textColor="?attr/colorOnSurface" />
+                    android:textAppearance="?attr/textAppearanceBodyMedium" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -124,8 +123,7 @@
                     android:layout_weight="1"
                     android:text="Σ"
                     android:textAlignment="center"
-                    android:textAppearance="?attr/textAppearanceBodyMedium"
-                    android:textColor="?attr/colorOnSurface" />
+                    android:textAppearance="?attr/textAppearanceBodyMedium" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -133,8 +131,7 @@
                     android:layout_weight="1"
                     android:text="Κ"
                     android:textAlignment="center"
-                    android:textAppearance="?attr/textAppearanceBodyMedium"
-                    android:textColor="?attr/colorOnSurface" />
+                    android:textAppearance="?attr/textAppearanceBodyMedium" />
             </LinearLayout>
 
             <!--    Dates    -->
@@ -166,6 +163,7 @@
         android:alpha="0.8"
         app:dividerThickness="3dp" />
 
+    <!-- Events -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler"
         android:layout_width="match_parent"

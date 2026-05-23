@@ -7,7 +7,6 @@
     android:padding="24dp"
     tools:context=".UClass">
 
-    <!-- Logo -->
     <ImageView
         android:id="@+id/logo_image"
         android:layout_width="257.5dp"
@@ -18,7 +17,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Title -->
     <TextView
         android:id="@+id/title_text"
         android:layout_width="wrap_content"
@@ -26,12 +24,10 @@
         android:layout_marginTop="42dp"
         android:text="@string/app_name"
         android:textAppearance="?attr/textAppearanceTitleLargeEmphasized"
-        android:textColor="?attr/colorOnSurface"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/logo_image" />
 
-    <!-- Title -->
     <TextView
         android:id="@+id/comment_text"
         android:layout_width="160dp"
@@ -40,19 +36,17 @@
         android:text="@string/app_phrase"
         android:textAlignment="center"
         android:textAppearance="?attr/textAppearanceBodySmallEmphasized"
-        android:textColor="?attr/colorOnSurface"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/title_text" />
 
-    <!-- Username Field -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/username_input"
         style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:hint="Όνομα Χρήστη"
+        android:layout_marginTop="48dp"
+        android:hint="@string/username_label"
         app:endIconMode="clear_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -66,14 +60,13 @@
             android:maxLines="1" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Password Field -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/password_input"
         style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:hint="Συνθηματικό"
+        android:hint="@string/password_label"
         app:endIconMode="password_toggle"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -87,7 +80,6 @@
             android:maxLines="1" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Login Button -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/login_button"
         android:layout_width="0dp"

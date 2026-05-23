@@ -22,8 +22,7 @@
             android:ellipsize="end"
             android:maxLines="2"
             android:text="Title"
-            android:textAppearance="?attr/textAppearanceBodyLarge"
-            android:textColor="?attr/colorOnSurface" />
+            android:textAppearance="?attr/textAppearanceBodyLarge" />
 
         <TextView
             android:id="@+id/subtitle_text"

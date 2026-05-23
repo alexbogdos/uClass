@@ -30,8 +30,7 @@
                 android:ellipsize="end"
                 android:maxLines="2"
                 android:text="Title"
-                android:textAppearance="?attr/textAppearanceBodyLarge"
-                android:textColor="?attr/colorOnSurface" />
+                android:textAppearance="?attr/textAppearanceBodyLarge" />
 
             <TextView
                 android:id="@+id/subtitle_text"
@@ -45,6 +44,7 @@
                 android:textColor="?attr/colorOnSurfaceVariant" />
         </LinearLayout>
 
+        <!-- Chat Button -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/button_chat"
             style="@style/Widget.Material3.Button.IconButton.Filled"
@@ -55,6 +55,7 @@
             app:icon="@drawable/ic_chat_bubble"
             app:iconGravity="textStart" />
 
+        <!-- Announcements Button -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/button_announcements"
             style="@style/Widget.Material3.Button.IconButton.Filled"

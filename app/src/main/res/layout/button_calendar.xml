@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_weight="1"
     android:gravity="center"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:context=".calendar.CalendarFragment">
 
+    <!-- Plain -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/plain"
         style="@style/Widget.Material3.Button.IconButton"
@@ -15,13 +18,14 @@
         android:padding="0dp"
         android:text="dd"
         android:textAppearance="?attr/textAppearanceBodyMedium"
-        android:textColor="?attr/colorOnSurfaceVariant"
+        android:textColor="?attr/colorOnSurface"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <!-- Filled -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/filled"
         style="@style/Widget.Material3.Button.IconButton.Filled"
@@ -36,6 +40,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <!-- Outlined -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/outlined"
         style="@style/Widget.Material3.Button.IconButton.Outlined"
@@ -44,7 +49,7 @@
         android:padding="0dp"
         android:text="dd"
         android:textAppearance="?attr/textAppearanceBodyMedium"
-        android:textColor="?attr/colorOnSurfaceVariant"
+        android:textColor="?attr/colorOnSurface"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -52,6 +57,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:strokeColor="?attr/colorPrimary" />
 
+    <!-- Badge -->
     <ImageView
         android:id="@+id/icon"
         android:layout_width="8dp"

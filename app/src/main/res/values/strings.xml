@@ -16,6 +16,10 @@
 
     <string name="new_announcement">Νέα Ανακοίνωση</string>
 
+    <!-- Login -->
+    <string name="username_label">Όνομα Χρήστη</string>
+    <string name="password_label">Συνθηματικό</string>
+
     <!-- Course Details -->
     <string name="assignments_label">Εργασίες</string>
     <string name="lecturer_label">Καθηγητής</string>
