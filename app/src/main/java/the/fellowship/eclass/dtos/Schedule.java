@@ -1,8 +1,11 @@
 package the.fellowship.eclass.dtos;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public abstract class Schedule {
+    // Semester's final day
+    public final static LocalDateTime end = LocalDateTime.of(2026, 5, 29, 23, 59);
     public final static List<Lesson> schedule = List.of(
             // 2nd Semester
             new Lesson("Μαθηματικά ΙΙ",                                                           new Occurrence("ΤΡ", "13-15", "Αμφ.Α"),     new Occurrence("ΠΕ", "11-13", "Αμφ.Α")),

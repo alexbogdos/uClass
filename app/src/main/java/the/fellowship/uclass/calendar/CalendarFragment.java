@@ -184,7 +184,7 @@ public class CalendarFragment extends Fragment {
         final int offset = week.getDayOfWeek().getValue() - 1;
         for (int i = 0; i < buttons.length; i++) {
             final int index = i;
-            boolean hasEvent = assignments.stream().anyMatch(assignment -> equals(week.plusDays(index - offset), assignment.getEnd())) || occurrences.stream().anyMatch(occurrence -> equals(week.plusDays(index - offset), occurrence.getStart(week.plusDays(index - offset))));
+            boolean hasEvent = assignments.stream().anyMatch(assignment -> equals(week.plusDays(index - offset), assignment.getEnd())) || occurrences.stream().anyMatch(occurrence -> equals(week.plusDays(index - offset), occurrence.getStart(week.plusDays(index - offset))) && occurrence.getStart(week.plusDays(index - offset)).isBefore(Schedule.end));
             buttons[i].icon.setVisibility(hasEvent ? View.VISIBLE : View.INVISIBLE);
         }
     }
@@ -192,7 +192,7 @@ public class CalendarFragment extends Fragment {
     private synchronized void populateEvents() {
         events.clear();
         events.addAll(assignments.stream().filter(assignment -> equals(selected, assignment.getEnd())).map(Event::new).collect(Collectors.toList()));
-        events.addAll(occurrences.stream().filter(occurrence -> equals(selected, occurrence.getStart(selected))).map(occurrence -> new Event(occurrence, selected)).collect(Collectors.toList()));
+        events.addAll(occurrences.stream().filter(occurrence -> equals(selected, occurrence.getStart(selected)) && occurrence.getStart(selected).isBefore(Schedule.end)).map(occurrence -> new Event(occurrence, selected)).collect(Collectors.toList()));
         events.sort(Comparator.comparing(Event::getDate));
         adapter.notifyDataSetChanged();
     }
