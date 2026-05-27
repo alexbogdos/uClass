@@ -52,7 +52,7 @@ public class AnnouncementsFragment extends Fragment implements AnnouncementsAdap
     }
 
     @Override
-    public void select(Announcement announcement) {
+    public void navigateToAnnouncement(Announcement announcement) {
         Bundle bundle = new Bundle();
         bundle.putInt(AnnouncementFragment.EXTRA_ANNOUNCEMENT_ID, announcement.getId());
 

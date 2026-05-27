@@ -137,7 +137,13 @@ public class EClass {
                 SharedPreferences.Editor editor = prefs.edit();
                 editor.putString("cache:courses", Json.encode(list));
                 editor.apply();
+            }).exceptionally(err -> {
+                postNotification("Αποτυχία σύνδεσης με το eclass.aueb.gr");
+                return null;
             });
+        }).exceptionally(err -> {
+            postNotification("Αποτυχία σύνδεσης με το eclass.aueb.gr");
+            return null;
         });
 
         fetchAnnouncements().thenAccept(list -> {
@@ -154,6 +160,9 @@ public class EClass {
             if (latestId > Announcement.getLatestId()) {
                 notification.postValue("Έχετε νέες ανακοινώσεις");
             }
+        }).exceptionally(err -> {
+            postNotification("Αποτυχία σύνδεσης με το eclass.aueb.gr");
+            return null;
         });
 
         fetchAssignments(LocalDateTime.now(), LocalDateTime.now().plusMonths(6)).thenAccept(list -> {
@@ -164,6 +173,9 @@ public class EClass {
             editor.putString("cache:assignments", Json.encode(list));
             editor.putInt("cache:assignments_latest_id", list.stream().max(Comparator.comparingInt(Assignment::getId)).get().getId());
             editor.apply();
+        }).exceptionally(err -> {
+            postNotification("Αποτυχία σύνδεσης με το eclass.aueb.gr");
+            return null;
         });
     }
 

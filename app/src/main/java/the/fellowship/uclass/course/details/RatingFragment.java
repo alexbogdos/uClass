@@ -70,14 +70,10 @@ public class RatingFragment extends Fragment {
 
                 //NavHostFragment.findNavController(RatingFragment.this).popBackStack();
 
-                if (getActivity() != null) {
-                    getActivity().runOnUiThread(() -> Snackbar.make(binding.getRoot(), "Η αξιολόγηση υποβλήθηκε με επιτυχία!", Snackbar.LENGTH_LONG).setTextMaxLines(16).setAction("Action", null).show());
-                }
+                UClass.eclass.postNotification("Η αξιολόγηση υποβλήθηκε με επιτυχία!");
                 Log.d("Rating", String.valueOf(message));
             } catch (ClientException err) {
-                if (getActivity() != null) {
-                    getActivity().runOnUiThread(() -> Snackbar.make(binding.getRoot(), String.format("Failed connecting to PocketBase: \n%s", err), Snackbar.LENGTH_LONG).setTextMaxLines(16).setAction("Action", null).show());
-                }
+                UClass.pocketbase.postNotification("Αποτυχία σύνδεσης με το διακομιστή");
                 Log.e("Chat", String.format("Failed connecting to PocketBase: \n%s", err));
             }
         });

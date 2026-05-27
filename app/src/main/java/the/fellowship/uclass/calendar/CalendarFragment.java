@@ -89,6 +89,7 @@ public class CalendarFragment extends Fragment {
     private void changeToDate(View view, int index) {
         if (getActivity() == null) {
             Log.e("Calendar", "Cannot use UI thread");
+            return;
         }
 
         getActivity().runOnUiThread(() -> {
@@ -118,6 +119,7 @@ public class CalendarFragment extends Fragment {
     private void populateCalendar() {
         if (getActivity() == null) {
             Log.e("Calendar", "Cannot use UI thread");
+            return;
         }
 
         final int offset = week.getDayOfWeek().getValue() - 1;
@@ -184,7 +186,8 @@ public class CalendarFragment extends Fragment {
         final int offset = week.getDayOfWeek().getValue() - 1;
         for (int i = 0; i < buttons.length; i++) {
             final int index = i;
-            boolean hasEvent = assignments.stream().anyMatch(assignment -> equals(week.plusDays(index - offset), assignment.getEnd())) || occurrences.stream().anyMatch(occurrence -> equals(week.plusDays(index - offset), occurrence.getStart(week.plusDays(index - offset))) && occurrence.getStart(week.plusDays(index - offset)).isBefore(Schedule.end));
+            final LocalDateTime eventDay = week.plusDays(index - offset);
+            boolean hasEvent = assignments.stream().anyMatch(assignment -> equals(eventDay, assignment.getEnd())) || occurrences.stream().anyMatch(occurrence -> equals(eventDay, occurrence.getStart(eventDay)) && occurrence.getStart(eventDay).isBefore(Schedule.end));
             buttons[i].icon.setVisibility(hasEvent ? View.VISIBLE : View.INVISIBLE);
         }
     }

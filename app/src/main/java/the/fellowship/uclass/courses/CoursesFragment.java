@@ -48,16 +48,6 @@ public class CoursesFragment extends Fragment implements CoursesAdapter.Selectio
         return binding.getRoot();
     }
 
-    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
-    }
-
     public void populateCourses(List<Course> courses) {
         if (getActivity() == null) {
             Log.e("CoursesFragment", "Cannot use UI Thread");
@@ -72,7 +62,7 @@ public class CoursesFragment extends Fragment implements CoursesAdapter.Selectio
     }
 
     @Override
-    public void select(Course course) {
+    public void navigateToDetails(Course course) {
         Bundle bundle = new Bundle();
         bundle.putString(CourseDetailsFragment.EXTRA_COURSE_ID, course.getId());
 
@@ -80,7 +70,7 @@ public class CoursesFragment extends Fragment implements CoursesAdapter.Selectio
     }
 
     @Override
-    public void navigateChat(Course course) {
+    public void navigateToChat(Course course) {
         Bundle bundle = new Bundle();
         bundle.putString(ChatFragment.EXTRA_COURSE_ID, course.getId());
 
@@ -88,10 +78,20 @@ public class CoursesFragment extends Fragment implements CoursesAdapter.Selectio
     }
 
     @Override
-    public void navigateAnnouncements(Course course) {
+    public void navigateToAnnouncements(Course course) {
         Bundle bundle = new Bundle();
         bundle.putString(AnnouncementsFragment.EXTRA_COURSE_ID, course.getId());
 
         NavHostFragment.findNavController(CoursesFragment.this).navigate(R.id.action_CoursesFragment_to_CourseAnnouncementsFragment, bundle);
+    }
+
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 }

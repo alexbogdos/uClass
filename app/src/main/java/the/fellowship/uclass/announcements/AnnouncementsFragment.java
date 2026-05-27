@@ -50,10 +50,6 @@ public class AnnouncementsFragment extends Fragment implements AnnouncementsAdap
         binding = null;
     }
 
-    public void navigateToAnnouncement(String courseId) {
-        Log.d("CoursesFragment", String.format("Navigate to: %s\n", courseId));
-    }
-
     public void populateAnnouncements(List<Announcement> announcements) {
         if (getActivity() == null) {
             Log.e("AnnouncementsFragment", "Cannot use UI Thread");
@@ -68,7 +64,7 @@ public class AnnouncementsFragment extends Fragment implements AnnouncementsAdap
     }
 
     @Override
-    public void select(Announcement announcement) {
+    public void navigateToAnnouncement(Announcement announcement) {
         Bundle bundle = new Bundle();
         bundle.putInt(AnnouncementFragment.EXTRA_ANNOUNCEMENT_ID, announcement.getId());
 

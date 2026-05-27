@@ -21,8 +21,6 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.material.snackbar.Snackbar;
-
 import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -48,7 +46,8 @@ import the.fellowship.uclass.databinding.FragmentChatBinding;
 
 public class ChatFragment extends Fragment implements ChatAdapter.SelectionListener {
     public static final String EXTRA_COURSE_ID = "EXTRA_COURSE_ID";
-    private static final int PICK_FILE = 2;
+    private static final int PICK_FILE = 1;
+    private static final int CAPTURE_IMAGE = 2;
 
     private List<RecordModel> items;
     private Course course;
@@ -78,22 +77,21 @@ public class ChatFragment extends Fragment implements ChatAdapter.SelectionListe
         fetchMessagesAsync();
         subscribeToTopicAsync();
 
-        binding.addButton.setOnClickListener(this::pickAttachments);
-        binding.sendButton.setOnClickListener(this::sendMessage);
+        binding.addButton.setOnClickListener(l -> pickIntent());
+        binding.sendButton.setOnClickListener(l -> sendMessage());
 
+        // On messageEdit focused, since the keyboard appears and hides last messages, scroll to last message
         binding.messageEdit.setOnFocusChangeListener((View v, boolean hasFocus) -> {
             if (hasFocus) scrollToPosition(items.size() - 1);
         });
+
+        // When starting to write, switch the "Attach Button" with the "Send Button"
         binding.messageEdit.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
 
             @Override
             public void afterTextChanged(Editable s) {
@@ -126,9 +124,7 @@ public class ChatFragment extends Fragment implements ChatAdapter.SelectionListe
                     Log.e("Chat", "Cannot use UI Thread");
                 }
             } catch (ClientException err) {
-                if (getActivity() != null) {
-                    getActivity().runOnUiThread(() -> Snackbar.make(binding.getRoot(), String.format("Failed connecting to PocketBase: \n%s", err), Snackbar.LENGTH_LONG).setTextMaxLines(16).setAction("Action", null).show());
-                }
+                UClass.pocketbase.postNotification("Αποτυχία σύνδεσης με το διακομιστή");
                 Log.e("Chat", String.format("Failed connecting to PocketBase: \n%s", err));
             }
         });
@@ -139,15 +135,13 @@ public class ChatFragment extends Fragment implements ChatAdapter.SelectionListe
             try {
                 UClass.pocketbase.getCollection("chat").subscribe("*", filter, this::receiveMessage);
             } catch (ClientException err) {
-                if (getActivity() != null) {
-                    getActivity().runOnUiThread(() -> Snackbar.make(binding.getRoot(), String.format("Failed connecting to PocketBase: \n%s", err), Snackbar.LENGTH_LONG).setTextMaxLines(16).setAction("Action", null).show());
-                }
+                UClass.pocketbase.postNotification("Αποτυχία σύνδεσης με το διακομιστή");
                 Log.e("Chat", String.format("Failed connecting to PocketBase: \n%s", err));
             }
         });
     }
 
-    private void sendMessage(View view) {
+    private void sendMessage() {
         String content = binding.messageEdit.getText().toString();
         FileDescriptor fileDescriptor = attachmentDescriptor;
         String fileName = attachmentName;
@@ -175,9 +169,7 @@ public class ChatFragment extends Fragment implements ChatAdapter.SelectionListe
                 }
                 final RecordModel message = UClass.pocketbase.getCollection("chat").create(body, files);
             } catch (ClientException err) {
-                if (getActivity() != null) {
-                    getActivity().runOnUiThread(() -> Snackbar.make(view, String.format("Failed connecting to PocketBase: \n%s", err), Snackbar.LENGTH_LONG).setTextMaxLines(16).setAction("Action", null).show());
-                }
+                UClass.pocketbase.postNotification("Αποτυχία σύνδεσης με το διακομιστή");
                 Log.e("Chat", String.format("Failed connecting to PocketBase: \n%s", err));
             }
         });
@@ -232,8 +224,18 @@ public class ChatFragment extends Fragment implements ChatAdapter.SelectionListe
         });
     }
 
-    // https://developer.android.com/training/data-storage/shared/documents-files
-    private void pickAttachments(View view) {
+    /**
+     *  Choose between selecting a file or capturing an image
+     */
+    private void pickIntent() {
+        // TODO: Pick between selection or image
+        pickAttachment();
+    }
+
+    /**
+     * https://developer.android.com/training/data-storage/shared/documents-files
+     */
+    private void pickAttachment() {
         attachmentDescriptor = null;
         attachmentName = null;
         binding.attachmentText.setVisibility(View.GONE);
@@ -255,6 +257,7 @@ public class ChatFragment extends Fragment implements ChatAdapter.SelectionListe
                 // Perform operations on the document using its URI.
                 Log.d("Chat", String.format("Selected: %s", uri));
                 try (Cursor cursor = binding.getRoot().getContext().getContentResolver().query(uri, new String[]{OpenableColumns.DISPLAY_NAME}, null, null, null)) {
+                    // Get file's name
                     if (cursor != null && cursor.moveToFirst()) {
                         int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
                         if (nameIndex != -1) {
@@ -262,15 +265,15 @@ public class ChatFragment extends Fragment implements ChatAdapter.SelectionListe
                         }
                     }
 
+                    // Get file's descriptor
                     ParcelFileDescriptor parcelDescriptor = binding.getRoot().getContext().getContentResolver().openFileDescriptor(uri, "r");
                     attachmentDescriptor = parcelDescriptor.getFileDescriptor();
 
+                    // Update UI to show selected attachment
                     binding.attachmentText.setText(attachmentName);
                     binding.attachmentText.setVisibility(View.VISIBLE);
                 } catch (NullPointerException | FileNotFoundException e) {
-                    if (getActivity() != null) {
-                        getActivity().runOnUiThread(() -> Snackbar.make(binding.getRoot(), String.format("Failed reading attachment: \n%s", e), Snackbar.LENGTH_LONG).setTextMaxLines(16).setAction("Action", null).show());
-                    }
+                    UClass.pocketbase.postNotification("Αποτυχία προσθήκης συννημένου");
                     Log.e("Chat", String.format("Failed reading attachment: \n%s", binding.getRoot()));
                 }
             }
@@ -285,51 +288,14 @@ public class ChatFragment extends Fragment implements ChatAdapter.SelectionListe
         }, 150);
     }
 
+    /**
+     * Use MediaStore.Downloads to create an empty file with the received file's name
+     * and write the response's InputBuffer to it.
+     * <br>
+     * https://developer.android.com/reference/android/provider/MediaStore.Downloads
+     */
     @Override
-    public void onResume() {
-        super.onResume();
-
-        Activity activity = getActivity();
-        if (activity instanceof MainActivity) {
-            activity.findViewById(R.id.bottom_navigation).setVisibility(View.INVISIBLE);
-        }
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-
-        Activity activity = getActivity();
-        if (activity instanceof MainActivity) {
-            activity.findViewById(R.id.bottom_navigation).setVisibility(View.VISIBLE);
-        }
-    }
-
-    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-
-        CompletableFuture.runAsync(() -> {
-            try {
-                UClass.pocketbase.getCollection("chat").unsubscribe("*");
-                Log.d("Chat", String.format("Unsubscribed from \"%s\"", course.getTitle()));
-            } catch (ClientException err) {
-                if (getActivity() != null) {
-                    getActivity().runOnUiThread(() -> Snackbar.make(binding.getRoot(), String.format("Failed connecting to PocketBase: \n%s", err), Snackbar.LENGTH_LONG).setTextMaxLines(16).setAction("Action", null).show());
-                }
-                Log.e("Chat", String.format("Failed connecting to PocketBase: \n%s", err));
-            }
-        });
-
-        binding = null;
-    }
-
-    @Override
-    public void select(View view, RecordModel record) {
+    public void downloadAttachment(View view, RecordModel record) {
         CompletableFuture.runAsync(() -> {
             try {
                 final String name = record.<String>getValue("file");
@@ -358,9 +324,7 @@ public class ChatFragment extends Fragment implements ChatAdapter.SelectionListe
                         }
 
                         // Notify user upon download completion
-                        if (getActivity() != null) {
-                            getActivity().runOnUiThread(() -> Snackbar.make(view, String.format("Downloaded: %s", name), Snackbar.LENGTH_LONG).setTextMaxLines(16).setAction("Action", null).show());
-                        }
+                        UClass.pocketbase.postNotification(String.format("Επιτυχής λήψη συννημένου: %s", name));
                         Log.d("Chat", String.format("Downloaded: %s", name));
                     } finally {
                         // Finalize initialized file
@@ -372,11 +336,59 @@ public class ChatFragment extends Fragment implements ChatAdapter.SelectionListe
                     throw new ClientException(url, e);
                 }
             } catch (ClientException err) {
-                if (getActivity() != null) {
-                    getActivity().runOnUiThread(() -> Snackbar.make(view, String.format("Failed downloading file: \n%s", err), Snackbar.LENGTH_LONG).setTextMaxLines(16).setAction("Action", null).show());
-                }
+                UClass.pocketbase.postNotification("Αποτυχία λήψης αρχείου");
                 Log.e("Chat", String.format("Failed downloading file: \n%s", err));
             }
         });
+    }
+
+    /**
+     * On screen enter: Hide bottom navigation bar to create space for the message edit
+     */
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        Activity activity = getActivity();
+        if (activity instanceof MainActivity) {
+            activity.findViewById(R.id.bottom_navigation).setVisibility(View.INVISIBLE);
+        }
+    }
+
+    /**
+     * On screen exit: Show bottom navigation bar
+     */
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        Activity activity = getActivity();
+        if (activity instanceof MainActivity) {
+            activity.findViewById(R.id.bottom_navigation).setVisibility(View.VISIBLE);
+        }
+    }
+
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+    }
+
+    /**
+     * Unsubscribe from SSE (Server Sent Events)
+     */
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+
+        CompletableFuture.runAsync(() -> {
+            try {
+                UClass.pocketbase.getCollection("chat").unsubscribe("*");
+                Log.d("Chat", String.format("Unsubscribed from \"%s\"", course.getTitle()));
+            } catch (ClientException err) {
+                UClass.pocketbase.postNotification("Αποτυχία σύνδεσης με το διακομιστή");
+                Log.e("Chat", String.format("Failed connecting to PocketBase: \n%s", err));
+            }
+        });
+
+        binding = null;
     }
 }

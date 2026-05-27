@@ -46,7 +46,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
         if (!file.isEmpty()) {
             holder.thumbnail.setVisibility(View.VISIBLE);
             holder.file.setText(file);
-            holder.thumbnail.setOnClickListener(v -> listener.select(v, message));
+            holder.thumbnail.setOnClickListener(v -> listener.downloadAttachment(v, message));
         } else {
             holder.thumbnail.setVisibility(View.GONE);
         }
@@ -58,7 +58,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
     }
 
     public interface SelectionListener {
-        void select(View view, RecordModel record);
+        void downloadAttachment(View view, RecordModel record);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

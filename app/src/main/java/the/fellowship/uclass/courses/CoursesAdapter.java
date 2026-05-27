@@ -37,10 +37,10 @@ public class CoursesAdapter extends RecyclerView.Adapter<CoursesAdapter.ViewHold
         holder.name.setText(String.valueOf(item.getTitle()));
         holder.subtitle.setText(String.valueOf(item.getLecturer().getName()));
 
-        holder.chat.setOnClickListener(view -> listener.navigateChat(item));
-        holder.announcements.setOnClickListener(view -> listener.navigateAnnouncements(item));
+        holder.chat.setOnClickListener(view -> listener.navigateToChat(item));
+        holder.announcements.setOnClickListener(view -> listener.navigateToAnnouncements(item));
 
-        holder.view.setOnClickListener(view -> listener.select(item));
+        holder.view.setOnClickListener(view -> listener.navigateToDetails(item));
     }
 
     @Override
@@ -49,9 +49,9 @@ public class CoursesAdapter extends RecyclerView.Adapter<CoursesAdapter.ViewHold
     }
 
     public interface SelectionListener {
-        void select(Course course);
-        void navigateChat(Course course);
-        void navigateAnnouncements(Course course);
+        void navigateToDetails(Course course);
+        void navigateToChat(Course course);
+        void navigateToAnnouncements(Course course);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

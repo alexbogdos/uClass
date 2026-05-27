@@ -38,7 +38,7 @@ public class AnnouncementsAdapter extends RecyclerView.Adapter<AnnouncementsAdap
         holder.subtitle.setText(item.getCourse());
         holder.date.setText(item.getDate());
         holder.star.setVisibility(item.getId() > Announcement.getLatestId() ? View.VISIBLE : View.GONE);
-        holder.view.setOnClickListener(view -> listener.select(item));
+        holder.view.setOnClickListener(view -> listener.navigateToAnnouncement(item));
     }
 
     @Override
@@ -47,7 +47,7 @@ public class AnnouncementsAdapter extends RecyclerView.Adapter<AnnouncementsAdap
     }
 
     public interface SelectionListener {
-        void select(Announcement announcement);
+        void navigateToAnnouncement(Announcement announcement);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

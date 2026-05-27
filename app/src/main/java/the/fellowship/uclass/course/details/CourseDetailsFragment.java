@@ -66,6 +66,7 @@ public class CourseDetailsFragment extends Fragment {
 
         UClass.eclass.fetchLecturerDetails(id).thenAccept(lec -> {
             if (getActivity() == null || binding == null) {
+                Log.e("Course", "Cannot use UI Thread");
                 return;
             }
 
@@ -118,9 +119,7 @@ public class CourseDetailsFragment extends Fragment {
                     Log.e("Chat", "Cannot use UI Thread");
                 }
             } catch (ClientException err) {
-                if (getActivity() != null) {
-                    getActivity().runOnUiThread(() -> Snackbar.make(binding.getRoot(), String.format("Failed connecting to PocketBase: \n%s", err), Snackbar.LENGTH_LONG).setTextMaxLines(16).setAction("Action", null).show());
-                }
+                UClass.pocketbase.postNotification("Αποτυχία σύνδεσης με το διακομιστή");
                 Log.e("Chat", String.format("Failed connecting to PocketBase: \n%s", err));
             }
         });
