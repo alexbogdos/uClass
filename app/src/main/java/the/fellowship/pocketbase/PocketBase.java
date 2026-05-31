@@ -92,26 +92,6 @@ public class PocketBase {
         this.lang = lang;
     }
 
-    /**
-     * Testing only.
-     */
-    public PocketBase(String baseURL, String lang, Interceptor interceptor) {
-        this.client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
-        this.baseURL = baseURL;
-        this.authStore = new AuthStore();
-        this.files = new FileService(this);
-        this.realtime = new RealtimeService(this);
-        this.lang = lang;
-    }
-
-    protected String getBaseURL() {
-        return baseURL;
-    }
-
-    protected String getLang() {
-        return lang;
-    }
-
     public AuthStore getAuthStore() {
         return authStore;
     }

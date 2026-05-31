@@ -69,26 +69,8 @@ public class EClass {
                 .build();
     }
 
-    /**
-     * Testing only.
-     */
-    protected EClass(String serviceURL, Interceptor interceptor) {
-        this.prefs = null;
-        this.service = serviceURL;
-        this.agent = UseAgentGenerator.generate();
-        this.sso = new EClassSSO(this);
-        this.httpClient = new OkHttpClient.Builder()
-                .cookieJar(new JavaNetCookieJar(new CookieManager()))
-                .addInterceptor(interceptor)
-                .build();
-    }
-
     public String getService() {
         return service;
-    }
-
-    protected EClassSSO getSSO() {
-        return sso;
     }
 
     public Course getCourse(String id) {
