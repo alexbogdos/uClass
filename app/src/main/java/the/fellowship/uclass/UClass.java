@@ -114,6 +114,7 @@ public class UClass extends AppCompatActivity {
                     });
                 })
                 .exceptionally(err -> {
+                    Log.e("Login", String.valueOf(err));
                     eclass.postNotification("Αποτυχία σύνδεσης με το eclass.aueb.gr");
                     return null;
                 });
@@ -129,6 +130,7 @@ public class UClass extends AppCompatActivity {
                 final RecordAuth auth = pocketbase.getCollection("users").authWithPassword(String.format("%s@aueb.gr", username), password);
                 Log.d("Login", String.format("Connected to PocketBase as \"%s\"", auth.getRecord().<String>getValue("name")));
             } catch (ClientException err) {
+                Log.e("Login", String.valueOf(err));
                 pocketbase.postNotification("Αποτυχία σύνδεσης με το διακομιστή");
             }
         });
